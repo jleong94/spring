@@ -1,0 +1,9 @@
+option batch abort
+option confirm off
+open sftp://{username}:{password}@{ip}:{port}/ -hostkey="ssh-rsa 2048 {hostkey}" -privatekey="{private key path}" -passphrase="{passphrase}" -rawsettings TryAgent=0
+option synchdelete off
+option transfer binary
+cd /{go to winscp path}
+put -filemask=">today" {system file path to put file into winscp}
+close
+exit
