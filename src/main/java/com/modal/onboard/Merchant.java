@@ -22,9 +22,15 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+@Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
+@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
+@NoArgsConstructor//Generates a constructor with no parameters
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Entity(name = "merchant")
 @Table(name = "merchant", schema = "appdb",
@@ -84,60 +90,4 @@ public class Merchant {
             this.modified_datetime = target_sdf.format(ori_sdf.parse(LocalDateTime.now().toString()));
         }
     }
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getMerchant_id() {
-		return merchant_id;
-	}
-
-	public void setMerchant_id(String merchant_id) {
-		this.merchant_id = merchant_id;
-	}
-
-	public String getCreated_datetime() {
-		return created_datetime;
-	}
-
-	public void setCreated_datetime(String created_datetime) {
-		this.created_datetime = created_datetime;
-	}
-
-	public String getModified_datetime() {
-		return modified_datetime;
-	}
-
-	public void setModified_datetime(String modified_datetime) {
-		this.modified_datetime = modified_datetime;
-	}
-
-	public String getMerchant_name() {
-		return merchant_name;
-	}
-
-	public void setMerchant_name(String merchant_name) {
-		this.merchant_name = merchant_name;
-	}
-
-	public String getDba_name() {
-		return dba_name;
-	}
-
-	public void setDba_name(String dba_name) {
-		this.dba_name = dba_name;
-	}
-
-	public UserStatusLookup getUserStatusLookup() {
-		return userStatusLookup;
-	}
-
-	public void setUserStatusLookup(UserStatusLookup userStatusLookup) {
-		this.userStatusLookup = userStatusLookup;
-	}
 }

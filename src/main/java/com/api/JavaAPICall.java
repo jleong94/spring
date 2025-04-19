@@ -26,6 +26,8 @@ import com.solab.iso8583.IsoType;
 import com.solab.iso8583.MessageFactory;
 import com.solab.iso8583.impl.SimpleTraceGenerator;
 
+import lombok.Cleanup;
+
 public class JavaAPICall {
 
 	public String httpClientApi(Connection connDB, Logger log, String logFolder) {
@@ -50,7 +52,7 @@ public class JavaAPICall {
 		                .setSocketTimeout(5 * 1000)//in miliseconds
 		                .setConnectionRequestTimeout(5 * 1000)//in miliseconds
 		                .build();
-				CloseableHttpClient httpClient = HttpClients.custom()
+				@Cleanup CloseableHttpClient httpClient = HttpClients.custom()
 		                .setDefaultRequestConfig(requestConfig)
 		                .build();
 				HttpPost httpRequest = new HttpPost(URL);
@@ -66,7 +68,7 @@ public class JavaAPICall {
 				for(Header header : httpRequest.getAllHeaders()) {
 					log.info(header.getName() + "(Request): " + header.getValue());
 				}
-				CloseableHttpResponse httpResponse = httpClient.execute(httpRequest);
+				@Cleanup CloseableHttpResponse httpResponse = httpClient.execute(httpRequest);
 				for(Header header : httpResponse.getAllHeaders()) {
 					log.info(header.getName() + "(Response): " + header.getValue());
 				}
@@ -80,7 +82,6 @@ public class JavaAPICall {
 //						objectMapper.readerForUpdating(Object.class).readValue(responseString);
 						responseJson = new JSONObject(responseString);
 					}
-					httpClient.close(); httpResponse.close();
 				} catch(Exception e) {
 					// Get the current stack trace element
 					StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
