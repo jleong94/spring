@@ -1,0 +1,46 @@
+name: Build & Release Spring Boot App  # Name of your GitHub Action workflow (you’ll see this on GitHub Actions tab)
+
+on:
+  push:
+    branches: [ "main", "master" ]     # Triggers when someone pushes code to 'main' or 'master' branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest             # This workflow runs in a fresh Ubuntu VM (GitHub-hosted)
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4        # Pulls your latest code into the VM so it can build it
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'        # Uses Eclipse Temurin JDK
+        java-version: '21'             # Set your desired Java version here
+
+    - name: Build with Maven
+      run: mvn clean package  # Builds the JAR file
+
+    - name: Upload JAR as GitHub Release Asset
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/*.jar            # Uploads the JAR file from Maven's output to the GitHub "Releases" section
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required auth to make the release
+
+    - name: Get the latest release URL
+      id: get_release
+      run: |
+        echo "RELEASE_URL=https://github.com/${{ github.repository }}/releases/latest/download/$(ls target/*.jar | xargs -n 1 basename)" >> $GITHUB_ENV
+        # Builds the actual download link to your new JAR and stores it in environment variable RELEASE_URL
+
+    - name: Update README with JAR link
+      run: |
+        sed -i '/Download latest build:/c\Download latest build: [Click here]('${RELEASE_URL}')' README.md
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add README.md
+        git commit -m "Update README with latest JAR link"
+        git push
+        # Replaces the download link in README.md using `sed`
+        # Commits and pushes the updated README back to the repo (so others can see the new JAR link)
