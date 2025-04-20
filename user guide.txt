@@ -22,3 +22,5 @@ Command(Spring):
 
 Lombok:
 Need to download the jar & click the jar to install at eclipse installation path.
+
+Github CI/CD yml file path for auto build: .github\workflows
