@@ -126,9 +126,9 @@ public class Rest_Auth {
 				oauth.setExpires_in(property.getJwt_token_expiration());
 				oauth.setToken_type(property.getJwt_token_type());
 				oauth.setAccess_token(jwtService.generateToken(oauth.getUsername(), (UserInfoDetails) authentication.getPrincipal()));
-				return ResponseEntity.status(HttpStatus.OK).body(new com.pojo.ApiResponse(0, tool.getTodayDateTimeInString(log), oauth));
+				return ResponseEntity.status(HttpStatus.OK).body(new com.pojo.ApiResponse(0, tool.getTodayDateTimeInString(), oauth));
 			} else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new com.pojo.ApiResponse(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code(), ResponseCode.UNAUTHORIZED_ACCESS.getResponse_desc(), tool.getTodayDateTimeInString(log)));
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new com.pojo.ApiResponse(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code(), ResponseCode.UNAUTHORIZED_ACCESS.getResponse_desc(), tool.getTodayDateTimeInString()));
 			}
 		} catch(Exception e) {
 			// Get the current stack trace element
@@ -145,7 +145,7 @@ public class Rest_Auth {
 					break;
 				}
 			}
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new com.pojo.ApiResponse(-2, e.getMessage(), tool.getTodayDateTimeInString(log)));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new com.pojo.ApiResponse(-2, e.getMessage(), tool.getTodayDateTimeInString()));
 		} finally {
 			log.info("Generate oauth token end...");
 			MDC.clear();

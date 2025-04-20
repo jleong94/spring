@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.enums.ResponseCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -81,7 +83,7 @@ public class Rest_EMail {
 	@RateLimit
 	@PostMapping(value = "v1/email/send", consumes = {"application/json"}, produces = "application/json")
 	@PreAuthorize("hasAnyRole('ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_write')")
-	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestHeader @NotBlank String ip, @RequestBody @Valid EMail email){
+	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestHeader @NotBlank String ip, @RequestBody @Valid EMail email, @RequestParam(required = false) MultipartFile[] upload_files){
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("Send email start...");
@@ -89,11 +91,12 @@ public class Rest_EMail {
 			log.info("Request: " + objectMapper.writeValueAsString(email));
 			logHttpRequest(request, log);
 			
-			email = emailService.sendEMail(log, email);
+			email = emailService.saveUploadFileToPath(upload_files, email);
+			email = emailService.sendEMail(email);
 			
 			return ResponseEntity.status(HttpStatus.OK).body(new com.pojo.ApiResponse(email.getIsSend() == 0 ? ResponseCode.SUCCESS.getResponse_code() : ResponseCode.EMAIL_FAILED_SENT.getResponse_code(), 
 					email.getIsSend() == 0 ? ResponseCode.SUCCESS.getResponse_desc() : ResponseCode.EMAIL_FAILED_SENT.getResponse_desc(), 
-					tool.getTodayDateTimeInString(log)));
+					tool.getTodayDateTimeInString()));
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -109,7 +112,7 @@ public class Rest_EMail {
 					break;
 				}
 			}
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new com.pojo.ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), ResponseCode.EMAIL_FAILED_SENT.getResponse_desc(), tool.getTodayDateTimeInString(log)));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new com.pojo.ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), ResponseCode.EMAIL_FAILED_SENT.getResponse_desc(), tool.getTodayDateTimeInString()));
 		} finally {
 			log.info("Send email end...");
 			MDC.clear();
@@ -126,7 +129,7 @@ public class Rest_EMail {
 		try {
 			logHttpRequest(request, log);
 
-			return ResponseEntity.status(HttpStatus.OK).body(emailService.getEMailDetailsByMail_id(log, mail_id));
+			return ResponseEntity.status(HttpStatus.OK).body(emailService.getEMailDetailsByMail_id(mail_id));
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -142,7 +145,7 @@ public class Rest_EMail {
 					break;
 				}
 			}
-    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), e.getMessage(), tool.getTodayDateTimeInString(log)));
+    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), e.getMessage(), tool.getTodayDateTimeInString()));
 		} finally {
 			log.info("Get sent email detail end...");
 			MDC.clear();

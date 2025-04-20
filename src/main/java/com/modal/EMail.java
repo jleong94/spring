@@ -63,14 +63,14 @@ public class EMail {
 	@NotNull(message = "Sender email is null.")
 	@NotBlank(message = "Sender email is blank.")
 	@Size(max = 255, message = "Sender email exceed 255 characters.")
-	@Column(name = "from", length = 255, nullable = false)
+	@Column(name = "sender", length = 255, nullable = false)
 	@JsonIgnore
-	private String from;
+	private String sender;
 	
 	@Size(max = 255, message = "Receiver email exceed 255 characters.")
-	@Column(name = "to", length = 255)
-	@JsonProperty(value= "to", access = Access.READ_WRITE)
-	private String to;
+	@Column(name = "receiver", length = 255)
+	@JsonProperty(value= "receiver", access = Access.READ_WRITE)
+	private String receiver;
 	
 	@Size(max = 255, message = "CC email exceed 255 characters.")
 	@Column(name = "cc", length = 255)
@@ -93,7 +93,7 @@ public class EMail {
 	private String body;
 	
 	@OneToMany(targetEntity = EMailAttachment.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER, mappedBy = "email")
-	@JsonProperty(value= "attachments", access = Access.READ_WRITE)
+	@JsonProperty(value= "attachments", access = Access.READ_ONLY)
 	private List<EMailAttachment> attachments;
 	
 	@Transient

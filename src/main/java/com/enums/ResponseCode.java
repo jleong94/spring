@@ -8,14 +8,11 @@ public enum ResponseCode {
 //	Transaction related case.
 	TXN_DECLINED(1, "Declined", "Transaction declined."),
 	TXN_PENDING(2, "Pending", "Transaction in progress."),
-//	Merchant related case.
-	MERCHANT_ONBOARD_FAILED(3, "Failed", "Failed to onboard merchant."),
-	INVALID_MERCHANT_ID(4, "Failed", "Invalid merchant id."),
 //	EMail related case.
-	SUCCESS_SENT_EMAIL(5, "Success", "EMail success sent."),
-	EMAIL_FAILED_SENT(6, "Failed", "EMail failed to sent. Kindly contact helpdesk support if issue still persist after mulitple times retry."),
-	SUCCESS_RETRIEVE_EMAIL_DETAIL(7, "Success", "Success retrieve email details."),
-	RETRIEVE_EMAIL_DETAIL_FAILED(8, "Failed", "Failed to retrieve email details. Kindly contact helpdesk support if issue still persist after mulitple times retry."),
+	SUCCESS_SENT_EMAIL(3, "Success", "EMail success sent."),
+	EMAIL_FAILED_SENT(4, "Failed", "EMail failed to sent. Kindly contact helpdesk support if issue still persist after mulitple times retry."),
+	SUCCESS_RETRIEVE_EMAIL_DETAIL(5, "Success", "Success retrieve email details."),
+	RETRIEVE_EMAIL_DETAIL_FAILED(6, "Failed", "Failed to retrieve email details. Kindly contact helpdesk support if issue still persist after mulitple times retry."),
 //	Geeneral status for all error case.
     ERROR_OCCURED(-1, "Failed", "Error Occured."),
     CATCHED_EXCEPTION(-2, "Failed", "Catched exception error."),

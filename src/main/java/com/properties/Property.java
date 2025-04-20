@@ -43,6 +43,9 @@ public class Property {
 	
 	@Value("${jwt.token.type}")
     private String jwt_token_type;
+
+	@Value("${smtp.mail}")
+    private String smtpMail;
 	
 	@Value("${smtp.host}")
     private String smtpHost;
@@ -61,4 +64,7 @@ public class Property {
 	
 	@Value("${smtp.ssl}")
     private boolean smtpSSL;
+	
+	@Value("${mail.upload.path}")
+    private String mail_upload_path;
 }

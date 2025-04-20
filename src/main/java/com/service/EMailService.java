@@ -2,10 +2,9 @@ package com.service;
 
 import java.io.File;
 import java.util.Properties;
-
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.modal.EMail;
 import com.modal.EMailAttachment;
@@ -34,11 +33,11 @@ public class EMailService {
 	
 	/*
 	 * Send email
-	 * @param log Logger instance for logging
 	 * @param email
 	 * */
-	public EMail sendEMail(Logger log, EMail email) throws Exception {
+	public EMail sendEMail(EMail email) throws Exception {
         try {
+        	email.setSender(property.getSmtpMail());
         	Properties properties = new Properties();
         	properties.put("mail.smtp.auth", "true");
         	properties.put("mail.smtp.host", property.getSmtpHost());
@@ -56,8 +55,8 @@ public class EMailService {
                 }
             });
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(email.getFrom()));
-            for (String to : email.getTo().split("[,;]")) {
+            message.setFrom(new InternetAddress(email.getSender()));
+            for (String to : email.getReceiver().split("[,;]")) {
                 message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
             }
             for (String cc : email.getCc().split("[,;]")) {
@@ -84,19 +83,25 @@ public class EMailService {
             Transport.send(message);
             email.setIsSend(1);
         } finally{
-            try {
-            	emailRepo.save(email);
-            }catch(Exception e) {}
+        	emailRepo.save(email);
         }
         return email;
     }
 	
 	/*
 	 * Get email details by mail_id
-	 * @param log Logger instance for logging
 	 * @param mail_id 
 	 * */
-	public ApiResponse getEMailDetailsByMail_id(Logger log, Long mail_id) {
+	public ApiResponse getEMailDetailsByMail_id(Long mail_id) {
         
     }
+	
+	public EMail saveUploadFileToPath(MultipartFile[] multipartFiles, EMail email) throws Exception {
+		for (MultipartFile multipartFile : multipartFiles) {
+			email.getAttachments().add(EMailAttachment.builder()
+					.file_path(tool.saveUploadFileToPath(multipartFile, property.getMail_upload_path()))
+					.build());
+		}
+		return email;
+	}
 }

@@ -1,7 +1,5 @@
 package com.exception;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,30 +25,28 @@ public class CustomExceptionHandler {
 	@Autowired
 	Tool tool;
 	
-	Logger log = LoggerFactory.getLogger(CustomExceptionHandler.class);
-	
 	@ExceptionHandler(RuntimeException.class)
 	public ResponseEntity<ApiResponse> runtimeException(RuntimeException e) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), e.getMessage(), tool.getTodayDateTimeInString(log)));
+				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), e.getMessage(), tool.getTodayDateTimeInString()));
 	}
 
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<ApiResponse> accessDeniedException(AccessDeniedException e) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), "Access denied.", tool.getTodayDateTimeInString(log)));
+				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), "Access denied.", tool.getTodayDateTimeInString()));
 	}
 
 	@ExceptionHandler(Forbidden.class)
 	public ResponseEntity<ApiResponse> forbidden(Forbidden e) {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), "Unauthrized access.", tool.getTodayDateTimeInString(log)));
+				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), "Unauthrized access.", tool.getTodayDateTimeInString()));
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse> exception(Exception e) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-				new ApiResponse(ResponseCode.ERROR_OCCURED.getResponse_code(), ResponseCode.ERROR_OCCURED.getResponse_desc(), tool.getTodayDateTimeInString(log)));
+				new ApiResponse(ResponseCode.ERROR_OCCURED.getResponse_code(), ResponseCode.ERROR_OCCURED.getResponse_desc(), tool.getTodayDateTimeInString()));
 	}
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -60,7 +56,7 @@ public class CustomExceptionHandler {
 				.findFirst()
 				.orElse("Validation failed");
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), errorMsg, tool.getTodayDateTimeInString(log)));
+				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), errorMsg, tool.getTodayDateTimeInString()));
 	}
 	
 	@ExceptionHandler(RateLimitExceededException.class)
@@ -69,6 +65,6 @@ public class CustomExceptionHandler {
                 .body(new ApiResponse(
                     ResponseCode.RATE_LIMIT_EXCEEDED.getResponse_code(),
                     e.getMessage(),
-                    tool.getTodayDateTimeInString(log)));
+                    tool.getTodayDateTimeInString()));
     }
 }

@@ -4,7 +4,7 @@ log.info("hello {}", "world"); in log file it print as hello world
  -->
 <configuration packagingData="true" debug="false" scan="true" scanPeriod="15 seconds">
 	<property resource="properties/System.properties"/>
-	<property name="LOG_DIR" value="/${project.log.name}/logs" />
+	<property name="LOG_DIR" value="${project.log.name}" />
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} %X{mdcId} - %msg%n</pattern>

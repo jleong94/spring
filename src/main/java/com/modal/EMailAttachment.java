@@ -36,10 +36,11 @@ public class EMailAttachment {
 	
 	@Size(max = 255, message = "Mail attachement file path exceed 255 characters.")
 	@Column(name = "file_path", length = 255)
-	@JsonProperty(value= "file_path", access = Access.WRITE_ONLY)
+	@JsonProperty(value= "file_path", access = Access.READ_ONLY)
 	private String file_path;
 	
 	@ManyToOne(targetEntity = EMail.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	@JoinColumn(name = "mail_id", referencedColumnName = "mail_id", unique = false, nullable = false)
+	@JsonIgnore
 	private EMail email;
 }
