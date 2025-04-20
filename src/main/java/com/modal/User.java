@@ -1,7 +1,13 @@
 package com.modal;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -45,6 +51,20 @@ public class User {
 	@Column(name = "id", nullable = false)
 	@JsonIgnore
 	private Long id;
+	
+	@CreationTimestamp
+    @Column(name = "created_datetime", nullable = false, updatable = false)
+	@JsonProperty(value= "created_datetime", access = Access.READ_ONLY)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+	private LocalDateTime created_datetime;
+	
+	@UpdateTimestamp
+	@Column(name = "modified_datetime")
+	@JsonProperty(value= "modified_datetime", access = Access.READ_ONLY)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+	private LocalDateTime modified_datetime;
 	
 	@JsonProperty(value= "username", access = Access.READ_WRITE)
 	@NotNull(message = "User name is null.")
