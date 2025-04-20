@@ -3,7 +3,7 @@
 log.info("hello {}", "world"); in log file it print as hello world
  -->
 <configuration packagingData="true" debug="false" scan="true" scanPeriod="15 seconds">
-	<property resource="properties/System.properties"/>
+	<property resource="properties/system.properties"/>
 	<property name="LOG_DIR" value="${project.log.name}" />
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
