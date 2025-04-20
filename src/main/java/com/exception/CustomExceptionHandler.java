@@ -27,26 +27,42 @@ public class CustomExceptionHandler {
 	
 	@ExceptionHandler(RuntimeException.class)
 	public ResponseEntity<ApiResponse> runtimeException(RuntimeException e) {
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), e.getMessage(), tool.getTodayDateTimeInString()));
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.CATCHED_EXCEPTION.getResponse_code())
+				.resp_msg(e.getMessage())
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
 	}
 
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<ApiResponse> accessDeniedException(AccessDeniedException e) {
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), "Access denied.", tool.getTodayDateTimeInString()));
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.CATCHED_EXCEPTION.getResponse_code())
+				.resp_msg("Access denied.")
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
 	}
 
 	@ExceptionHandler(Forbidden.class)
 	public ResponseEntity<ApiResponse> forbidden(Forbidden e) {
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), "Unauthrized access.", tool.getTodayDateTimeInString()));
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.CATCHED_EXCEPTION.getResponse_code())
+				.resp_msg("Unauthrized access.")
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse> exception(Exception e) {
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-				new ApiResponse(ResponseCode.ERROR_OCCURED.getResponse_code(), ResponseCode.ERROR_OCCURED.getResponse_desc(), tool.getTodayDateTimeInString()));
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.ERROR_OCCURED.getResponse_code())
+				.resp_msg(ResponseCode.ERROR_OCCURED.getResponse_desc())
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
 	}
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -55,16 +71,21 @@ public class CustomExceptionHandler {
 				.map(FieldError::getDefaultMessage)
 				.findFirst()
 				.orElse("Validation failed");
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), errorMsg, tool.getTodayDateTimeInString()));
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.CATCHED_EXCEPTION.getResponse_code())
+				.resp_msg(errorMsg)
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
 	}
 	
 	@ExceptionHandler(RateLimitExceededException.class)
     public ResponseEntity<ApiResponse> handleRateLimitExceeded(RateLimitExceededException e) {
-        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                .body(new ApiResponse(
-                    ResponseCode.RATE_LIMIT_EXCEEDED.getResponse_code(),
-                    e.getMessage(),
-                    tool.getTodayDateTimeInString()));
+		return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.RATE_LIMIT_EXCEEDED.getResponse_code())
+				.resp_msg(e.getMessage())
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
     }
 }

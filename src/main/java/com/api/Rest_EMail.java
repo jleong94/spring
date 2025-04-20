@@ -93,9 +93,12 @@ public class Rest_EMail {
 			email = emailService.saveUploadFileToPath(upload_files, email);
 			email = emailService.sendEMail(email);
 			
-			return ResponseEntity.status(HttpStatus.OK).body(new com.pojo.ApiResponse(email.getIsSend() == 0 ? ResponseCode.SUCCESS.getResponse_code() : ResponseCode.EMAIL_FAILED_SENT.getResponse_code(), 
-					email.getIsSend() == 0 ? ResponseCode.SUCCESS.getResponse_desc() : ResponseCode.EMAIL_FAILED_SENT.getResponse_desc(), 
-					tool.getTodayDateTimeInString()));
+			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
+					.builder()
+					.resp_code(email.getIsSend() == 1 ? ResponseCode.SUCCESS.getResponse_code() : ResponseCode.EMAIL_FAILED_SENT.getResponse_code())
+					.resp_msg(email.getIsSend() == 1 ? ResponseCode.SUCCESS.getResponse_desc() : ResponseCode.EMAIL_FAILED_SENT.getResponse_desc())
+					.datetime(tool.getTodayDateTimeInString())
+					.build());
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -111,7 +114,12 @@ public class Rest_EMail {
 					break;
 				}
 			}
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new com.pojo.ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), ResponseCode.EMAIL_FAILED_SENT.getResponse_desc(), tool.getTodayDateTimeInString()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
+					.builder()
+					.resp_code(ResponseCode.CATCHED_EXCEPTION.getResponse_code())
+					.resp_msg(e.getMessage())
+					.datetime(tool.getTodayDateTimeInString())
+					.build());
 		} finally {
 			log.info("Send email end...");
 			MDC.clear();
@@ -143,7 +151,12 @@ public class Rest_EMail {
 					break;
 				}
 			}
-    		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), e.getMessage(), tool.getTodayDateTimeInString()));
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
+					.builder()
+					.resp_code(ResponseCode.CATCHED_EXCEPTION.getResponse_code())
+					.resp_msg(e.getMessage())
+					.datetime(tool.getTodayDateTimeInString())
+					.build());
 		} finally {
 			log.info("Get sent email detail end...");
 			MDC.clear();

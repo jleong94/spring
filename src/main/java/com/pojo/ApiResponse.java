@@ -28,25 +28,4 @@ public class ApiResponse {
 	
 	@JsonProperty(value= "email", access = Access.READ_ONLY)
 	private EMail email;
-
-	public ApiResponse(int resp_code, String resp_msg, String datetime) {
-		super();
-		this.resp_code = resp_code;
-		this.resp_msg = resp_msg;
-		this.datetime = datetime;
-	}
-
-	public ApiResponse(int resp_code, String datetime, OAuth oauth) {
-		super();
-		this.resp_code = resp_code;
-		this.datetime = datetime;
-		this.oauth = oauth;
-	}
-
-	public ApiResponse(int resp_code, String datetime, EMail email) {
-		super();
-		this.resp_code = resp_code;
-		this.datetime = datetime;
-		this.email = email;
-	}
 }
