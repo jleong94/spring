@@ -22,8 +22,8 @@
      - [x] Get datetime in format, **yyyy-MM-dd'T'HH:mm:ss.SSS**
      - [x] General base method
      - [x] Error exception handling
-     - [x] Merchant onboard API(May remove it, just write for fun) :x:
-     - [x] Multi thread 
+     - [x] Multi thread
+     - [x] Send mail api  
 > [!NOTE]
 > You may contribute to this project:
 > - If you think that there are base method/service that will frequence code in your daily work task.
