@@ -125,7 +125,7 @@ public class Tool {
 		return targetPath.toAbsolutePath().toString();
 	}
 
-	public Object methodName(Connection connDB, Logger log, String logFolder) {
+	public Object methodName(Connection connDB, Logger log, String logFolder) throws Exception {
 		String result = "";
 		boolean wasNull = false;
 		String sql = "";
@@ -138,22 +138,7 @@ public class Tool {
 			ps = connDB.prepareStatement(sql);
 			ps.setString(count++, "");
 
-		} catch(Exception e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-		} finally{
+		} finally {
 			try {
 				if(ps != null) {ps.close();} if(rs != null) {rs.close();}
 				if(wasNull && connDB != null) {connDB.close();}
