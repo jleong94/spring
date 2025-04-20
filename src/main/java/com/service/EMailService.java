@@ -1,7 +1,6 @@
 package com.service;
 
 import java.io.File;
-import java.util.Optional;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.modal.EMail;
 import com.modal.EMailAttachment;
+import com.pojo.ApiResponse;
 import com.properties.Property;
 import com.repo.EMailRepo;
 import com.utilities.Tool;
@@ -35,9 +35,9 @@ public class EMailService {
 	/*
 	 * Send email
 	 * @param log Logger instance for logging
-	 * @param email request body
+	 * @param email
 	 * */
-	public EMail sendEMail(Logger log, EMail email) {
+	public EMail sendEMail(Logger log, EMail email) throws Exception {
         try {
         	Properties properties = new Properties();
         	properties.put("mail.smtp.auth", "true");
@@ -83,21 +83,6 @@ public class EMailService {
             message.setContent(multipart);
             Transport.send(message);
             email.setIsSend(1);
-        } catch(Exception e) {
-        	// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
         } finally{
             try {
             	emailRepo.save(email);
@@ -109,31 +94,9 @@ public class EMailService {
 	/*
 	 * Get email details by mail_id
 	 * @param log Logger instance for logging
-	 * @param mail_id request body
+	 * @param mail_id 
 	 * */
-	public Optional<EMail> sendEMail(Logger log, Long mail_id) {
-        try {
-        	
-        } catch(Exception e) {
-        	// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-        } finally{
-            try {
-            	
-            }catch(Exception e) {}
-        }
-        return null;
+	public ApiResponse getEMailDetailsByMail_id(Logger log, Long mail_id) {
+        
     }
 }

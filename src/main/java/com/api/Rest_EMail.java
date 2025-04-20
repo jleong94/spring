@@ -10,11 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
@@ -128,7 +126,7 @@ public class Rest_EMail {
 		try {
 			logHttpRequest(request, log);
 
-			return ResponseEntity.status(HttpStatus.OK).body();
+			return ResponseEntity.status(HttpStatus.OK).body(emailService.getEMailDetailsByMail_id(log, mail_id));
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -146,7 +144,7 @@ public class Rest_EMail {
 			}
     		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(ResponseCode.CATCHED_EXCEPTION.getResponse_code(), e.getMessage(), tool.getTodayDateTimeInString(log)));
 		} finally {
-			log.info("Get sent email end...");
+			log.info("Get sent email detail end...");
 			MDC.clear();
 		}
 	}
