@@ -1,7 +1,6 @@
 # Spring Boot project(JDK 21)
 ## Purpose:
   - Dev can clone & duplicate this project as **NEW** fully workable base project
-****
 ### Base method/service: 
   1. Security:
      - OAuth:
@@ -20,11 +19,12 @@
   6. Other:
      - [x] Synchronize file from SFTP using SSH client
      - [x] Get datetime in format, **yyyy-MM-dd'T'HH:mm:ss.SSS**
-     - [x] General base method
      - [x] Error exception handling
      - [x] Multi thread
-     - [x] Send mail api  
+     - [x] Send mail api
+
 > [!NOTE]
 > You may contribute to this project:
-> - If you think that there are base method/service that will frequence code in your daily work task.
 > - Improve security of this project.
+
+Download latest build: [Click here](placeholder)
