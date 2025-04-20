@@ -45,25 +45,25 @@ public class Property {
     private String jwt_token_type;
 
 	@Value("${smtp.mail}")
-    private String smtpMail;
+    private String smtp_mail;
 	
 	@Value("${smtp.host}")
-    private String smtpHost;
+    private String smtp_host;
 	
 	@Value("${smtp.port}")
     private int smtpPort;
 	
 	@Value("${smtp.username}")
-    private String smtpUsername;
+    private String smtp_username;
 	
 	@Value("${smtp.password}")
-    private String smtpPassword;
+    private String smtp_password;
 	
 	@Value("${smtp.tls}")
-    private boolean smtpTLS;
+    private boolean smtp_tls;
 	
 	@Value("${smtp.ssl}")
-    private boolean smtpSSL;
+    private boolean smtp_ssl;
 	
 	@Value("${mail.upload.path}")
     private String mail_upload_path;

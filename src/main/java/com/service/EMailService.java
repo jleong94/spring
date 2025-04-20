@@ -3,9 +3,11 @@ package com.service;
 import java.io.File;
 import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.enums.ResponseCode;
 import com.modal.EMail;
 import com.modal.EMailAttachment;
 import com.pojo.ApiResponse;
@@ -37,21 +39,21 @@ public class EMailService {
 	 * */
 	public EMail sendEMail(EMail email) throws Exception {
         try {
-        	email.setSender(property.getSmtpMail());
+        	email.setSender(property.getSmtp_mail());
         	Properties properties = new Properties();
         	properties.put("mail.smtp.auth", "true");
-        	properties.put("mail.smtp.host", property.getSmtpHost());
+        	properties.put("mail.smtp.host", property.getSmtp_host());
         	properties.put("mail.smtp.port", property.getSmtpPort());
-        	if (property.isSmtpSSL()) {
+        	if (property.isSmtp_ssl()) {
         		properties.put("mail.smtp.socketFactory.port", property.getSmtpPort());
         		properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            } if (property.isSmtpTLS()) {
+            } if (property.isSmtp_tls()) {
             	properties.put("mail.smtp.starttls.enable", "true");
             }
             Session session = Session.getInstance(properties, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(property.getSmtpUsername(), property.getSmtpPassword());
+                    return new PasswordAuthentication(property.getSmtp_username(), property.getSmtp_password());
                 }
             });
             Message message = new MimeMessage(session);
@@ -92,9 +94,13 @@ public class EMailService {
 	 * Get email details by mail_id
 	 * @param mail_id 
 	 * */
-	public ApiResponse getEMailDetailsByMail_id(Long mail_id) {
-        
-    }
+	public ApiResponse getMerchantDetailByMerchant_Id(Long mail_id) {
+		return ApiResponse.builder().resp_code(ResponseCode.SUCCESS_RETRIEVE_EMAIL_DETAIL.getResponse_code())
+				.resp_msg(ResponseCode.SUCCESS_RETRIEVE_EMAIL_DETAIL.getResponse_desc())
+				.datetime(tool.getTodayDateTimeInString())
+				.email(emailRepo.findById(mail_id).orElseThrow(() -> new UsernameNotFoundException("EMail details not found for mail id: " + mail_id)))
+				.build();
+	}
 	
 	public EMail saveUploadFileToPath(MultipartFile[] multipartFiles, EMail email) throws Exception {
 		for (MultipartFile multipartFile : multipartFiles) {

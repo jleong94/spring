@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.sql.Connection;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -30,20 +29,15 @@ import lombok.Cleanup;
 
 public class JavaAPICall {
 
-	public String httpClientApi(Connection connDB, Logger log, String logFolder) {
+	public String httpClientApi(Logger log, String logFolder) {
 		String result = "";
 		String URL = "";
 		JSONObject requestJson = null, responseJson = null;
-		boolean wasNull = true;
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JavaTimeModule());
 		try {
-			if(connDB == null) {
-				//connDB = ; wasNull = false;
-			}           
-
 			log.info("URL: " + URL);
-			if(requestJson != null) {log.info("Request: " + requestJson.toString());}
+			log.info("Request: " + requestJson.toString());
 			if(!URL.isEmpty()){
 				/*List<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("", ));*/
@@ -131,13 +125,13 @@ public class JavaAPICall {
 			}
 		} finally {
 			try {
-				if(!wasNull && connDB != null){connDB.close(); connDB = null;}
+				
 			}catch(Exception e) {}
 		}
 		return result;
 	}
 	
-	public String iso8583Api(Connection connDB, Logger log, String logFolder) {
+	public String iso8583Api(Logger log, String logFolder) {
 		String result = "";
 		String ip = "";
 		int port = 0;
@@ -145,10 +139,7 @@ public class JavaAPICall {
 		Socket socket;
 		OutputStream outputStream;
 		InputStream inputStream;
-		try {
-			if(connDB == null) {
-				//connDB = ; wasNull = false;
-			}           
+		try {           
 			log.info("IP: " + ip);
 			log.info("PORT: " + port);
 			// Create a new MessageFactory
@@ -221,7 +212,7 @@ public class JavaAPICall {
 			}
 		} finally {
 			try {
-				if(!wasNull && connDB != null){connDB.close(); connDB = null;}
+				
 			}catch(Exception e) {}
 		}
 		return result;

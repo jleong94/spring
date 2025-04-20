@@ -1,7 +1,6 @@
 
 package com.api;
 
-import java.sql.Connection;
 import java.util.Enumeration;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -96,11 +95,9 @@ public class RestJaxRxApi {
 			@PathParam("x3") @DefaultValue("") String x3,// /token/{x3}			
 			@FormParam("x4") @DefaultValue("") String x4,//Values from form submission
 			String x) {
-		Connection connDB = null;
 		Status httpStatus = Status.OK;
 		JSONObject requestJson = null, responseJson = null;
 		try {
-			if(connDB == null) {/*connDB = ; wasNull = true;*/}
 			logHttpRequest(request, log);
 			log.info("x(request): " + x);
 			requestJson = new JSONObject(x);
@@ -122,7 +119,7 @@ public class RestJaxRxApi {
 			}
 		} finally{
 			try {
-				if(connDB != null) {connDB.close(); connDB = null;}
+				
 			} catch(Exception e) {}
 		}
 		return Response.status(httpStatus).entity(responseJson.toString()).build();

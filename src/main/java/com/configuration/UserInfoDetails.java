@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.modal.User;
 
 /*
- * Re-implement UserDetails will auto call by spring security or application logic
+ * Re-implement UserDetails will auto call by spring authentication/authorization or application logic
  * */
 public class UserInfoDetails implements UserDetails {
 

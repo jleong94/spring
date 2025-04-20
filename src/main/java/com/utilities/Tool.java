@@ -7,9 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.PublicKey;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -123,27 +120,5 @@ public class Tool {
 		Path targetPath = uploadDir.resolve(filename);
 		Files.copy(multipartFile.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 		return targetPath.toAbsolutePath().toString();
-	}
-
-	public Object methodName(Connection connDB, Logger log, String logFolder) throws Exception {
-		String result = "";
-		boolean wasNull = false;
-		String sql = "";
-		int count = 1;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			/*if(connDB == null) {connDB = ; wasNull = true;}*/
-			sql += " ";
-			ps = connDB.prepareStatement(sql);
-			ps.setString(count++, "");
-
-		} finally {
-			try {
-				if(ps != null) {ps.close();} if(rs != null) {rs.close();}
-				if(wasNull && connDB != null) {connDB.close();}
-			}catch(Exception e) {}
-		}
-		return result;
 	}
 }

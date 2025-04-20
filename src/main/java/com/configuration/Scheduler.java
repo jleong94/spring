@@ -1,6 +1,5 @@
 package com.configuration;
 
-import java.sql.Connection;
 import java.util.UUID;
 
 import org.jboss.logging.MDC;
@@ -41,12 +40,8 @@ public class Scheduler {
 	@Async
 	@Scheduled(fixedRate = (1 * 60 * 60 * 1000))//Run every 5 seconds
 	public void sampleTask() {
-        Connection connDB = null;
         MDC.put("mdcId", UUID.randomUUID());
 		try {
-        	if(connDB == null) {
-                //connDB = ; //Get DB connection
-            }
         	JobParameters parameters = new JobParametersBuilder()
         			.toJobParameters();
         	jobLauncher.run(job, parameters);
@@ -79,12 +74,8 @@ public class Scheduler {
 	@Async
 	@Scheduled(cron = "*/3600 * * * * *", zone = "Asia/Kuala_Lumpur") 
 	public void sampleTask2() {
-        Connection connDB = null;
         MDC.put("mdcId", UUID.randomUUID());
 		try {
-        	if(connDB == null) {
-                //connDB = ; //Get DB connection
-            }
         	/*for(int i = 0; i < 20; i ++) {
         		log.info("sampleTask2 message " + i);
         	}*/

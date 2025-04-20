@@ -14,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.configuration.UserInfoDetails;
@@ -29,7 +28,6 @@ import com.validation.RateLimit;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 
 @RestController
 public class Rest_Auth {
@@ -91,7 +89,6 @@ public class Rest_Auth {
 	 * OAuth 2.0 token endpoint that handles user authentication and token generation.
 	 * 
 	 * @param request The HTTP servlet request object
-	 * @param ip Client IP address passed as a required header
 	 * @param oauth OAuth request body containing username, password and token parameters
 	 * @return ResponseEntity with:
 	 *         - Status 200 & token details if authentication successful
@@ -112,7 +109,7 @@ public class Rest_Auth {
 	 */
 	@RateLimit
 	@PostMapping(value = "v1/oauth-token", consumes = {"application/json"}, produces = "application/json")
-	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestHeader @NotBlank String ip, @RequestBody @Valid OAuth oauth){
+	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Valid OAuth oauth){
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("Generate oauth token start...");

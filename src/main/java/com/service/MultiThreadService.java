@@ -1,6 +1,5 @@
 package com.service;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -26,20 +25,17 @@ public class MultiThreadService {
     @Autowired
     Tool tool;
 	
-	public long sampleServiceThread(Connection connDB, Logger log, String logFolder, int num_threads) {
+	public long sampleServiceThread(Logger log, String logFolder, int num_threads) {
     	long result = 0L;
     	ExecutorService executorService;
     	List<Future<?>> futures = new ArrayList<>();
     	MDC.put("mdcId", UUID.randomUUID());
 		try {
-        	if(connDB == null) {
-                //connDB = ; //Get DB connection
-            }
         	executorService = Executors.newFixedThreadPool(num_threads);
         	Tool tool = applicationContext.getBean(Tool.class);
         	MultiThreadService sampleService = applicationContext.getBean(MultiThreadService.class);
         	for(int i = 0; i < num_threads; i++) {
-        		Runnable runnable = new SampleServiceThread(logFolder, tool, sampleService);
+        		Runnable runnable = new SampleServiceThread(logFolder, i + 1, tool, sampleService);
         		Future<?> future = executorService.submit(runnable);
                 futures.add(future);
         	}
@@ -71,11 +67,13 @@ public class MultiThreadService {
 		
 		Logger log = LoggerFactory.getLogger(SampleServiceThread.class);
 
+		int thread_no;
 		Tool tool;
 		MultiThreadService sampleService;
 		String logFolder;
 
-		SampleServiceThread(String logFolder, Tool tool, MultiThreadService sampleService){
+		SampleServiceThread(String logFolder, int thread_no, Tool tool, MultiThreadService sampleService){
+			this.thread_no = thread_no;
 			this.logFolder = logFolder;
 			this.tool = tool;
 			this.sampleService = sampleService;
@@ -83,7 +81,7 @@ public class MultiThreadService {
 
 		@Override
 		public void run() {
-			log.info("START thread process...");
+			log.info("START thread process at thread no. " + this.thread_no + "...");
 			MDC.put("mdcId", UUID.randomUUID());
 			try {
 				
@@ -103,7 +101,7 @@ public class MultiThreadService {
 					}
 				}
 	        } finally{
-				log.info("END thread process...");
+				log.info("END thread process at thread no. " + this.thread_no + "...");
 				MDC.clear();
 			}
 		}

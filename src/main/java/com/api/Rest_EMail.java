@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -83,7 +82,7 @@ public class Rest_EMail {
 	@RateLimit
 	@PostMapping(value = "v1/email/send", consumes = {"application/json"}, produces = "application/json")
 	@PreAuthorize("hasAnyRole('ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_write')")
-	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestHeader @NotBlank String ip, @RequestBody @Valid EMail email, @RequestParam(required = false) MultipartFile[] upload_files){
+	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Valid EMail email, @RequestParam(required = false) MultipartFile[] upload_files){
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("Send email start...");
@@ -122,14 +121,13 @@ public class Rest_EMail {
 	@RateLimit
 	@GetMapping(value = "v1/email/check/{mail_id}", produces = "application/json")
 	@PreAuthorize("hasAnyRole('ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_read')")
-	public ResponseEntity<ApiResponse> getMerchantDetailByMerchant_Id(HttpServletRequest request, @RequestHeader @NotBlank String ip, 
-			@PathVariable @NotBlank Long mail_id){
+	public ResponseEntity<ApiResponse> getMerchantDetailByMerchant_Id(HttpServletRequest request, @PathVariable @NotBlank Long mail_id){
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("Get sent email detail start...");
 		try {
 			logHttpRequest(request, log);
 
-			return ResponseEntity.status(HttpStatus.OK).body(emailService.getEMailDetailsByMail_id(mail_id));
+			return ResponseEntity.status(HttpStatus.OK).body(emailService.getMerchantDetailByMerchant_Id(mail_id));
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
