@@ -1,4 +1,4 @@
-# Spring Boot project(JDK 21)
+# Spring Boot project(JAVA JDK 21 + MySQL)
 ## Purpose:
   - Dev can clone & duplicate this project as **NEW** fully workable base project
 ### Base method/service: 
