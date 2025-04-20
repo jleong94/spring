@@ -2,10 +2,11 @@ name: Build & Release Spring Boot App  # Name of your GitHub Action workflow (yo
 
 on:
   push:
-    branches: [ "main", "master" ]     # Triggers when someone pushes code to 'main' or 'master' branch
+    branches: ["main", "master"]     # Triggers when someone pushes code to 'main' or 'master' branch
 
 jobs:
   build:
+    if: github.ref_name == 'main' || github.ref_name == 'master'
     runs-on: ubuntu-latest             # This workflow runs in a fresh Ubuntu VM (GitHub-hosted)
 
     steps:
