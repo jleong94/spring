@@ -184,6 +184,18 @@
 			<version>31.1-jre</version>
 		</dependency>
 		<!-- Google Guava -->
+		
+		<!-- Mail -->
+		<dependency>
+		    <groupId>jakarta.mail</groupId>
+		    <artifactId>jakarta.mail-api</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>com.sun.mail</groupId>
+		    <artifactId>jakarta.mail</artifactId>
+		    <version>2.0.1</version>
+		</dependency>
+		<!-- Mail -->
 	</dependencies>
 	<!-- Proj dependencies -->
 
