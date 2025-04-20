@@ -1,4 +1,4 @@
-package com.api.auth;
+package com.api;
 
 import java.util.Enumeration;
 import java.util.UUID;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.configuration.UserInfoDetails;
+import com.enums.ResponseCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pojo.ApiResponse;
 import com.pojo.OAuth;
@@ -127,7 +128,7 @@ public class Rest_Auth {
 				oauth.setAccess_token(jwtService.generateToken(oauth.getUsername(), (UserInfoDetails) authentication.getPrincipal()));
 				return ResponseEntity.status(HttpStatus.OK).body(new com.pojo.ApiResponse(0, tool.getTodayDateTimeInString(log), oauth));
 			} else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new com.pojo.ApiResponse(-3, tool.getTodayDateTimeInString(log)));
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new com.pojo.ApiResponse(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code(), ResponseCode.UNAUTHORIZED_ACCESS.getResponse_desc(), tool.getTodayDateTimeInString(log)));
 			}
 		} catch(Exception e) {
 			// Get the current stack trace element

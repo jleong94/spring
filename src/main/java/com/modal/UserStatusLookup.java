@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.modal.onboard.Merchant;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,10 +43,6 @@ public class UserStatusLookup {
 	@JsonProperty(value= "status_name", access = Access.READ_ONLY)
 	@Column(name = "status_name", nullable = false, length = 20, unique = true)
 	private String status_name;
-	
-	@JsonIgnore
-	@OneToMany(targetEntity = Merchant.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER, mappedBy = "userStatusLookup")
-    private List<Merchant> merchant;
 	
 	@JsonIgnore
 	@OneToMany(targetEntity = User.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER, mappedBy = "userStatusLookup")

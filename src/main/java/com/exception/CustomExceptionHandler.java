@@ -50,7 +50,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse> exception(Exception e) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-				new ApiResponse(ResponseCode.ERROR_OCCURED.getResponse_code(), tool.getTodayDateTimeInString(log)));
+				new ApiResponse(ResponseCode.ERROR_OCCURED.getResponse_code(), ResponseCode.ERROR_OCCURED.getResponse_desc(), tool.getTodayDateTimeInString(log)));
 	}
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
