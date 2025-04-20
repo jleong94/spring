@@ -26,3 +26,5 @@
 > [!NOTE]
 > You may contribute to this project:
 > - Improve security of this project.
+
+Download latest build: [Click here](placeholder)
