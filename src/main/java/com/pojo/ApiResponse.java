@@ -3,6 +3,7 @@ package com.pojo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.modal.EMail;
 
 import lombok.*;
 
@@ -24,6 +25,9 @@ public class ApiResponse {
 	
 	@JsonProperty(value= "oauth", access = Access.READ_ONLY)
 	private OAuth oauth;
+	
+	@JsonProperty(value= "email", access = Access.READ_ONLY)
+	private EMail email;
 
 	public ApiResponse(int resp_code, String resp_msg, String datetime) {
 		super();
@@ -37,5 +41,12 @@ public class ApiResponse {
 		this.resp_code = resp_code;
 		this.datetime = datetime;
 		this.oauth = oauth;
+	}
+
+	public ApiResponse(int resp_code, String datetime, EMail email) {
+		super();
+		this.resp_code = resp_code;
+		this.datetime = datetime;
+		this.email = email;
 	}
 }

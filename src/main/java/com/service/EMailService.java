@@ -1,6 +1,7 @@
 package com.service;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -103,5 +104,36 @@ public class EMailService {
             }catch(Exception e) {}
         }
         return email;
+    }
+	
+	/*
+	 * Get email details by mail_id
+	 * @param log Logger instance for logging
+	 * @param mail_id request body
+	 * */
+	public Optional<EMail> sendEMail(Logger log, Long mail_id) {
+        try {
+        	
+        } catch(Exception e) {
+        	// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+        } finally{
+            try {
+            	
+            }catch(Exception e) {}
+        }
+        return null;
     }
 }

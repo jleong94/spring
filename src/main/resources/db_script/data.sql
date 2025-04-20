@@ -17,7 +17,8 @@ INSERT INTO permission VALUES
 SELECT * FROM permission;
 
 INSERT INTO user_action_lookup VALUES
-(1, 'Merchant onboarding & maintenance');
+(1, 'Merchant onboarding & maintenance'),
+(2, 'EMail');
 SELECT * FROM user_action_lookup;
 
 INSERT INTO user VALUES(1, 'test@gmail.com', 'Pass@123', 'test', 1, 1);
@@ -25,10 +26,13 @@ UPDATE user SET password = '$argon2id$v=19$m=65536,t=10,p=1$4+Wa1CCCduXmGP7yCE0N
 SELECT * FROM user;
 
 INSERT INTO user_action VALUES
-(1, 1);
+(1, 1),
+(1, 2);
 SELECT * FROM user_action;
 
 INSERT INTO user_action_permission VALUES
 (1, 1),
-(1, 2);
+(1, 2),
+(2, 1),
+(2, 2);
 SELECT * FROM user_action_permission;
