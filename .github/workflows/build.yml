@@ -67,8 +67,13 @@ jobs:
        git config --global user.name 'github-actions[bot]'
        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
        git add README.md
-       git commit -m "Update README with latest JAR link for ${{ env.RELEASE_TAG }}"
-       git push origin master
+       # Only commit if there are staged changes
+       if git diff --cached --quiet; then
+         echo "No changes to commit."
+       else	   
+         git commit -m "Update README with latest JAR link for ${{ env.RELEASE_TAG }}"
+         git push origin master
+       fi
       env:
         #In github, click profile pic->setting->developer setting->personal access token->token(classic)
         #Tick repo & workflow
