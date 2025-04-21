@@ -32,9 +32,6 @@ public class Property {
 	@Value("${rate.limit.unit}")
     private String rate_limit_unit;
 
-	@Value("${jwt.secret.key}")
-    private String jwt_secret_key;
-
 	@Value("${jwt.token.expiration}")
     private int jwt_token_expiration;
 	
