@@ -94,8 +94,8 @@ public class EMailService {
 	 * @param mail_id 
 	 * */
 	public ApiResponse getMerchantDetailByMerchant_Id(Long mail_id) {
-		return ApiResponse.builder().resp_code(ResponseCode.SUCCESS_RETRIEVE_EMAIL_DETAIL.getResponse_code())
-				.resp_msg(ResponseCode.SUCCESS_RETRIEVE_EMAIL_DETAIL.getResponse_desc())
+		return ApiResponse.builder().resp_code(ResponseCode.SUCCESS.getResponse_code())
+				.resp_msg(ResponseCode.SUCCESS.getResponse_desc())
 				.datetime(tool.getTodayDateTimeInString())
 				.email(emailRepo.findById(mail_id).orElseThrow(() -> new RuntimeException("EMail details not found for mail id: " + mail_id)))
 				.build();

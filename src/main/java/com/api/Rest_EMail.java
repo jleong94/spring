@@ -93,8 +93,8 @@ public class Rest_EMail {
 			
 			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 					.builder()
-					.resp_code(email.getIsSend() == 1 ? ResponseCode.SUCCESS.getResponse_code() : ResponseCode.EMAIL_FAILED_SENT.getResponse_code())
-					.resp_msg(email.getIsSend() == 1 ? ResponseCode.SUCCESS.getResponse_desc() : ResponseCode.EMAIL_FAILED_SENT.getResponse_desc())
+					.resp_code( ResponseCode.SUCCESS.getResponse_code())
+					.resp_msg(ResponseCode.SUCCESS.getResponse_desc())
 					.datetime(tool.getTodayDateTimeInString())
 					.build());
 		} catch(Exception e) {

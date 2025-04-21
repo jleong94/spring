@@ -3,17 +3,9 @@ package com.enums;
 
 public enum ResponseCode {
 	
-	
-//	EMail related case.
-	SUCCESS(0, "Success", "EMail successful sent."),
-	EMAIL_FAILED_SENT(1, "Failed", "EMail failed to sent. Kindly contact helpdesk support if issue still persist after mulitple times retry."),
-	SUCCESS_RETRIEVE_EMAIL_DETAIL(2, "Success", "Success retrieve email details."),
-//	Authorization related case.
-    UNAUTHORIZED_ACCESS(3, "Failed", "Unauthorized access."),
-    JWT_TOKEN_EXPIRED(4, "Failed", "Token expired."),
-//	Geeneral status for all error case.
-    ERROR_OCCURED(-1, "Failed", null),
-	RATE_LIMIT_EXCEEDED(-3, "Failed", "Rate limit exceeded.");
+	SUCCESS(0, "Success", "Successful."),
+    UNAUTHORIZED_ACCESS(1, "Failed", null),
+    ERROR_OCCURED(2, "Failed", null);
 
 	private final int response_code;
 	private final String response_status;
