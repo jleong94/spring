@@ -95,6 +95,16 @@ public class User {
 	@Column(name = "email", length = 50, nullable = false)
 	private String email;
 	
+	@Pattern(
+			regexp = "^\\+?[1-9]\\d{1,14}$",
+			message = "Phone number should be in the format +<country code><number>, no spaces or dashes."
+			)
+	@JsonProperty(value= "mobile_no", access = Access.READ_WRITE)
+	@NotNull(message = "Mobile number is null.")
+	@NotBlank(message = "Mobile number is blank.")
+	@Column(name = "mobile_no", length = 15, nullable = false)
+	private String mobile_no;
+	
 	@JsonIgnore
 	@Min(1)
 	@Column(name = "jwt_token_expiration", length = 10, nullable = false)

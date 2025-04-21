@@ -3,7 +3,6 @@ package com.service;
 import java.io.File;
 import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -98,7 +97,7 @@ public class EMailService {
 		return ApiResponse.builder().resp_code(ResponseCode.SUCCESS_RETRIEVE_EMAIL_DETAIL.getResponse_code())
 				.resp_msg(ResponseCode.SUCCESS_RETRIEVE_EMAIL_DETAIL.getResponse_desc())
 				.datetime(tool.getTodayDateTimeInString())
-				.email(emailRepo.findById(mail_id).orElseThrow(() -> new UsernameNotFoundException("EMail details not found for mail id: " + mail_id)))
+				.email(emailRepo.findById(mail_id).orElseThrow(() -> new RuntimeException("EMail details not found for mail id: " + mail_id)))
 				.build();
 	}
 	

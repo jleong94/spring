@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.modal.EMail;
+import com.modal.User;
 
 import lombok.*;
 
@@ -22,6 +23,9 @@ public class ApiResponse {
 	
 	@JsonProperty(value= "datetime", access = Access.READ_ONLY)
 	private String datetime;
+	
+	@JsonProperty(value= "user", access = Access.READ_ONLY)
+	private User user;
 	
 	@JsonProperty(value= "oauth", access = Access.READ_ONLY)
 	private OAuth oauth;

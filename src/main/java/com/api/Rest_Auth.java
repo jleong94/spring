@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.configuration.UserInfoDetails;
 import com.enums.ResponseCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.modal.User;
 import com.pojo.ApiResponse;
 import com.pojo.OAuth;
 import com.properties.Property;
@@ -108,7 +109,7 @@ public class Rest_Auth {
 	 */
 	@RateLimit
 	@PostMapping(value = "v1/oauth-token", consumes = {"application/json"}, produces = "application/json")
-	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Valid OAuth oauth){
+	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Valid OAuth oauth) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("Generate oauth token start...");
@@ -120,7 +121,6 @@ public class Rest_Auth {
 			Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(oauth.getUsername(), oauth.getPassword()));
 			if(authentication.isAuthenticated()) {
 				UserInfoDetails userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
-				oauth.setExpires_in(userInfoDetails.getJwt_token_expiration());
 				oauth.setToken_type(property.getJwt_token_type());
 				oauth.setAccess_token(jwtService.generateToken(oauth.getUsername(), userInfoDetails));
 				return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
@@ -153,14 +153,42 @@ public class Rest_Auth {
 					break;
 				}
 			}
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
-					.builder()
-					.resp_code(ResponseCode.CATCHED_EXCEPTION.getResponse_code())
-					.resp_msg(e.getMessage())
-					.datetime(tool.getTodayDateTimeInString())
-					.build());
+			throw e;
 		} finally {
 			log.info("Generate oauth token end...");
+			MDC.clear();
+		}
+	}
+	
+	@RateLimit
+	@PostMapping(value = "v1/user/registration", consumes = {"application/json"}, produces = "application/json")
+	public ResponseEntity<ApiResponse> userRegistration(HttpServletRequest request, @RequestBody @Valid User user) throws Exception{
+		ObjectMapper objectMapper = new ObjectMapper();
+		MDC.put("mdcId", UUID.randomUUID());
+		log.info("User registration start...");
+		try {
+			log.info("Request: " + objectMapper.writeValueAsString(user));
+			logHttpRequest(request, log);
+			
+			return null;
+		} catch(Exception e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} finally {
+			log.info("User registration end...");
 			MDC.clear();
 		}
 	}

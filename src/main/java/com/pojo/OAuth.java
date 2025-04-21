@@ -28,9 +28,6 @@ public class OAuth {
     @NotBlank(message = "Password is blank.")
 	private String password;
 	
-	@JsonProperty(value= "expires_in", access = Access.READ_ONLY)
-	private int expires_in;
-	
 	@JsonProperty(value= "token_type", access = Access.READ_ONLY)
 	private String token_type;
 	

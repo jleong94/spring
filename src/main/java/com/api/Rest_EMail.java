@@ -80,7 +80,7 @@ public class Rest_EMail {
 	@RateLimit
 	@PostMapping(value = "v1/email/send", consumes = {"application/json"}, produces = "application/json")
 	@PreAuthorize("hasAnyRole('ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_write')")
-	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Valid EMail email, @RequestParam(required = false) MultipartFile[] upload_files){
+	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Valid EMail email, @RequestParam(required = false) MultipartFile[] upload_files) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("Send email start...");
@@ -112,12 +112,7 @@ public class Rest_EMail {
 					break;
 				}
 			}
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
-					.builder()
-					.resp_code(ResponseCode.CATCHED_EXCEPTION.getResponse_code())
-					.resp_msg(e.getMessage())
-					.datetime(tool.getTodayDateTimeInString())
-					.build());
+			throw e;
 		} finally {
 			log.info("Send email end...");
 			MDC.clear();
@@ -127,7 +122,7 @@ public class Rest_EMail {
 	@RateLimit
 	@GetMapping(value = "v1/email/check/{mail_id}", produces = "application/json")
 	@PreAuthorize("hasAnyRole('ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_read')")
-	public ResponseEntity<ApiResponse> getMerchantDetailByMerchant_Id(HttpServletRequest request, @PathVariable @NotBlank Long mail_id){
+	public ResponseEntity<ApiResponse> getMerchantDetailByMerchant_Id(HttpServletRequest request, @PathVariable @NotBlank Long mail_id) throws Exception{
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("Get sent email detail start...");
 		try {
@@ -149,12 +144,7 @@ public class Rest_EMail {
 					break;
 				}
 			}
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
-					.builder()
-					.resp_code(ResponseCode.CATCHED_EXCEPTION.getResponse_code())
-					.resp_msg(e.getMessage())
-					.datetime(tool.getTodayDateTimeInString())
-					.build());
+			throw e;
 		} finally {
 			log.info("Get sent email detail end...");
 			MDC.clear();

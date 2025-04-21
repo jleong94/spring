@@ -3,21 +3,17 @@ package com.enums;
 
 public enum ResponseCode {
 	
-//	Geeneral status for all success case.
-	SUCCESS(0, "Success", "Successful"),
-//	Transaction related case.
-	TXN_DECLINED(1, "Declined", "Transaction declined."),
-	TXN_PENDING(2, "Pending", "Transaction in progress."),
+	
 //	EMail related case.
-	SUCCESS_SENT_EMAIL(3, "Success", "EMail success sent."),
-	EMAIL_FAILED_SENT(4, "Failed", "EMail failed to sent. Kindly contact helpdesk support if issue still persist after mulitple times retry."),
-	SUCCESS_RETRIEVE_EMAIL_DETAIL(5, "Success", "Success retrieve email details."),
-	RETRIEVE_EMAIL_DETAIL_FAILED(6, "Failed", "Failed to retrieve email details. Kindly contact helpdesk support if issue still persist after mulitple times retry."),
+	SUCCESS(0, "Success", "EMail successful sent."),
+	EMAIL_FAILED_SENT(1, "Failed", "EMail failed to sent. Kindly contact helpdesk support if issue still persist after mulitple times retry."),
+	SUCCESS_RETRIEVE_EMAIL_DETAIL(2, "Success", "Success retrieve email details."),
+//	Authorization related case.
+    UNAUTHORIZED_ACCESS(3, "Failed", "Unauthorized access."),
+    JWT_TOKEN_EXPIRED(4, "Failed", "Token expired."),
 //	Geeneral status for all error case.
-    ERROR_OCCURED(-1, "Failed", "Error Occured."),
-    CATCHED_EXCEPTION(-2, "Failed", "Catched exception error."),
-    UNAUTHORIZED_ACCESS(-3, "Failed", "Access is unauthorized."),
-	RATE_LIMIT_EXCEEDED(-4, "Failed", "Rate limit exceeded.");
+    ERROR_OCCURED(-1, "Failed", null),
+	RATE_LIMIT_EXCEEDED(-3, "Failed", "Rate limit exceeded.");
 
 	private final int response_code;
 	private final String response_status;
