@@ -28,7 +28,7 @@ jobs:
     - name: Create Incremental Version Tag
       id: tagger
       run: |
-       # Get latest tag matching 'v0.*', default to v0.0
+       git fetch --tags  # 👈 fetch remote tags to ensure local is synced
        LAST_TAG=$(git tag --list 'v0.*' | sort -V | tail -n 1)
        echo "Last tag found: $LAST_TAG"
        if [[ -z "$LAST_TAG" ]]; then
