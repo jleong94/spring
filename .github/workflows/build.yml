@@ -4,6 +4,9 @@ on:
   push:
     branches: ["main", "master"]     # Triggers when someone pushes code to 'main' or 'master' branch
 
+permissions:
+  contents: write
+  
 jobs:
   build:
     if: github.ref_name == 'main' || github.ref_name == 'master'
@@ -37,7 +40,7 @@ jobs:
        NEW_TAG="v0.${NEXT_MINOR}"
        echo "New tag: $NEW_TAG"
        git tag "$NEW_TAG"
-       git push origin "$NEW_TAG"
+       git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/jleong94/spring.git --tags
        echo "RELEASE_TAG=$NEW_TAG" >> $GITHUB_ENV      	   	   	  	  	
     - name: Upload JAR as GitHub Release Asset
       uses: softprops/action-gh-release@v1
