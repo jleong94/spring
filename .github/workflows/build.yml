@@ -10,7 +10,7 @@ permissions:
   
 jobs:
   build:
-    if: github.ref_name == 'main' || github.ref_name == 'master'
+    if: github.ref_name == 'main' || github.ref_name == 'master' # Only run this job if the branch is main or master
     runs-on: ubuntu-latest             # This workflow runs in a fresh Ubuntu VM (GitHub-hosted)
 
     steps:
@@ -33,16 +33,16 @@ jobs:
        LAST_TAG=$(git tag --list 'v0.*' | sort -V | tail -n 1)
        echo "Last tag found: $LAST_TAG"
        if [[ -z "$LAST_TAG" ]]; then
-        LAST_TAG="v0.0"
+        LAST_TAG="v0.0" #Default if no tag exists
        fi
        # Extract the numeric part, increment
-       LAST_MINOR=${LAST_TAG#v0.}
-       NEXT_MINOR=$((LAST_MINOR + 1))
-       NEW_TAG="v0.${NEXT_MINOR}"
+       LAST_MINOR=${LAST_TAG#v0.} # Remove 'v0.' prefix to get minor version
+       NEXT_MINOR=$((LAST_MINOR + 1)) # Increment the version number
+       NEW_TAG="v0.${NEXT_MINOR}" # Form the new tag
        echo "New tag: $NEW_TAG"
-       git tag "$NEW_TAG"
-       git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git --tags
-       echo "RELEASE_TAG=$NEW_TAG" >> $GITHUB_ENV      	   	   	  	  	
+       git tag "$NEW_TAG" # Create new Git tag
+       git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git --tags # Push tag to remote
+       echo "RELEASE_TAG=$NEW_TAG" >> $GITHUB_ENV # Save tag to environment for later use      	   	   	  	  	
     - name: Upload JAR as GitHub Release Asset
       uses: softprops/action-gh-release@v1
       with:
@@ -58,21 +58,21 @@ jobs:
         # Builds the actual download link to your new JAR and stores it in environment variable RELEASE_URL
 
     - name: Install GitHub CLI
-      run: sudo apt-get install gh -y
+      run: sudo apt-get install gh -y # Installs GitHub CLI to interact with GitHub programmatically
 
     - name: Update README with JAR link
       run: |
-       git checkout master
-       sed -i '/Download latest build:/c\Download latest build: [Click here]('${RELEASE_URL}')' README.md
-       git config --global user.name 'github-actions[bot]'
-       git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-       git add README.md
+       git checkout master # Make sure we are on master branch
+       sed -i '/Download latest build:/c\Download latest build: [Click here]('${RELEASE_URL}')' README.md # Replace line with new JAR link
+       git config --global user.name 'github-actions[bot]' # Set commit username
+       git config --global user.email 'github-actions[bot]@users.noreply.github.com' # Set commit email
+       git add README.md # Stage README changes
        # Only commit if there are staged changes
        if git diff --cached --quiet; then
-         echo "No changes to commit."
+         echo "No changes to commit." # Skip commit if nothing changed
        else	   
-         git commit -m "Update README with latest JAR link for ${{ env.RELEASE_TAG }}"
-         git push origin master
+         git commit -m "Update README with latest JAR link for ${{ env.RELEASE_TAG }}" # Commit with message
+         git push origin master # Push README changes back to master
        fi
       env:
         #In github, click profile pic->setting->developer setting->personal access token->token(classic)
