@@ -2,9 +2,6 @@ package com.configuration;
 
 import java.util.UUID;
 import org.jboss.logging.MDC;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,15 +22,16 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 import com.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
 /*
  * Here is to configure spring security
  * */
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-	
-	Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 	
 	@Value("${server.ssl.enabled}")
 	private boolean sslEnabled;

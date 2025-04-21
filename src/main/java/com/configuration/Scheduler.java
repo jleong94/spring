@@ -3,8 +3,6 @@ package com.configuration;
 import java.util.UUID;
 
 import org.jboss.logging.MDC;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -18,14 +16,15 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import com.utilities.Tool;
 
+import lombok.extern.slf4j.Slf4j;
+
 /*
  * Here will configure the trigger date time & it's parameter for each task created in class, BatchConfig
  * */
+@Slf4j
 @Configuration
 @EnableScheduling//To allow scheduled tasks
 public class Scheduler {
-	
-	Logger log = LoggerFactory.getLogger(Scheduler.class);
 	
 	@Autowired
 	Tool tool;

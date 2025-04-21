@@ -20,18 +20,16 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import lombok.extern.slf4j.Slf4j;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.utilities.Tool;
 
+@Slf4j
 @Path("/api/test")
 public class RestJaxRxApi {
-
-	Logger log = LoggerFactory.getLogger(RestJaxRxApi.class);
 	
 	@Autowired
 	Tool tool;

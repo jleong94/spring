@@ -9,12 +9,12 @@ import java.util.concurrent.Future;
 
 import org.jboss.logging.MDC;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
 import com.utilities.Tool;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 public class MultiThreadService {
@@ -63,9 +63,8 @@ public class MultiThreadService {
         return result;
     }
 	
-	class SampleServiceThread implements Runnable{
-		
-		Logger log = LoggerFactory.getLogger(SampleServiceThread.class);
+	@Slf4j
+	static class SampleServiceThread implements Runnable{
 
 		int thread_no;
 		Tool tool;
