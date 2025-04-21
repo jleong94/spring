@@ -73,4 +73,4 @@ jobs:
                     --body "Automated update of README with link to latest JAR" \
                     --base master --head $BRANCH_NAME
       env:
-        GITHUB_TOKEN: ${{ secrets.MY_PAT }}
+        GITHUB_TOKEN: ${{ github.token }}
