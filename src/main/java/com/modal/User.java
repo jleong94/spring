@@ -26,8 +26,11 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -73,13 +76,18 @@ public class User {
 	@Column(name = "username", length = 20, nullable = false, unique = true)
 	private String username;
 	
-	@JsonProperty(value= "password", access = Access.READ_WRITE)
+	@JsonProperty(value= "password", access = Access.WRITE_ONLY)
 	@NotNull(message = "Password is null.")
 	@NotBlank(message = "Password is blank.")
-	@Size(max = 255, message = "Hashed password exceed 255 characters.")
+	@Size(max = 255, message = "Password exceed 255 characters.")
+	@Pattern(
+			regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]).{8,}$",
+			message = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character."
+			)
 	@Column(name = "password", length = 255, nullable = false)
 	private String password;
 	
+	@Email(message = "Invalid email format.")
 	@JsonProperty(value= "email", access = Access.READ_WRITE)
 	@NotNull(message = "Email is null.")
 	@NotBlank(message = "Email is blank.")
@@ -87,12 +95,24 @@ public class User {
 	@Column(name = "email", length = 50, nullable = false)
 	private String email;
 	
-	@JsonProperty(value= "user_status", access = Access.READ_ONLY)
+	@JsonIgnore
+	@Min(1)
+	@Column(name = "jwt_token_expiration", length = 10, nullable = false)
+	private int jwt_token_expiration;
+	
+	@JsonIgnore
+	@NotNull(message = "JWT token secret key is null.")
+	@NotBlank(message = "JWT token secret key is blank.")
+	@Size(max = 100, message = "JWT token secret key exceed 100 characters.")
+	@Column(name = "jwt_token_secret_key", length = 100, nullable = false)
+	private String jwt_token_secret_key;
+	
+	@JsonIgnore
 	@ManyToOne(targetEntity = UserStatusLookup.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	@JoinColumn(name = "status_id", referencedColumnName = "status_id", unique = false, nullable = false)
 	private UserStatusLookup userStatusLookup;
 	
-	@JsonProperty(value= "role", access = Access.READ_ONLY)
+	@JsonIgnore
 	@ManyToOne(targetEntity = UserRoleLookup.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	@JoinColumn(name = "role_id", referencedColumnName = "role_id", unique = false, nullable = false)
 	private UserRoleLookup userRoleLookup;

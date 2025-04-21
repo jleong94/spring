@@ -9,9 +9,18 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.modal.User;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /*
  * Re-implement UserDetails will auto call by spring authentication/authorization or application logic
  * */
+@Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
+@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
+@NoArgsConstructor//Generates a constructor with no parameters
+@Builder
 public class UserInfoDetails implements UserDetails {
 
 	private static final long serialVersionUID = 1L;
@@ -19,10 +28,14 @@ public class UserInfoDetails implements UserDetails {
     private String password;
     private List<Object> user_action_permission;
     private List<GrantedAuthority> authorities;
+    private int jwt_token_expiration;
+    private String jwt_token_secret_key;
     
     public UserInfoDetails(User user) {
         this.username = user.getUsername();
         this.password = user.getPassword();
+        this.jwt_token_expiration = user.getJwt_token_expiration();
+        this.jwt_token_secret_key = user.getJwt_token_secret_key();
         this.user_action_permission = user.getUserActionLookup()
         		.stream()
         		.filter(userAction -> userAction.getPermission() != null) // Ensure permissions list is not null
@@ -84,24 +97,4 @@ public class UserInfoDetails implements UserDetails {
     public boolean isEnabled() {
         return true; // Implement your logic if you need this
     }
-
-	public List<Object> getUser_action_permission() {
-		return user_action_permission;
-	}
-
-	public void setUser_action_permission(List<Object> user_action_permission) {
-		this.user_action_permission = user_action_permission;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public void setAuthorities(List<GrantedAuthority> authorities) {
-		this.authorities = authorities;
-	}
 }

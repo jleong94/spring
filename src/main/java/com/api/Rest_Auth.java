@@ -119,9 +119,10 @@ public class Rest_Auth {
 			// Authenticate user credentials using Spring Security
 			Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(oauth.getUsername(), oauth.getPassword()));
 			if(authentication.isAuthenticated()) {
-				oauth.setExpires_in(property.getJwt_token_expiration());
+				UserInfoDetails userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
+				oauth.setExpires_in(userInfoDetails.getJwt_token_expiration());
 				oauth.setToken_type(property.getJwt_token_type());
-				oauth.setAccess_token(jwtService.generateToken(oauth.getUsername(), (UserInfoDetails) authentication.getPrincipal()));
+				oauth.setAccess_token(jwtService.generateToken(oauth.getUsername(), userInfoDetails));
 				return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 						.builder()
 						.resp_code(ResponseCode.SUCCESS.getResponse_code())

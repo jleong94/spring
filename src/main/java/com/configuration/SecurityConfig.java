@@ -51,9 +51,9 @@ public class SecurityConfig {
 						session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 					)
 					.authorizeHttpRequests((requests) -> requests
+							.requestMatchers("/v1/user/registration").permitAll()
 							.requestMatchers("/v1/oauth-token").permitAll()
-							.requestMatchers("/v1/merchant/**").authenticated()
-							.requestMatchers("/v1/online/**").authenticated())
+							.requestMatchers("/v1/email/**").authenticated())
 					.authenticationProvider(authenticationProvider())
 					.addFilterBefore(securityFilter, BasicAuthenticationFilter.class)
 					.build();
