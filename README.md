@@ -27,4 +27,4 @@
 > You may contribute to this project:
 > - Improve security of this project.
 
-Download latest build: [Click here](placeholder)
+Download latest build: [Click here](https://github.com/jleong94/spring/releases/latest/download/spring.jar)
