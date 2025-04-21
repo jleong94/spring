@@ -1,7 +1,6 @@
 package com.utilities;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -73,22 +72,6 @@ public class Tool {
 			}
 		}
 		return true;
-	}
-
-	public <T> void mergeObj(T newObj, T oldObj) throws Exception {
-		if (newObj == null || oldObj == null) {
-			return;
-		}
-		Field[] fields = newObj.getClass().getDeclaredFields();
-		for (Field field : fields) {
-			field.setAccessible(true);
-			Object newValue = field.get(newObj);
-			Object oldValue = field.get(oldObj);
-
-			if ((newValue == null || newValue.toString().isBlank()) && oldValue != null) {
-				field.set(newObj, oldValue);
-			}
-		}
 	}
 
 	public String getTodayDateTimeInString() {
