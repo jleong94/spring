@@ -14,7 +14,6 @@ exit;
 Handling for HttpServlet
 request.setCharacterEncoding("UTF-8"); response.setContentType("text/html; charset=UTF-8");
 request.getParameter("") == null || request.getParameter("").trim().isEmpty() ? "" : StringEscapeUtils.escapeHtml4(request.getParameter("")).trim()
-request.getParameter("") == null || request.getParameter("").trim().isEmpty() ? "" : new String(request.getParameter("").getBytes("ISO-8859-1"),"UTF-8").trim()
 
 Command(Spring):
 1. verify clean install - Build spring project into jar or war file.
