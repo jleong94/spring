@@ -45,12 +45,7 @@ public class Rest_Auth {
 	
 	@Autowired
 	JwtService jwtService;
-	
-	/**
-	 * Logs HTTP request details including headers and parameters
-	 * @param request The HTTP request object
-	 * @param log Logger instance for logging
-	 */
+
 	private void logHttpRequest(HttpServletRequest request, Logger log) {
 		try {
 			Enumeration<String> headerNames = request.getHeaderNames();
@@ -85,28 +80,6 @@ public class Rest_Auth {
 		}
 	}
 	
-	/**
-	 * OAuth 2.0 token endpoint that handles user authentication and token generation.
-	 * 
-	 * @param request The HTTP servlet request object
-	 * @param oauth OAuth request body containing username, password and token parameters
-	 * @return ResponseEntity with:
-	 *         - Status 200 & token details if authentication successful
-	 *         - Status 401 if authentication fails
-	 *         - Status 500 for server errors
-	 * @throws Exception if authentication or token generation fails
-	 * 
-	 * Flow:
-	 * 1. Logs request details and parameters
-	 * 2. Authenticates credentials using Spring Security
-	 * 3. If authenticated:
-	 *    - Sets token expiration (from request or default)
-	 *    - Sets token type (from request or default "Bearer")
-	 *    - Generates JWT access token
-	 *    - Returns success response with token
-	 * 4. If not authenticated, returns 401 unauthorized
-	 * 5. For any errors, returns 500 with error details
-	 */
 	@RateLimit
 	@PostMapping(value = "v1/oauth-token", consumes = {"application/json"}, produces = "application/json")
 	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Valid OAuth oauth) throws Exception{

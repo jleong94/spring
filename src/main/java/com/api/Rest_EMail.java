@@ -93,9 +93,10 @@ public class Rest_EMail {
 			
 			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 					.builder()
-					.resp_code( ResponseCode.SUCCESS.getResponse_code())
+					.resp_code(ResponseCode.SUCCESS.getResponse_code())
 					.resp_msg(ResponseCode.SUCCESS.getResponse_desc())
 					.datetime(tool.getTodayDateTimeInString())
+					.email(email)
 					.build());
 		} catch(Exception e) {
 			// Get the current stack trace element

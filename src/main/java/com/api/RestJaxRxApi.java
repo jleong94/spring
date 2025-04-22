@@ -34,18 +34,6 @@ public class RestJaxRxApi {
 	@Autowired
 	Tool tool;
 
-	/**
-	 * Logs all HTTP request headers and parameters.
-	 * 
-	 * @param request The HTTP servlet request to log
-	 * @param log Logger instance to write logs to
-	 * 
-	 * Flow:
-	 * 1. Gets all request headers and logs each header name/value pair
-	 * 2. Gets all request parameters and logs each parameter name/value pair
-	 * 3. Handles character encoding by converting from ISO-8859-1 to UTF-8
-	 * 4. Logs detailed error information if any exceptions occur
-	 */
 	private void logHttpRequest(HttpServletRequest request, Logger log) {
 		if (request == null || log == null) {return;}
 		try {

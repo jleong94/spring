@@ -32,12 +32,12 @@ public class UserRoleLookup {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
-	@Column(name = "role_id", nullable = false)
+	@Column(name = "role_id", unique = true, nullable = false, insertable = true, updatable = false, table = "user_role_lookup")
 	@JsonIgnore
 	private Long role_id;
 	
 	@JsonProperty(value= "role_name", access = Access.READ_ONLY)
-	@Column(name = "role_name", nullable = false, length = 20, unique = true)
+	@Column(name = "role_name", unique = true, nullable = false, insertable = true, updatable = true, table = "user_role_lookup", length = 20)
 	private String role_name;
 	
 	@JsonIgnore

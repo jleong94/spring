@@ -32,12 +32,12 @@ public class Permission {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
-	@Column(name = "permission_id", nullable = false)
+	@Column(name = "permission_id", unique = true, nullable = false, insertable = true, updatable = false, table = "permission")
 	@JsonIgnore
 	private Long permission_id;
 	
 	@JsonProperty(value= "permission_name", access = Access.READ_ONLY)
-	@Column(name = "permission_name", nullable = false, length = 20, unique = true)
+	@Column(name = "permission_name", unique = true, nullable = false, insertable = true, updatable = true, table = "permission", length = 20)
 	private String permission_name;
 	
 	@JsonIgnore

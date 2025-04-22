@@ -51,19 +51,19 @@ public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
-	@Column(name = "id", nullable = false)
+	@Column(name = "id", unique = true, nullable = false, insertable = true, updatable = false, table = "user")
 	@JsonIgnore
 	private Long id;
 	
 	@CreationTimestamp
-    @Column(name = "created_datetime", nullable = false, updatable = false)
+    @Column(name = "created_datetime", unique = false, nullable = false, insertable = true, updatable = false, table = "user")
 	@JsonProperty(value= "created_datetime", access = Access.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	private LocalDateTime created_datetime;
 	
 	@UpdateTimestamp
-	@Column(name = "modified_datetime")
+	@Column(name = "modified_datetime", unique = false, nullable = false, insertable = true, updatable = true, table = "user")
 	@JsonProperty(value= "modified_datetime", access = Access.READ_ONLY)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
@@ -73,7 +73,7 @@ public class User {
 	@NotNull(message = "User name is null.")
 	@NotBlank(message = "User name is blank.")
 	@Size(max = 20, message = "User name exceed 20 characters.")
-	@Column(name = "username", length = 20, nullable = false, unique = true)
+	@Column(name = "username", unique = true, nullable = false, insertable = true, updatable = false, table = "user", length = 20)
 	private String username;
 	
 	@JsonProperty(value= "password", access = Access.WRITE_ONLY)
@@ -84,7 +84,7 @@ public class User {
 			regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]).{8,}$",
 			message = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character."
 			)
-	@Column(name = "password", length = 255, nullable = false)
+	@Column(name = "password", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 255)
 	private String password;
 	
 	@Email(message = "Invalid email format.")
@@ -92,7 +92,7 @@ public class User {
 	@NotNull(message = "Email is null.")
 	@NotBlank(message = "Email is blank.")
 	@Size(max = 50, message = "Email exceed 50 characters.")
-	@Column(name = "email", length = 50, nullable = false)
+	@Column(name = "email", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 50)
 	private String email;
 	
 	@Pattern(
@@ -102,19 +102,19 @@ public class User {
 	@JsonProperty(value= "mobile_no", access = Access.READ_WRITE)
 	@NotNull(message = "Mobile number is null.")
 	@NotBlank(message = "Mobile number is blank.")
-	@Column(name = "mobile_no", length = 15, nullable = false)
+	@Column(name = "mobile_no", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 15)
 	private String mobile_no;
 	
 	@JsonIgnore
 	@Min(1)
-	@Column(name = "jwt_token_expiration", length = 10, nullable = false)
+	@Column(name = "jwt_token_expiration", unique = false, nullable = false, insertable = true, updatable = true, table = "user")
 	private int jwt_token_expiration;
 	
 	@JsonIgnore
 	@NotNull(message = "JWT token secret key is null.")
 	@NotBlank(message = "JWT token secret key is blank.")
 	@Size(max = 100, message = "JWT token secret key exceed 100 characters.")
-	@Column(name = "jwt_token_secret_key", length = 100, nullable = false)
+	@Column(name = "jwt_token_secret_key", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 100)
 	private String jwt_token_secret_key;
 	
 	@JsonIgnore

@@ -34,12 +34,12 @@ public class UserActionLookup {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
-	@Column(name = "user_action_id", nullable = false)
+	@Column(name = "user_action_id", unique = true, nullable = false, insertable = true, updatable = false, table = "user_action_lookup")
 	@JsonIgnore
 	private Long user_action_id;
 	
 	@JsonIgnore
-	@Column(name = "action_name", nullable = false, length = 255, unique = true)
+	@Column(name = "action_name", unique = true, nullable = false, insertable = true, updatable = true, table = "user_action_lookup", length = 255)
 	private String action_name;
 	
 	@JsonIgnore

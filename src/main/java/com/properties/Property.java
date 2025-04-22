@@ -26,17 +26,14 @@ public class Property {
 	@Value("${rate.limit.requests}")
     private int rate_limit_requests;
 
-	@Value("${rate.limit.duration}")
-    private int rate_limit_duration;
-
 	@Value("${rate.limit.unit}")
     private String rate_limit_unit;
-
-	@Value("${jwt.token.expiration}")
-    private int jwt_token_expiration;
 	
 	@Value("${rate.limit.reset}")
     private int rate_limit_reset;
+
+	@Value("${jwt.token.expiration}")
+    private int jwt_token_expiration;
 	
 	@Value("${jwt.token.type}")
     private String jwt_token_type;

@@ -21,9 +21,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -42,19 +39,19 @@ public class EMail {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
-	@Column(name = "mail_id", nullable = false)
+	@Column(name = "mail_id", unique = true, nullable = false, insertable = true, updatable = false, table = "email")
 	@JsonProperty(value= "mail_id", access = Access.READ_ONLY)
 	private Long mail_id;
 	
 	@CreationTimestamp
-    @Column(name = "created_datetime", nullable = false, updatable = false)
+    @Column(name = "created_datetime", unique = false, nullable = false, insertable = true, updatable = false, table = "email")
 	@JsonProperty(value= "created_datetime", access = Access.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	private LocalDateTime created_datetime;
 	
 	@UpdateTimestamp
-	@Column(name = "modified_datetime")
+	@Column(name = "modified_datetime", unique = false, nullable = false, insertable = true, updatable = true, table = "email")
 	@JsonProperty(value= "modified_datetime", access = Access.READ_ONLY)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
@@ -63,46 +60,44 @@ public class EMail {
 	@NotNull(message = "Sender email is null.")
 	@NotBlank(message = "Sender email is blank.")
 	@Size(max = 255, message = "Sender email exceed 255 characters.")
-	@Column(name = "sender", length = 255, nullable = false)
+	@Column(name = "sender", unique = false, nullable = false, insertable = true, updatable = false, table = "email", length = 255)
 	@JsonIgnore
 	private String sender;
 	
 	@Size(max = 255, message = "Receiver email exceed 255 characters.")
-	@Column(name = "receiver", length = 255)
+	@Column(name = "receiver", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 255)
 	@JsonProperty(value= "receiver", access = Access.READ_WRITE)
 	private String receiver;
 	
 	@Size(max = 255, message = "CC email exceed 255 characters.")
-	@Column(name = "cc", length = 255)
+	@Column(name = "cc", unique = false, nullable = true, insertable = true, updatable = true, table = "email", length = 255)
 	@JsonProperty(value= "cc", access = Access.READ_WRITE)
 	private String cc;
 
 	@Size(max = 255, message = "BCC email exceed 255 characters.")
-	@Column(name = "bcc", length = 255)
+	@Column(name = "bcc", unique = false, nullable = true, insertable = true, updatable = true, table = "email", length = 255)
 	@JsonProperty(value= "bcc", access = Access.READ_WRITE)
 	private String bcc;
 
 	@Size(max = 500, message = "Email subject exceed 500 characters.")
-	@Column(name = "subject", length = 500)
+	@Column(name = "subject", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 500)
 	@JsonProperty(value= "subject", access = Access.READ_WRITE)
 	private String subject;
 	
 	@Size(max = 1000, message = "Email body exceed 1000 characters.")
-	@Column(name = "body", length = 1000)
+	@Column(name = "body", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 1000)
 	@JsonProperty(value= "body", access = Access.READ_WRITE)
 	private String body;
 	
 	@OneToMany(targetEntity = EMailAttachment.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER, mappedBy = "email")
-	@JsonProperty(value= "attachments", access = Access.READ_ONLY)
+	@JsonIgnore
 	private List<EMailAttachment> attachments;
 	
-	@Transient
+	@Column(name = "isHTML", unique = false, nullable = false, insertable = true, updatable = true, table = "email")
 	@JsonProperty(value= "isHTML", access = Access.READ_WRITE)
 	private boolean isHTML;
-	
-	@Min(0)
-    @Max(1)
-	@Column(name = "isSend", nullable = false)
+
+	@Column(name = "isSend", unique = false, nullable = false, insertable = true, updatable = true, table = "email")
 	@JsonProperty(value= "isSend", access = Access.READ_ONLY)
 	private int isSend;
 }

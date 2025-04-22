@@ -26,15 +26,6 @@ public class RateLimitAspect {
 
     private LoadingCache<String, RateLimiter> rateLimiters;
 
-    /**
-     * Initializes the rate limiter cache.
-     * Creates a loading cache that expires entries after a configured reset time.
-     * Each cache entry is a RateLimiter for a specific IP address.
-     * The RateLimiter is configured with a rate calculated from:
-     * - Number of allowed requests (rate.limit.requests property)
-     * - Duration window (rate.limit.duration property)
-     * - Time unit (rate.limit.unit property)
-     */
     @Autowired
     public void init() {
         this.rateLimiters = CacheBuilder.newBuilder()
@@ -42,10 +33,7 @@ public class RateLimitAspect {
                 .build(new CacheLoader<String, RateLimiter>() {
                     @Override
                     public RateLimiter load(@Nonnull String key) {
-                        double ratePerTimeUnit = (double) property.getRate_limit_requests() / 
-                            TimeUnit.valueOf(property.getRate_limit_unit())
-                                .toSeconds(property.getRate_limit_duration());
-                        return RateLimiter.create(ratePerTimeUnit);
+                        return RateLimiter.create((double) property.getRate_limit_requests());
                     }
                 });
     }
@@ -69,8 +57,7 @@ public class RateLimitAspect {
         // Check if request is allowed under rate limit
         if (!rateLimiter.tryAcquire()) {
             throw new RateLimitExceededException("Rate limit exceeded. Maximum " + 
-                property.getRate_limit_requests() + " requests per " + 
-                property.getRate_limit_duration() + " " + property.getRate_limit_unit().toLowerCase() + " allowed.");
+                property.getRate_limit_requests() + " requests per second allowed.");
         }
         // If within rate limit, proceed with the method execution
         return joinPoint.proceed();

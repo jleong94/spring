@@ -58,8 +58,12 @@ public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
 			Class<? extends HttpMessageConverter<?>> selectedConverterType,
 					ServerHttpRequest request,
 					ServerHttpResponse response) {
+		// Log method, URL, and response body
 		try {
-			String json = new ObjectMapper().writeValueAsString(body);
+			log.info("Response to [{} {}] => {}", 
+					request.getMethod(), 
+					request.getURI(), 
+					new ObjectMapper().writeValueAsString(body));
 		} catch (JsonProcessingException e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -76,11 +80,6 @@ public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
 				}
 			}
 		}
-		// Log method, URL, and response body
-		log.info("Response to [{} {}] => {}", 
-				request.getMethod(), 
-				request.getURI(), 
-				body);
 		return body; // Don’t modify the response, just log it
 	}
 

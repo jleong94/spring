@@ -3,6 +3,7 @@ package com.api;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 import org.apache.http.Header;
@@ -180,7 +181,7 @@ public class JavaAPICall {
             	log.info("Response: " + response.debugString());
             	/*String temp = response.hasField() ? response.getField().toString() : "";*/
             }
-		} catch(SocketTimeoutException | ConnectTimeoutException e) {
+		} catch(SocketTimeoutException | ConnectTimeoutException | SocketException e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

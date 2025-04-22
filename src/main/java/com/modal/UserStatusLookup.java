@@ -36,12 +36,12 @@ public class UserStatusLookup {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
-	@Column(name = "status_id", nullable = false)
+	@Column(name = "status_id", unique = true, nullable = false, insertable = true, updatable = false, table = "user_status_lookup")
 	@JsonIgnore
 	private Long status_id;
 
 	@JsonProperty(value= "status_name", access = Access.READ_ONLY)
-	@Column(name = "status_name", nullable = false, length = 20, unique = true)
+	@Column(name = "status_name", unique = true, nullable = false, insertable = true, updatable = true, table = "user_status_lookup", length = 20)
 	private String status_name;
 	
 	@JsonIgnore
