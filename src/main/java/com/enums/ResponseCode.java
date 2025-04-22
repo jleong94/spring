@@ -5,7 +5,8 @@ public enum ResponseCode {
 	
 	SUCCESS(0, "Success", "Successful."),
     UNAUTHORIZED_ACCESS(1, "Failed", null),
-    ERROR_OCCURED(2, "Failed", null);
+    ERROR_OCCURED(2, "Failed", null),
+    FAILED(3, "Failed", null);
 
 	private final int response_code;
 	private final String response_status;

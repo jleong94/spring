@@ -23,6 +23,7 @@ import com.pojo.ApiResponse;
 import com.pojo.OAuth;
 import com.properties.Property;
 import com.service.JwtService;
+import com.service.UserService;
 import com.utilities.Tool;
 import com.validation.RateLimit;
 
@@ -45,6 +46,9 @@ public class Rest_Auth {
 	
 	@Autowired
 	JwtService jwtService;
+	
+	@Autowired
+	UserService userService;
 
 	private void logHttpRequest(HttpServletRequest request, Logger log) {
 		try {
@@ -143,7 +147,7 @@ public class Rest_Auth {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
 			logHttpRequest(request, log);
 			
-			return null;
+			return userService.userRegistration(user);
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];

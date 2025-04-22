@@ -11,7 +11,7 @@ import com.modal.User;
 
 @Repository
 public interface UserRepo extends CrudRepository<User, Long> {
-
+	
 	@Query(value = "SELECT * FROM user WHERE username = :username", nativeQuery = true)
     public Optional<User> findByUsername(@Param("username") String username);
 }
