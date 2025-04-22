@@ -12,8 +12,8 @@ This project serves as a fully working **base template** for Java Spring Boot de
 
 ### 🔐 Security
 - [x] JWT-based Authentication
-- [x] OAuth2 Token (username & password)
-- [ ] OAuth2 User Registration
+- [x] Retrieval JWT (username & password)
+- [ ] User Registration
 - [x] Rate Limiting using Google Guava
 
 ### 🌐 API
@@ -49,12 +49,14 @@ This project serves as a fully working **base template** for Java Spring Boot de
 ## 🚀 Quickstart
 
 ```bash
-# Step 1: Download the latest JAR file
+# Step 1: Make sure running environment installed JDK 21 or above.
 
-# Step 2: Open Command Prompt as Administrator (Windows)
+# Step 2: Download the latest JAR file
 
-# Step 3: Navigate to the folder containing spring.jar
+# Step 3: Open Command Prompt as Administrator (Windows)
+
+# Step 4: Navigate to the folder containing spring.jar
 cd path\to\your\jar\directory
 
-# Step 4: Run the JAR with custom JVM options
+# Step 5: Run the JAR with custom JVM options
 java -Xms256m -Xmx2048m -XX:+PrintGCDetails -enableassertions -jar spring.jar

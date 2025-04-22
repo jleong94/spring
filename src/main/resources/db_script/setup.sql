@@ -6,8 +6,9 @@ INSERT INTO user_status_lookup VALUES
 SELECT * FROM user_status_lookup;
 
 INSERT INTO user_role_lookup VALUES
-(1, 'User'),
-(2, 'Admin');
+(1, 'SuperUser'),
+(2, 'User'),
+(3, 'Admin');
 SELECT * FROM user_role_lookup;
 
 INSERT INTO permission VALUES

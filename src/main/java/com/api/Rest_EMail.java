@@ -79,7 +79,7 @@ public class Rest_EMail {
 
 	@RateLimit
 	@PostMapping(value = "v1/email/send", consumes = {"application/json"}, produces = "application/json")
-	@PreAuthorize("hasAnyRole('ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_write')")
+	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_write')")
 	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Valid EMail email, @RequestParam(required = false) MultipartFile[] upload_files) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
@@ -122,7 +122,7 @@ public class Rest_EMail {
 	
 	@RateLimit
 	@GetMapping(value = "v1/email/check/{mail_id}", produces = "application/json")
-	@PreAuthorize("hasAnyRole('ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_read')")
+	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_read')")
 	public ResponseEntity<ApiResponse> getMerchantDetailByMerchant_Id(HttpServletRequest request, @PathVariable @NotBlank Long mail_id) throws Exception{
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("Get sent email detail start...");
