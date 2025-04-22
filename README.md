@@ -1,30 +1,60 @@
-# Spring Boot project(JAVA JDK 21 + MySQL)
-## Purpose:
-  - Dev can clone & duplicate this project as **NEW** fully workable base project
-### Base method/service: 
-  1. Security:
-     - OAuth:
-       - [ ] Register user
-       - [x] Get token by username & password
-     - [x] JWT
-     - [x] Rate limit using Google guava
-  3. Restful API
-     - [x] Spring
-     - [x] JAX-RS
-  4. API call function:
-     - [x] Apache HTTP client
-     - [x] TCP Socket
-     - [ ] Asynchronous API call
-  5. Spring batch scheduler
-  6. Other:
-     - [x] Synchronize file from SFTP using SSH client
-     - [x] Get datetime in format, **yyyy-MM-dd'T'HH:mm:ss.SSS**
-     - [x] Error exception handling
-     - [x] Multi thread
-     - [x] Send mail api
+# 🚀 Spring Boot Base Project Template
 
-> [!NOTE]
-> You may contribute to this project:
-> - Improve security of this project.
+> Java 21 + Spring Boot + MySQL
 
-Download latest build: [Click here](https://github.com/jleong94/spring/releases/latest/download/spring.jar)
+This project serves as a fully working **base template** for Java Spring Boot developers. Easily clone and duplicate this project as a solid starting point for building microservices or monoliths.
+
+[![Download Latest Build](https://img.shields.io/badge/Download-Build-blue?style=for-the-badge&logo=github)](https://github.com/jleong94/spring/releases/latest/download/spring.jar)
+
+---
+
+## 🧩 Features
+
+### 🔐 Security
+- [x] JWT-based Authentication
+- [x] OAuth2 Token (username & password)
+- [ ] OAuth2 User Registration
+- [x] Rate Limiting using Google Guava
+
+### 🌐 API
+- [x] RESTful API using Spring
+- [x] JAX-RS Compatible Endpoints
+- [x] Apache HTTP Client for API Calls
+- [x] TCP Socket Communication
+- [ ] Asynchronous API Calls
+
+### ⚙️ Scheduler
+- [x] Spring Batch Scheduler
+
+### 📦 Utility
+- [x] Multi-threaded Operations
+- [x] SSH SFTP File Sync
+- [x] Date/Time Formatter (`yyyy-MM-dd'T'HH:mm:ss.SSS`)
+- [x] Centralized Exception Handling
+- [x] Send Mail API
+
+---
+
+## 🛠 Tech Stack
+
+- **Java:** JDK 21  
+- **Framework:** Spring Boot  
+- **Database:** MySQL  
+- **HTTP Client:** Apache HTTP Client  
+- **Security:** OAuth2, JWT, Google Guava  
+- **Other:** SFTP, TCP Socket, Multi-threading, Spring Batch  
+
+---
+
+## 🚀 Quickstart
+
+```bash
+# Step 1: Download the latest JAR file
+
+# Step 2: Open Command Prompt as Administrator (Windows)
+
+# Step 3: Navigate to the folder containing spring.jar
+cd path\to\your\jar\directory
+
+# Step 4: Run the JAR with custom JVM options
+java -Xms256m -Xmx2048m -XX:+PrintGCDetails -enableassertions -jar spring.jar
