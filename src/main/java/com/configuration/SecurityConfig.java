@@ -51,7 +51,8 @@ public class SecurityConfig {
 						session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 					)
 					.authorizeHttpRequests((requests) -> requests
-							.requestMatchers("/v1/user/**").permitAll()
+							.requestMatchers("/v1/user/registration").permitAll()
+							.requestMatchers("/v1/reset/password").permitAll()
 							.requestMatchers("/v1/oauth-token").permitAll()
 							.requestMatchers("/v1/email/**").authenticated())
 					.authenticationProvider(authenticationProvider())

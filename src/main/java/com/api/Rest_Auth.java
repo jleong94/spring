@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,9 +28,9 @@ import com.service.JwtService;
 import com.service.UserService;
 import com.utilities.Tool;
 import com.validation.RateLimit;
+import com.validation.UserValidationGroups;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -86,10 +88,10 @@ public class Rest_Auth {
 	
 	@RateLimit
 	@PostMapping(value = "v1/oauth-token", consumes = {"application/json"}, produces = "application/json")
-	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Valid OAuth oauth) throws Exception{
+	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Validated OAuth oauth) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
-		log.info("Generate oauth token start...");
+		log.info("-Generate oauth token start-");
 		try {
 			log.info("Request: " + objectMapper.writeValueAsString(oauth));
 			logHttpRequest(request, log);
@@ -132,17 +134,17 @@ public class Rest_Auth {
 			}
 			throw e;
 		} finally {
-			log.info("Generate oauth token end...");
+			log.info("-Generate oauth token end-");
 			MDC.clear();
 		}
 	}
 	
 	@RateLimit
 	@PostMapping(value = "v1/user/registration", consumes = {"application/json"}, produces = "application/json")
-	public ResponseEntity<ApiResponse> userRegistration(HttpServletRequest request, @RequestBody @Valid User user) throws Exception{
+	public ResponseEntity<ApiResponse> userRegistration(HttpServletRequest request, @RequestBody @Validated({UserValidationGroups.Create.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
-		log.info("User registration start...");
+		log.info("-User registration start-");
 		try {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
 			logHttpRequest(request, log);
@@ -165,7 +167,40 @@ public class Rest_Auth {
 			}
 			throw e;
 		} finally {
-			log.info("User registration end...");
+			log.info("-User registration end-");
+			MDC.clear();
+		}
+	}
+	
+	@RateLimit
+	@PutMapping(value = "v1/reset/password", consumes = {"application/json"}, produces = "application/json")
+	public ResponseEntity<ApiResponse> resetPassword(HttpServletRequest request, @RequestBody @Validated({UserValidationGroups.Update.class}) User user) throws Exception{
+		ObjectMapper objectMapper = new ObjectMapper();
+		MDC.put("mdcId", UUID.randomUUID());
+		log.info("-Reset password start-");
+		try {
+			log.info("Request: " + objectMapper.writeValueAsString(user));
+			logHttpRequest(request, log);
+			
+			return null;
+		} catch(Exception e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} finally {
+			log.info("-Reset password end-");
 			MDC.clear();
 		}
 	}

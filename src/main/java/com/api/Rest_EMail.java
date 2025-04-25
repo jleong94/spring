@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +27,6 @@ import com.utilities.Tool;
 import com.validation.RateLimit;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 
@@ -80,10 +80,10 @@ public class Rest_EMail {
 	@RateLimit
 	@PostMapping(value = "v1/email/send", consumes = {"application/json"}, produces = "application/json")
 	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_write')")
-	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Valid EMail email, @RequestParam(required = false) MultipartFile[] upload_files) throws Exception{
+	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Validated EMail email, @RequestParam(required = false) MultipartFile[] upload_files) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
-		log.info("Send email start...");
+		log.info("-Send email start-");
 		try {
 			log.info("Request: " + objectMapper.writeValueAsString(email));
 			logHttpRequest(request, log);
@@ -115,7 +115,7 @@ public class Rest_EMail {
 			}
 			throw e;
 		} finally {
-			log.info("Send email end...");
+			log.info("-Send email end-");
 			MDC.clear();
 		}
 	}
@@ -125,7 +125,7 @@ public class Rest_EMail {
 	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_read')")
 	public ResponseEntity<ApiResponse> getMerchantDetailByMerchant_Id(HttpServletRequest request, @PathVariable @NotBlank Long mail_id) throws Exception{
 		MDC.put("mdcId", UUID.randomUUID());
-		log.info("Get sent email detail start...");
+		log.info("-Get sent email detail start-");
 		try {
 			logHttpRequest(request, log);
 
@@ -147,7 +147,7 @@ public class Rest_EMail {
 			}
 			throw e;
 		} finally {
-			log.info("Get sent email detail end...");
+			log.info("-Get sent email detail end-");
 			MDC.clear();
 		}
 	}

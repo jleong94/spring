@@ -73,7 +73,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws IOException, ServletException{
 		MDC.put("mdcId", UUID.randomUUID());
-		log.info("Security filter start...");
+		log.info("-Security filter start-");
 		try {
 			logHttpRequest(request, log);
 			String token = request.getHeader("Authorization");
@@ -97,7 +97,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 			}
 			chain.doFilter(request, response);
 		} finally {
-			log.info("Security filter end...");
+			log.info("-Security filter end-");
 			MDC.clear();
 		}
 	}

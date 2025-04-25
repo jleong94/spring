@@ -6,10 +6,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -104,4 +106,46 @@ public class Tool {
 		Files.copy(multipartFile.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 		return targetPath.toAbsolutePath().toString();
 	}
+	
+	public String generatePassword(int length) {
+		final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	    final String LOWER = "abcdefghijklmnopqrstuvwxyz";
+	    final String DIGITS = "0123456789";
+	    final String SPECIAL = "!@#$%^&*()-_=+[]{}";
+	    final String ALL_CHARS = UPPER + LOWER + DIGITS + SPECIAL;
+	    final SecureRandom random = new SecureRandom();
+        // Ensure at least one of each type
+        List<Character> passwordChars = new ArrayList<>();
+        passwordChars.add(getRandomChar(random, UPPER));
+        passwordChars.add(getRandomChar(random, LOWER));
+        passwordChars.add(getRandomChar(random, DIGITS));
+        passwordChars.add(getRandomChar(random, SPECIAL));
+        // Fill remaining characters
+        while (passwordChars.size() < length) {
+            char nextChar = getRandomChar(random, ALL_CHARS);
+            // Avoid repeating adjacent characters
+            if (passwordChars.isEmpty() || passwordChars.get(passwordChars.size() - 1) != nextChar) {
+                passwordChars.add(nextChar);
+            }
+        }
+        // Shuffle to ensure randomness of the guaranteed characters
+        Collections.shuffle(passwordChars);
+        // Check again for adjacent repetitions
+        for (int i = 1; i < passwordChars.size(); i++) {
+            if (passwordChars.get(i).equals(passwordChars.get(i - 1))) {
+                // regenerate
+                return generatePassword(length); // Recursive retry
+            }
+        }
+        // Convert to string
+        StringBuilder password = new StringBuilder();
+        for (char ch : passwordChars) {
+            password.append(ch);
+        }
+        return password.toString();
+    }
+
+    private static char getRandomChar(SecureRandom random, String chars) {
+        return chars.charAt(random.nextInt(chars.length()));
+    }
 }
