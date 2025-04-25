@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -36,7 +34,7 @@ public class UserRoleLookup {
 	@JsonIgnore
 	private Long role_id;
 	
-	@JsonProperty(value= "role_name", access = Access.READ_ONLY)
+	@JsonIgnore
 	@Column(name = "role_name", unique = true, nullable = false, insertable = true, updatable = true, table = "user_role_lookup", length = 20)
 	private String role_name;
 	

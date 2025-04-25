@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.configuration.UserInfoDetails;
 import com.enums.ResponseCode;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.modal.User;
+import com.modal.User.OauthToken;
 import com.pojo.ApiResponse;
 import com.properties.Property;
 import com.service.JwtService;
@@ -86,7 +88,9 @@ public class Rest_Auth {
 	
 	@RateLimit
 	@PostMapping(value = "v1/oauth-token", consumes = {"application/json"}, produces = "application/json")
-	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Validated({User.Auth.class}) User user) throws Exception{
+	@JsonView({OauthToken.class})//Which getter parameter should return within json
+	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
+	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Validated({User.OauthToken.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-Generate oauth token start-");
@@ -139,7 +143,9 @@ public class Rest_Auth {
 	
 	@RateLimit
 	@PostMapping(value = "v1/user/registration", consumes = {"application/json"}, produces = "application/json")
-	public ResponseEntity<ApiResponse> userRegistration(HttpServletRequest request, @RequestBody @Validated({User.Create.class}) User user) throws Exception{
+	@JsonView({User.UserRegistration.class})//Which getter parameter should return within json
+	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
+	public ResponseEntity<ApiResponse> userRegistration(HttpServletRequest request, @RequestBody @Validated({User.UserRegistration.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-User registration start-");
@@ -172,7 +178,9 @@ public class Rest_Auth {
 	
 	@RateLimit
 	@PutMapping(value = "v1/reset/password", consumes = {"application/json"}, produces = "application/json")
-	public ResponseEntity<ApiResponse> resetPassword(HttpServletRequest request, @RequestBody @Validated({User.Update.class}) User user) throws Exception{
+	@JsonView({User.ResetPassword.class})//Which getter parameter should return within json
+	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
+	public ResponseEntity<ApiResponse> resetPassword(HttpServletRequest request, @RequestBody @Validated({User.ResetPassword.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-Reset password start-");

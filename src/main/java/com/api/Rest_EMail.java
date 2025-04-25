@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.enums.ResponseCode;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.modal.EMail;
 import com.pojo.ApiResponse;
@@ -80,7 +81,9 @@ public class Rest_EMail {
 	@RateLimit
 	@PostMapping(value = "v1/email/send", consumes = {"application/json"}, produces = "application/json")
 	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_write')")
-	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Validated({EMail.Create.class}) EMail email, @RequestParam(required = false) MultipartFile[] upload_files) throws Exception{
+	@JsonView({EMail.SendEMail.class})//Which getter parameter should return within json
+	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
+	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Validated({EMail.SendEMail.class}) EMail email, @RequestParam(required = false) MultipartFile[] upload_files) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-Send email start-");
@@ -123,6 +126,7 @@ public class Rest_EMail {
 	@RateLimit
 	@GetMapping(value = "v1/email/check/{mail_id}", produces = "application/json")
 	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_read')")
+	@JsonView({EMail.GetMerchantDetailByMerchant_Id.class})//Which getter parameter should return within json
 	public ResponseEntity<ApiResponse> getMerchantDetailByMerchant_Id(HttpServletRequest request, @PathVariable @NotBlank Long mail_id) throws Exception{
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-Get sent email detail start-");

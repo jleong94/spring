@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -48,10 +49,9 @@ indexes = {
 })
 public class User {
 	
-	public interface Create {}
-    public interface Update {}
-    public interface Delete {}
-    public interface Auth {}
+	public interface UserRegistration {}
+    public interface ResetPassword {}
+    public interface OauthToken {}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
@@ -64,6 +64,7 @@ public class User {
 	@JsonProperty(value= "created_datetime", access = Access.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+	@JsonView({UserRegistration.class})
 	private LocalDateTime created_datetime;
 	
 	@UpdateTimestamp
@@ -71,17 +72,19 @@ public class User {
 	@JsonProperty(value= "modified_datetime", access = Access.READ_ONLY)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+	@JsonView({UserRegistration.class})
 	private LocalDateTime modified_datetime;
 	
 	@JsonProperty(value= "username", access = Access.READ_WRITE)
-	@NotBlank(groups = {Create.class, Update.class, Auth.class}, message = "User name is blank.")
-	@Size(groups = {Create.class, Update.class, Auth.class}, max = 20, message = "User name exceed 20 characters.")
+	@NotBlank(groups = {UserRegistration.class, ResetPassword.class, OauthToken.class}, message = "User name is blank.")
+	@Size(groups = {UserRegistration.class, ResetPassword.class, OauthToken.class}, max = 20, message = "User name exceed 20 characters.")
 	@Column(name = "username", unique = true, nullable = false, insertable = true, updatable = false, table = "user", length = 20)
+	@JsonView({UserRegistration.class})
 	private String username;
 	
 	@JsonProperty(value= "password", access = Access.WRITE_ONLY)
-	@NotBlank(groups = {Create.class, Auth.class}, message = "Password is blank.")
-	@Size(groups = {Create.class, Auth.class}, max = 255, message = "Password exceed 255 characters.")
+	@NotBlank(groups = {UserRegistration.class, OauthToken.class}, message = "Password is blank.")
+	@Size(groups = {UserRegistration.class, OauthToken.class}, max = 255, message = "Password exceed 255 characters.")
 	@Pattern(
 			regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]).{8,}$",
 			message = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character."
@@ -89,21 +92,23 @@ public class User {
 	@Column(name = "password", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 255)
 	private String password;
 	
-	@Email(groups = {Create.class, Update.class}, message = "Invalid email format.")
+	@Email(groups = {UserRegistration.class, ResetPassword.class}, message = "Invalid email format.")
 	@JsonProperty(value= "email", access = Access.READ_WRITE)
-	@NotBlank(groups = {Create.class, Update.class}, message = "Email is blank.")
-	@Size(groups = {Create.class, Update.class}, max = 50, message = "Email exceed 50 characters.")
+	@NotBlank(groups = {UserRegistration.class, ResetPassword.class}, message = "Email is blank.")
+	@Size(groups = {UserRegistration.class, ResetPassword.class}, max = 50, message = "Email exceed 50 characters.")
 	@Column(name = "email", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 50)
+	@JsonView({UserRegistration.class})
 	private String email;
 	
 	@Pattern(
-			groups = {Create.class},
+			groups = {UserRegistration.class},
 			regexp = "^\\+?[1-9]\\d{1,14}$",
 			message = "Phone number should be in the format +<country code><number>, no spaces or dashes."
 			)
 	@JsonProperty(value= "mobile_no", access = Access.READ_WRITE)
-	@NotBlank(groups = {Create.class}, message = "Mobile number is blank.")
+	@NotBlank(groups = {UserRegistration.class}, message = "Mobile number is blank.")
 	@Column(name = "mobile_no", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 15)
+	@JsonView({UserRegistration.class})
 	private String mobile_no;
 	
 	@JsonIgnore
@@ -133,9 +138,11 @@ public class User {
 	
 	@Transient
 	@JsonProperty(value= "token_type", access = Access.READ_ONLY)
+	@JsonView({OauthToken.class})
 	private String token_type;
 	
 	@Transient
 	@JsonProperty(value= "access_token", access = Access.READ_ONLY)
+	@JsonView({OauthToken.class})
 	private String access_token;
 }
