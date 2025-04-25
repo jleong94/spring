@@ -1,5 +1,5 @@
 Command for run Java JAR file:
-java -Xms256m -Xmx2048m -XX:+PrintGCDetails -enableassertions -jar app.jar
+java -Xms256m -Xmx2048m -XX:+PrintGCDetails -jar app.jar
 
 Command for run Java class file:
 @echo off
@@ -8,12 +8,12 @@ SET BASE_DIR=C:\jakarta-tomcat\webapps
 SET CLASSPATH=%BASE_DIR%\%PROJECT_NAME%\WEB-INF\classes
 SET LIBPATH=%BASE_DIR%\%PROJECT_NAME%\WEB-INF\lib
 SET CLASSPATH=%CLASSPATH%;%LIBPATH%\*;
-java -Xms256m -Xmx2048m -XX:+PrintGCDetails -enableassertions package_name.class_name
+java -Xms256m -Xmx2048m -XX:+PrintGCDetails package_name.class_name
 exit;
 
 Handling for HttpServlet
 request.setCharacterEncoding("UTF-8"); response.setContentType("text/html; charset=UTF-8");
-request.getParameter("") == null || request.getParameter("").trim().isEmpty() ? "" : StringEscapeUtils.escapeHtml4(request.getParameter("")).trim()
+request.getParameter("") == null || request.getParameter("").trim().isEmpty() ? "" : StringEscapeUtils.escapeHtml4(request.getParameter("")).trim();
 
 Command(Spring):
 1. verify clean install - Build spring project into jar or war file.
