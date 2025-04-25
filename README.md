@@ -46,7 +46,7 @@ This project serves as a fully working **base template** for Java Spring Boot de
 
 ---
 
-## 🚀 Quickstart
+## 🚀 Setup
 
 ```bash
 # Step 1: Make sure running environment installed JDK 21 or above.
