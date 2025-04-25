@@ -37,53 +37,57 @@ public class EMailService {
 	 * @param email
 	 * */
 	public EMail sendEMail(EMail email) throws Exception {
-        try {
-        	email.setSender(property.getSmtp_mail());
-        	Properties properties = new Properties();
-        	properties.put("mail.smtp.auth", "true");
-        	properties.put("mail.smtp.host", property.getSmtp_host());
-        	properties.put("mail.smtp.port", property.getSmtpPort());
-        	if (property.isSmtp_ssl()) {
-        		properties.put("mail.smtp.socketFactory.port", property.getSmtpPort());
-        		properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-            } if (property.isSmtp_tls()) {
-            	properties.put("mail.smtp.starttls.enable", "true");
-            }
-            Session session = Session.getInstance(properties, new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(property.getSmtp_username(), property.getSmtp_password());
-                }
-            });
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(email.getSender()));
-            for (String to : email.getReceiver().split("[,;]")) {
-                message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-            }
-            for (String cc : email.getCc().split("[,;]")) {
-                message.addRecipient(Message.RecipientType.CC, new InternetAddress(cc));
-            }
-            for (String bcc : email.getBcc().split("[,;]")) {
-                message.addRecipient(Message.RecipientType.BCC, new InternetAddress(bcc));
-            }
-            message.setSubject(email.getSubject());
-            Multipart multipart = new MimeMultipart();
-            MimeBodyPart mimeBodyPart = new MimeBodyPart();
-            if (email.isHTML()) {
-            	mimeBodyPart.setContent(email.getBody(), "text/html; charset=utf-8");
-            } else {
-            	mimeBodyPart.setText(email.getBody());
-            }
-            multipart.addBodyPart(mimeBodyPart);
-            for (EMailAttachment emailAttachment : email.getAttachments()) {
-                MimeBodyPart attachmentPart = new MimeBodyPart();
-                attachmentPart.attachFile(new File(emailAttachment.getFile_path()));
-                multipart.addBodyPart(attachmentPart);
-            }
-            message.setContent(multipart);
-            Transport.send(message);
-            email.setSend(true);
-        } finally{
+		try {
+			email.setSender(property.getSmtp_mail());
+			Properties properties = new Properties();
+			properties.put("mail.smtp.auth", "true");
+			properties.put("mail.smtp.host", property.getSmtp_host());
+			properties.put("mail.smtp.port", property.getSmtpPort());
+			if (property.isSmtp_ssl()) {
+				properties.put("mail.smtp.socketFactory.port", property.getSmtpPort());
+				properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+			} if (property.isSmtp_tls()) {
+				properties.put("mail.smtp.starttls.enable", "true");
+			}
+			Session session = Session.getInstance(properties, new Authenticator() {
+				@Override
+				protected PasswordAuthentication getPasswordAuthentication() {
+					return new PasswordAuthentication(property.getSmtp_username(), property.getSmtp_password());
+				}
+			});
+			Message message = new MimeMessage(session);
+			message.setFrom(new InternetAddress(email.getSender()));
+			if(email.getReceiver() != null) {
+				for (String to : email.getReceiver().split("[,;]")) {
+					message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+				}
+			} if(email.getCc() != null) {
+				for (String cc : email.getCc().split("[,;]")) {
+					message.addRecipient(Message.RecipientType.CC, new InternetAddress(cc));
+				}
+			} if(email.getBcc() != null) {
+				for (String bcc : email.getBcc().split("[,;]")) {
+					message.addRecipient(Message.RecipientType.BCC, new InternetAddress(bcc));
+				}
+			}
+			message.setSubject(email.getSubject());
+			Multipart multipart = new MimeMultipart();
+			MimeBodyPart mimeBodyPart = new MimeBodyPart();
+			if (email.isHTML()) {
+				mimeBodyPart.setContent(email.getBody(), "text/html; charset=utf-8");
+			} else {
+				mimeBodyPart.setText(email.getBody());
+			}
+			multipart.addBodyPart(mimeBodyPart);
+			for (EMailAttachment emailAttachment : email.getAttachments()) {
+				MimeBodyPart attachmentPart = new MimeBodyPart();
+				attachmentPart.attachFile(new File(emailAttachment.getFile_path()));
+				multipart.addBodyPart(attachmentPart);
+			}
+			message.setContent(multipart);
+			Transport.send(message);
+			email.setSend(true);
+		} finally{
         	emailRepo.save(email);
         }
         return email;

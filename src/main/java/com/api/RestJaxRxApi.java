@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,14 +43,14 @@ public class RestJaxRxApi {
 			if(headerNames != null) {
 				while(headerNames.hasMoreElements()) {
 					String headerName = headerNames.nextElement();
-					log.info(headerName + ": " + new String(request.getHeader(headerName).getBytes("ISO-8859-1"), "UTF-8"));
+					log.info(headerName + ": " + StringEscapeUtils.escapeHtml4(request.getHeader(headerName)));
 				}
 			}
 			Enumeration<String> parameterNames = request.getParameterNames();
 			if(parameterNames != null) {
 				while(parameterNames.hasMoreElements()) {
 					String parameterName = parameterNames.nextElement();
-					log.info(parameterName + ": " + new String(request.getParameter(parameterName).getBytes("ISO-8859-1"), "UTF-8"));
+					log.info(parameterName + ": " + StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
 				}
 			}
 		} catch (Exception e) {
@@ -72,8 +73,8 @@ public class RestJaxRxApi {
 
 	@POST @GET @PUT @DELETE
 	@Path("/token/{x3}")
-	@Consumes({"application/json"})
-	@Produces({"application/json"})
+	@Consumes({"application/json; charset=UTF-8"})
+	@Produces({"application/json; charset=UTF-8"})
 	public Response methodName(@Context HttpServletRequest request,
 			@HeaderParam("authorization") @DefaultValue("") String authorization,//Values from header
 			@CookieParam("session") @DefaultValue("") String session,//Values from cookies

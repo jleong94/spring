@@ -3,6 +3,7 @@ package com.api;
 import java.util.Enumeration;
 import java.util.UUID;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.jboss.logging.MDC;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,14 +59,14 @@ public class Rest_Auth {
 			if(headerNames != null) {
 				while(headerNames.hasMoreElements()) {
 					String headerName = headerNames.nextElement();
-					log.info(headerName + ": " + new String(request.getHeader(headerName).getBytes("ISO-8859-1"), "UTF-8"));
+					log.info(headerName + ": " + StringEscapeUtils.escapeHtml4(request.getHeader(headerName)));
 				}
 			}
 			Enumeration<String> parameterNames = request.getParameterNames();
 			if(parameterNames != null) {
 				while(parameterNames.hasMoreElements()) {
 					String parameterName = parameterNames.nextElement();
-					log.info(parameterName + ": " + new String(request.getParameter(parameterName).getBytes("ISO-8859-1"), "UTF-8"));
+					log.info(parameterName + ": " + StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
 				}
 			}
 		} catch(Exception e) {
@@ -87,7 +88,7 @@ public class Rest_Auth {
 	}
 	
 	@RateLimit
-	@PostMapping(value = "v1/oauth-token", consumes = {"application/json"}, produces = "application/json")
+	@PostMapping(value = "v1/oauth-token", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({OauthToken.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
 	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Validated({User.OauthToken.class}) User user) throws Exception{
@@ -142,7 +143,7 @@ public class Rest_Auth {
 	}
 	
 	@RateLimit
-	@PostMapping(value = "v1/user/registration", consumes = {"application/json"}, produces = "application/json")
+	@PostMapping(value = "v1/user/registration", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({User.UserRegistration.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
 	public ResponseEntity<ApiResponse> userRegistration(HttpServletRequest request, @RequestBody @Validated({User.UserRegistration.class}) User user) throws Exception{
@@ -177,7 +178,7 @@ public class Rest_Auth {
 	}
 	
 	@RateLimit
-	@PutMapping(value = "v1/reset/password", consumes = {"application/json"}, produces = "application/json")
+	@PutMapping(value = "v1/reset/password", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({User.ResetPassword.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
 	public ResponseEntity<ApiResponse> resetPassword(HttpServletRequest request, @RequestBody @Validated({User.ResetPassword.class}) User user) throws Exception{

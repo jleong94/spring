@@ -3,6 +3,7 @@ package com.api;
 import java.util.Enumeration;
 import java.util.UUID;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.jboss.logging.MDC;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,14 +51,14 @@ public class Rest_EMail {
 			if(headerNames != null) {
 				while(headerNames.hasMoreElements()) {
 					String headerName = headerNames.nextElement();
-					log.info(headerName + ": " + new String(request.getHeader(headerName).getBytes("ISO-8859-1"), "UTF-8"));
+					log.info(headerName + ": " + StringEscapeUtils.escapeHtml4(request.getHeader(headerName)));
 				}
 			}
 			Enumeration<String> parameterNames = request.getParameterNames();
 			if(parameterNames != null) {
 				while(parameterNames.hasMoreElements()) {
 					String parameterName = parameterNames.nextElement();
-					log.info(parameterName + ": " + new String(request.getParameter(parameterName).getBytes("ISO-8859-1"), "UTF-8"));
+					log.info(parameterName + ": " + StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
 				}
 			}
 		} catch(Exception e) {
@@ -79,7 +80,7 @@ public class Rest_EMail {
 	}
 
 	@RateLimit
-	@PostMapping(value = "v1/email/send", consumes = {"application/json"}, produces = "application/json")
+	@PostMapping(value = "v1/email/send", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_write')")
 	@JsonView({EMail.SendEMail.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
@@ -124,7 +125,7 @@ public class Rest_EMail {
 	}
 	
 	@RateLimit
-	@GetMapping(value = "v1/email/check/{mail_id}", produces = "application/json")
+	@GetMapping(value = "v1/email/check/{mail_id}", produces = "application/json; charset=UTF-8")
 	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_read')")
 	@JsonView({EMail.GetMerchantDetailByMerchant_Id.class})//Which getter parameter should return within json
 	public ResponseEntity<ApiResponse> getMerchantDetailByMerchant_Id(HttpServletRequest request, @PathVariable @NotBlank Long mail_id) throws Exception{

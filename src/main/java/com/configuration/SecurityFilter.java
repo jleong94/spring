@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.UUID;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.jboss.logging.MDC;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,14 +43,14 @@ public class SecurityFilter extends OncePerRequestFilter {
 			if(headerNames != null) {
 				while(headerNames.hasMoreElements()) {
 					String headerName = headerNames.nextElement();
-					log.info(headerName + ": " + new String(request.getHeader(headerName).getBytes("ISO-8859-1"), "UTF-8"));
+					log.info(headerName + ": " + StringEscapeUtils.escapeHtml4(request.getHeader(headerName)));
 				}
 			}
 			Enumeration<String> parameterNames = request.getParameterNames();
 			if(parameterNames != null) {
 				while(parameterNames.hasMoreElements()) {
 					String parameterName = parameterNames.nextElement();
-					log.info(parameterName + ": " + new String(request.getParameter(parameterName).getBytes("ISO-8859-1"), "UTF-8"));
+					log.info(parameterName + ": " + StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
 				}
 			}
 		} catch(Exception e) {
