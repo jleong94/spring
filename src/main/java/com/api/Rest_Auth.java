@@ -22,13 +22,11 @@ import com.enums.ResponseCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.modal.User;
 import com.pojo.ApiResponse;
-import com.pojo.OAuth;
 import com.properties.Property;
 import com.service.JwtService;
 import com.service.UserService;
 import com.utilities.Tool;
 import com.validation.RateLimit;
-import com.validation.UserValidationGroups;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -88,26 +86,26 @@ public class Rest_Auth {
 	
 	@RateLimit
 	@PostMapping(value = "v1/oauth-token", consumes = {"application/json"}, produces = "application/json")
-	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Validated OAuth oauth) throws Exception{
+	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Validated({User.Auth.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-Generate oauth token start-");
 		try {
-			log.info("Request: " + objectMapper.writeValueAsString(oauth));
+			log.info("Request: " + objectMapper.writeValueAsString(user));
 			logHttpRequest(request, log);
 			
 			// Authenticate user credentials using Spring Security
-			Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(oauth.getUsername(), oauth.getPassword()));
+			Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 			if(authentication.isAuthenticated()) {
 				UserInfoDetails userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
-				oauth.setToken_type(property.getJwt_token_type());
-				oauth.setAccess_token(jwtService.generateToken(oauth.getUsername(), userInfoDetails));
+				user.setToken_type(property.getJwt_token_type());
+				user.setAccess_token(jwtService.generateToken(user.getUsername(), userInfoDetails));
 				return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 						.builder()
 						.resp_code(ResponseCode.SUCCESS.getResponse_code())
 						.resp_msg(ResponseCode.SUCCESS.getResponse_status())
 						.datetime(tool.getTodayDateTimeInString())
-						.oauth(oauth)
+						.user(user)
 						.build());
 			} else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse
@@ -141,7 +139,7 @@ public class Rest_Auth {
 	
 	@RateLimit
 	@PostMapping(value = "v1/user/registration", consumes = {"application/json"}, produces = "application/json")
-	public ResponseEntity<ApiResponse> userRegistration(HttpServletRequest request, @RequestBody @Validated({UserValidationGroups.Create.class}) User user) throws Exception{
+	public ResponseEntity<ApiResponse> userRegistration(HttpServletRequest request, @RequestBody @Validated({User.Create.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-User registration start-");
@@ -174,7 +172,7 @@ public class Rest_Auth {
 	
 	@RateLimit
 	@PutMapping(value = "v1/reset/password", consumes = {"application/json"}, produces = "application/json")
-	public ResponseEntity<ApiResponse> resetPassword(HttpServletRequest request, @RequestBody @Validated({UserValidationGroups.Update.class}) User user) throws Exception{
+	public ResponseEntity<ApiResponse> resetPassword(HttpServletRequest request, @RequestBody @Validated({User.Update.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-Reset password start-");

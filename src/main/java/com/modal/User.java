@@ -26,10 +26,9 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -48,6 +47,11 @@ indexes = {
 		@Index(name = "idx_username", columnList = "username")
 })
 public class User {
+	
+	public interface Create {}
+    public interface Update {}
+    public interface Delete {}
+    public interface Auth {}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
@@ -70,16 +74,14 @@ public class User {
 	private LocalDateTime modified_datetime;
 	
 	@JsonProperty(value= "username", access = Access.READ_WRITE)
-	@NotNull(message = "User name is null.")
-	@NotBlank(message = "User name is blank.")
-	@Size(max = 20, message = "User name exceed 20 characters.")
+	@NotBlank(groups = {Create.class, Update.class, Auth.class}, message = "User name is blank.")
+	@Size(groups = {Create.class, Update.class, Auth.class}, max = 20, message = "User name exceed 20 characters.")
 	@Column(name = "username", unique = true, nullable = false, insertable = true, updatable = false, table = "user", length = 20)
 	private String username;
 	
 	@JsonProperty(value= "password", access = Access.WRITE_ONLY)
-	@NotNull(message = "Password is null.")
-	@NotBlank(message = "Password is blank.")
-	@Size(max = 255, message = "Password exceed 255 characters.")
+	@NotBlank(groups = {Create.class, Auth.class}, message = "Password is blank.")
+	@Size(groups = {Create.class, Auth.class}, max = 255, message = "Password exceed 255 characters.")
 	@Pattern(
 			regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]).{8,}$",
 			message = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character."
@@ -87,33 +89,28 @@ public class User {
 	@Column(name = "password", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 255)
 	private String password;
 	
-	@Email(message = "Invalid email format.")
+	@Email(groups = {Create.class, Update.class}, message = "Invalid email format.")
 	@JsonProperty(value= "email", access = Access.READ_WRITE)
-	@NotNull(message = "Email is null.")
-	@NotBlank(message = "Email is blank.")
-	@Size(max = 50, message = "Email exceed 50 characters.")
+	@NotBlank(groups = {Create.class, Update.class}, message = "Email is blank.")
+	@Size(groups = {Create.class, Update.class}, max = 50, message = "Email exceed 50 characters.")
 	@Column(name = "email", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 50)
 	private String email;
 	
 	@Pattern(
+			groups = {Create.class},
 			regexp = "^\\+?[1-9]\\d{1,14}$",
 			message = "Phone number should be in the format +<country code><number>, no spaces or dashes."
 			)
 	@JsonProperty(value= "mobile_no", access = Access.READ_WRITE)
-	@NotNull(message = "Mobile number is null.")
-	@NotBlank(message = "Mobile number is blank.")
+	@NotBlank(groups = {Create.class}, message = "Mobile number is blank.")
 	@Column(name = "mobile_no", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 15)
 	private String mobile_no;
 	
 	@JsonIgnore
-	@Min(1)
 	@Column(name = "jwt_token_expiration", unique = false, nullable = false, insertable = true, updatable = true, table = "user")
 	private int jwt_token_expiration;
 	
 	@JsonIgnore
-	@NotNull(message = "JWT token secret key is null.")
-	@NotBlank(message = "JWT token secret key is blank.")
-	@Size(max = 100, message = "JWT token secret key exceed 100 characters.")
 	@Column(name = "jwt_token_secret_key", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 100)
 	private String jwt_token_secret_key;
 	
@@ -133,4 +130,12 @@ public class User {
 	joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id", unique = false, nullable = false)},
 	inverseJoinColumns = {@JoinColumn(name = "user_action_id", referencedColumnName = "user_action_id", unique = false, nullable = false)})
 	private List<UserActionLookup> userActionLookup;
+	
+	@Transient
+	@JsonProperty(value= "token_type", access = Access.READ_ONLY)
+	private String token_type;
+	
+	@Transient
+	@JsonProperty(value= "access_token", access = Access.READ_ONLY)
+	private String access_token;
 }

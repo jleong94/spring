@@ -82,7 +82,7 @@ public class EMailService {
             }
             message.setContent(multipart);
             Transport.send(message);
-            email.setIsSend(1);
+            email.setSend(true);
         } finally{
         	emailRepo.save(email);
         }

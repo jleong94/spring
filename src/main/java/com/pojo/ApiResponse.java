@@ -27,9 +27,6 @@ public class ApiResponse {
 	@JsonProperty(value= "user", access = Access.READ_ONLY)
 	private User user;
 	
-	@JsonProperty(value= "oauth", access = Access.READ_ONLY)
-	private OAuth oauth;
-	
 	@JsonProperty(value= "email", access = Access.READ_ONLY)
 	private EMail email;
 }

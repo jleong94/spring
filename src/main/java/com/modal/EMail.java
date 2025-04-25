@@ -22,7 +22,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,6 +35,10 @@ import lombok.NoArgsConstructor;
 @Entity(name = "email")
 @Table(name = "email", schema = "appdb")
 public class EMail {
+	
+	public interface Create {}
+    public interface Update {}
+    public interface Delete {}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
@@ -57,34 +60,33 @@ public class EMail {
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	private LocalDateTime modified_datetime;
 	
-	@NotNull(message = "Sender email is null.")
-	@NotBlank(message = "Sender email is blank.")
-	@Size(max = 255, message = "Sender email exceed 255 characters.")
 	@Column(name = "sender", unique = false, nullable = false, insertable = true, updatable = false, table = "email", length = 255)
 	@JsonIgnore
 	private String sender;
 	
-	@Size(max = 255, message = "Receiver email exceed 255 characters.")
+	@Size(groups = {Create.class, Update.class}, max = 255, message = "Receiver email exceed 255 characters.")
 	@Column(name = "receiver", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 255)
 	@JsonProperty(value= "receiver", access = Access.READ_WRITE)
 	private String receiver;
 	
-	@Size(max = 255, message = "CC email exceed 255 characters.")
+	@Size(groups = {Create.class, Update.class}, max = 255, message = "CC email exceed 255 characters.")
 	@Column(name = "cc", unique = false, nullable = true, insertable = true, updatable = true, table = "email", length = 255)
 	@JsonProperty(value= "cc", access = Access.READ_WRITE)
 	private String cc;
 
-	@Size(max = 255, message = "BCC email exceed 255 characters.")
+	@Size(groups = {Create.class, Update.class}, max = 255, message = "BCC email exceed 255 characters.")
 	@Column(name = "bcc", unique = false, nullable = true, insertable = true, updatable = true, table = "email", length = 255)
 	@JsonProperty(value= "bcc", access = Access.READ_WRITE)
 	private String bcc;
 
-	@Size(max = 500, message = "Email subject exceed 500 characters.")
+	@NotBlank(groups = {Create.class, Update.class}, message = "Email subject is blank.")
+	@Size(groups = {Create.class, Update.class}, max = 500, message = "Email subject exceed 500 characters.")
 	@Column(name = "subject", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 500)
 	@JsonProperty(value= "subject", access = Access.READ_WRITE)
 	private String subject;
-	
-	@Size(max = 1000, message = "Email body exceed 1000 characters.")
+
+	@NotBlank(groups = {Create.class, Update.class}, message = "Email body is blank.")
+	@Size(groups = {Create.class, Update.class}, max = 1000, message = "Email body exceed 1000 characters.")
 	@Column(name = "body", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 1000)
 	@JsonProperty(value= "body", access = Access.READ_WRITE)
 	private String body;
@@ -99,5 +101,5 @@ public class EMail {
 
 	@Column(name = "isSend", unique = false, nullable = false, insertable = true, updatable = true, table = "email")
 	@JsonProperty(value= "isSend", access = Access.READ_ONLY)
-	private int isSend;
+	private boolean isSend;
 }

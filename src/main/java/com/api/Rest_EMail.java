@@ -80,7 +80,7 @@ public class Rest_EMail {
 	@RateLimit
 	@PostMapping(value = "v1/email/send", consumes = {"application/json"}, produces = "application/json")
 	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_write')")
-	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Validated EMail email, @RequestParam(required = false) MultipartFile[] upload_files) throws Exception{
+	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Validated({EMail.Create.class}) EMail email, @RequestParam(required = false) MultipartFile[] upload_files) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-Send email start-");
