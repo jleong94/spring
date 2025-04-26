@@ -189,7 +189,7 @@ public class Rest_Auth {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
 			logHttpRequest(request, log);
 			
-			return null;
+			return userService.resetPassword(user);
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];

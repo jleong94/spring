@@ -1,7 +1,6 @@
 package com.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.configuration.UserInfoDetails;
 import com.enums.ResponseCode;
+import com.modal.EMail;
 import com.modal.Permission;
 import com.modal.User;
 import com.modal.UserActionLookup;
@@ -54,14 +54,17 @@ public class UserService implements UserDetailsService {
 
 	@Autowired
 	PermissionRepo permissionRepo;
+	
+	@Autowired
+	EMailService emailService;
 
 	/*
 	 * This function will auto call by spring security or application logic during authentication/authorization
 	 * */
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<User> user = userRepo.findByUsername(username);
-		return user.map(x -> new UserInfoDetails(x))
+		return userRepo.findByUsername(username)
+				.map(x -> new UserInfoDetails(x))
 				.orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 	}
 
@@ -104,5 +107,29 @@ public class UserService implements UserDetailsService {
 					.datetime(tool.getTodayDateTimeInString())
 					.build());
 		}
+	}
+	
+	public ResponseEntity<ApiResponse> resetPassword(User user) throws Exception{
+		String username = user.getUsername();
+		user = userRepo.findByUsernameAndEmail(user.getUsername(), user.getEmail())
+				.orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+		String password = tool.generatePassword(10);
+		user.setPassword(new Argon2PasswordEncoder(16, 32, 1, 65536, 10).encode(password));
+		userRepo.save(user);
+		emailService.sendEMail(EMail.builder()
+				.receiver(user.getEmail())
+				.subject("Reset Password")
+				.body("Your new password for username, "
+						.concat(user.getUsername())
+						.concat(" is ")
+						.concat(password)
+						.concat("."))
+				.build());
+		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.SUCCESS.getResponse_code())
+				.resp_msg(ResponseCode.SUCCESS.getResponse_status())
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
 	}
 }

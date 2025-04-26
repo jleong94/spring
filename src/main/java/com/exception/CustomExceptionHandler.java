@@ -87,7 +87,7 @@ public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
 	public ResponseEntity<ApiResponse> runtimeException(RuntimeException e) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
 				.builder()
-				.resp_code(ResponseCode.ERROR_OCCURED.getResponse_code())
+				.resp_code(ResponseCode.ERROR.getResponse_code())
 				.resp_msg(e.getMessage())
 				.datetime(tool.getTodayDateTimeInString())
 				.build());
@@ -97,7 +97,7 @@ public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
 	public ResponseEntity<ApiResponse> exception(Exception e) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
 				.builder()
-				.resp_code(ResponseCode.ERROR_OCCURED.getResponse_code())
+				.resp_code(ResponseCode.ERROR.getResponse_code())
 				.resp_msg(e.getMessage())
 				.datetime(tool.getTodayDateTimeInString())
 				.build());
@@ -112,7 +112,7 @@ public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
 				.collect(Collectors.joining(", ")); // Combine all messages into a single string
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse
 				.builder()
-				.resp_code(ResponseCode.ERROR_OCCURED.getResponse_code())
+				.resp_code(ResponseCode.ERROR.getResponse_code())
 				.resp_msg(errorMessage)
 				.datetime(tool.getTodayDateTimeInString())
 				.build());
@@ -122,7 +122,7 @@ public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
 	public ResponseEntity<ApiResponse> rateLimitExceededException(RateLimitExceededException e) {
 		return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(ApiResponse
 				.builder()
-				.resp_code(ResponseCode.ERROR_OCCURED.getResponse_code())
+				.resp_code(ResponseCode.ERROR.getResponse_code())
 				.resp_msg(e.getMessage())
 				.datetime(tool.getTodayDateTimeInString())
 				.build());
@@ -132,7 +132,7 @@ public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
 	public ResponseEntity<ApiResponse> messagingException(MessagingException e) {
 		return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ApiResponse
 				.builder()
-				.resp_code(ResponseCode.ERROR_OCCURED.getResponse_code())
+				.resp_code(ResponseCode.ERROR.getResponse_code())
 				.resp_msg(e.getMessage())
 				.datetime(tool.getTodayDateTimeInString())
 				.build());
@@ -150,7 +150,7 @@ public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
 
 	@ExceptionHandler(UsernameNotFoundException.class)
 	public ResponseEntity<ApiResponse> usernameNotFoundException(UsernameNotFoundException e) {
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse
 				.builder()
 				.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
 				.resp_msg(e.getMessage())

@@ -45,7 +45,8 @@ import lombok.NoArgsConstructor;
 @Entity(name = "user")
 @Table(name = "user", schema = "appdb",
 indexes = {
-		@Index(name = "idx_username", columnList = "username")
+		@Index(name = "IX_user_username", columnList = "username"),
+		@Index(name = "IX_user_username_email", columnList = "username, email")
 })
 public class User {
 	
