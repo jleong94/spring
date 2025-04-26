@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -14,9 +12,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,13 +39,6 @@ public class UserActionLookup {
 	private String action_name;
 	
 	@JsonIgnore
-	@ManyToMany(targetEntity = User.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER, mappedBy = "userActionLookup")
-    private List<User> user;
-	
-	@JsonProperty(value= "permission", access = Access.READ_ONLY)
-	@ManyToMany(targetEntity = Permission.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-	@JoinTable(name = "user_action_permission", 
-	joinColumns = {@JoinColumn(name = "user_action_id", referencedColumnName = "user_action_id", unique = false, nullable = false)},
-	inverseJoinColumns = {@JoinColumn(name = "permission_id", referencedColumnName = "permission_id", unique = false, nullable = false)})
-	private List<Permission> permission;
+	@OneToMany(targetEntity = UserActionPermission.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER, mappedBy = "userActionLookup")
+    private List<UserActionPermission> userActionPermission;
 }

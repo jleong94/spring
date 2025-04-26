@@ -18,10 +18,12 @@ import com.modal.EMail;
 import com.modal.Permission;
 import com.modal.User;
 import com.modal.UserActionLookup;
+import com.modal.UserActionPermission;
 import com.pojo.ApiResponse;
 import com.properties.Property;
 import com.repo.PermissionRepo;
 import com.repo.UserActionLookupRepo;
+import com.repo.UserActionPermissionRepo;
 import com.repo.UserRepo;
 import com.repo.UserRoleLookupRepo;
 import com.repo.UserStatusLookupRepo;
@@ -31,7 +33,10 @@ import com.utilities.Tool;
 public class UserService implements UserDetailsService {
 
 	@Autowired
-	private UserRepo userRepo;
+	UserRepo userRepo;
+	
+	@Autowired
+	UserActionPermissionRepo userActionPermissionRepo;
 
 	@Autowired
 	Property property;
@@ -70,26 +75,30 @@ public class UserService implements UserDetailsService {
 	public ResponseEntity<ApiResponse> userRegistration(User user){
 		long count = userRepo.count();
 		long role_id = count <= 0 ? 1L : 2L;
-
-		List<UserActionLookup> userActionLookups = userActionLookupRepo.getUniqueAllUserActionLookupList().orElseThrow(() -> new RuntimeException("Default user action lookup list not found."));
-		List<Permission> permissions = permissionRepo.getUniqueAllPermissionLookupList().orElseThrow(() -> new RuntimeException("Default user permission lookup list not found."));
-		if (user.getUserActionLookup() == null) {user.setUserActionLookup(new ArrayList<UserActionLookup>());}
-		for(UserActionLookup userActionLookup : userActionLookups) {
-			for(Permission permission : permissions) {
-				userActionLookup.getPermission().add(permission);
-				if(role_id != 1L) {break;}
-			}
-			user.getUserActionLookup().add(userActionLookup);
-		}
+	
 		user = user.toBuilder()
 		.password(new Argon2PasswordEncoder(16, 32, 1, 65536, 10).encode(user.getPassword()))
 		.jwt_token_expiration(property.getJwt_token_expiration())
 		.jwt_token_secret_key(jwtService.generateSecretKey())
 		.userStatusLookup(userStatusLookupRepo.findById(1L).orElseThrow(() -> new RuntimeException("Default user registration status not found.")))
 		.userRoleLookup(userRoleLookupRepo.findById(role_id).orElseThrow(() -> new RuntimeException("Default user registration role not found.")))
-		.userActionLookup(userActionLookups)
 		.build();
 		user = userRepo.save(user);
+		
+		List<UserActionPermission> userActionPermission = new ArrayList<UserActionPermission>();
+		List<UserActionLookup> userActionLookups = userActionLookupRepo.getUniqueAllUserActionLookupList().orElseThrow(() -> new RuntimeException("Default user action lookup list not found."));
+		List<Permission> permissions = permissionRepo.getUniqueAllPermissionLookupList().orElseThrow(() -> new RuntimeException("Default user permission lookup list not found."));		
+		for(UserActionLookup userActionLookup : userActionLookups) {
+			for(Permission permission : permissions) {
+				userActionPermission.add(UserActionPermission.builder()
+						.user(user)
+						.userActionLookup(userActionLookup)
+						.permission(permission)
+						.build());
+				if(role_id != 1L) {break;}
+			}
+		}
+		userActionPermissionRepo.saveAll(userActionPermission);
 		if(user.getId() > 0L) {
 			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 					.builder()

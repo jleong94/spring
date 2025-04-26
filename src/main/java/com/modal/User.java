@@ -23,9 +23,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
@@ -132,11 +131,8 @@ public class User {
 	private UserRoleLookup userRoleLookup;
 	
 	@JsonIgnore
-	@ManyToMany(targetEntity = UserActionLookup.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-	@JoinTable(name = "user_action", 
-	joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id", unique = false, nullable = false)},
-	inverseJoinColumns = {@JoinColumn(name = "user_action_id", referencedColumnName = "user_action_id", unique = false, nullable = false)})
-	private List<UserActionLookup> userActionLookup;
+	@OneToMany(targetEntity = UserActionPermission.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER, mappedBy = "user")
+    private List<UserActionPermission> userActionPermission;
 	
 	@Transient
 	@JsonProperty(value= "token_type", access = Access.READ_ONLY)

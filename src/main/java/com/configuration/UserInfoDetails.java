@@ -32,35 +32,20 @@ public class UserInfoDetails implements UserDetails {
     private String jwt_token_secret_key;
     
     public UserInfoDetails(User user) {
-        this.username = user.getUsername();
-        this.password = user.getPassword();
-        this.jwt_token_expiration = user.getJwt_token_expiration();
-        this.jwt_token_secret_key = user.getJwt_token_secret_key();
-        this.user_action_permission = user.getUserActionLookup()
-        		.stream()
-        		.filter(userAction -> userAction.getPermission() != null) // Ensure permissions list is not null
-        		.flatMap(userAction -> userAction.getPermission().stream()
-        				.map(permission -> {
-        					String actionName = userAction.getAction_name();
-        					String permissionName = permission.getPermission_name();
-        					return actionName + "_" + permissionName;
-        				})
-        				)
-        		.distinct() // Remove duplicates if any
-        		.collect(Collectors.toList());
-        this.authorities = user.getUserActionLookup()
-        		.stream()
-        		.filter(userAction -> userAction.getPermission() != null) // Ensure permissions list is not null
-        		.flatMap(userAction -> userAction.getPermission().stream()
-        				.map(permission -> {
-        					String actionName = userAction.getAction_name();
-        					String permissionName = permission.getPermission_name();
-        					return new SimpleGrantedAuthority(actionName + "_" + permissionName);
-        				})
-        				)
-        		.distinct() // Remove duplicates if any
-        		.collect(Collectors.toList());
-        this.authorities.add(new SimpleGrantedAuthority("ROLE_".concat(user.getUserRoleLookup().getRole_name())));
+    	this.username = user.getUsername();
+    	this.password = user.getPassword();
+    	this.jwt_token_expiration = user.getJwt_token_expiration();
+    	this.jwt_token_secret_key = user.getJwt_token_secret_key();
+    	this.user_action_permission = user.getUserActionPermission()
+    			.stream()
+    			.map(uap -> uap.getUserActionLookup().getAction_name() + "_" + uap.getPermission().getPermission_name())
+    			.collect(Collectors.toList());
+    	this.authorities = user.getUserActionPermission()
+    			.stream()
+    			.map(uap -> new SimpleGrantedAuthority(
+    					uap.getUserActionLookup().getAction_name() + "_" + uap.getPermission().getPermission_name()))
+    			.collect(Collectors.toList());
+    	this.authorities.add(new SimpleGrantedAuthority("ROLE_".concat(user.getUserRoleLookup().getRole_name())));
     }
 
     @Override
