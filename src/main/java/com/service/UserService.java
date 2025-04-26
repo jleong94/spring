@@ -1,5 +1,6 @@
 package com.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,6 @@ import com.repo.UserRepo;
 import com.repo.UserRoleLookupRepo;
 import com.repo.UserStatusLookupRepo;
 import com.utilities.Tool;
-
-import io.jsonwebtoken.lang.Collections;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -71,25 +70,25 @@ public class UserService implements UserDetailsService {
 	public ResponseEntity<ApiResponse> userRegistration(User user){
 		long count = userRepo.count();
 		long role_id = count <= 0 ? 1L : 2L;
-		
-		List<UserActionLookup> userActionLookups = userActionLookupRepo.getUniqueAllUserActionLookupList();
-		List<Permission> permissions = permissionRepo.getUniqueAllPermissionLookupList();
+
+		List<UserActionLookup> userActionLookups = userActionLookupRepo.getUniqueAllUserActionLookupList().orElseThrow(() -> new RuntimeException("Default user action lookup list not found."));
+		List<Permission> permissions = permissionRepo.getUniqueAllPermissionLookupList().orElseThrow(() -> new RuntimeException("Default user permission lookup list not found."));
+		if (user.getUserActionLookup() == null) {user.setUserActionLookup(new ArrayList<UserActionLookup>());}
 		for(UserActionLookup userActionLookup : userActionLookups) {
-			List<Permission> new_permission = Collections.emptyList();
 			for(Permission permission : permissions) {
-				new_permission.add(permission);
+				userActionLookup.getPermission().add(permission);
 				if(role_id != 1L) {break;}
 			}
-			userActionLookup.setPermission(new_permission);
+			user.getUserActionLookup().add(userActionLookup);
 		}
-		user = User.builder()
-				.password(new Argon2PasswordEncoder(16, 32, 1, 65536, 10).encode(user.getPassword()))
-				.jwt_token_expiration(property.getJwt_token_expiration())
-				.jwt_token_secret_key(jwtService.generateSecretKey())
-				.userStatusLookup(userStatusLookupRepo.findById(1L).orElseThrow(() -> new RuntimeException("Default user registration status not found.")))
-				.userRoleLookup(userRoleLookupRepo.findById(role_id).orElseThrow(() -> new RuntimeException("Default user registration role not found.")))
-				.userActionLookup(userActionLookups)
-				.build();
+		user = user.toBuilder()
+		.password(new Argon2PasswordEncoder(16, 32, 1, 65536, 10).encode(user.getPassword()))
+		.jwt_token_expiration(property.getJwt_token_expiration())
+		.jwt_token_secret_key(jwtService.generateSecretKey())
+		.userStatusLookup(userStatusLookupRepo.findById(1L).orElseThrow(() -> new RuntimeException("Default user registration status not found.")))
+		.userRoleLookup(userRoleLookupRepo.findById(role_id).orElseThrow(() -> new RuntimeException("Default user registration role not found.")))
+		.userActionLookup(userActionLookups)
+		.build();
 		user = userRepo.save(user);
 		if(user.getId() > 0L) {
 			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
@@ -113,7 +112,7 @@ public class UserService implements UserDetailsService {
 		String username = user.getUsername();
 		user = userRepo.findByUsernameAndEmail(user.getUsername(), user.getEmail())
 				.orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-		String password = tool.generatePassword(10);
+		String password = tool.generatePassword(8);
 		user.setPassword(new Argon2PasswordEncoder(16, 32, 1, 65536, 10).encode(password));
 		userRepo.save(user);
 		emailService.sendEMail(EMail.builder()

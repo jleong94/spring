@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
 @AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
 @NoArgsConstructor//Generates a constructor with no parameters
-@Builder
+@Builder(toBuilder = true)
 @Entity(name = "email_attachment")
 @Table(name = "email_attachment", schema = "appdb")
 public class EMailAttachment {

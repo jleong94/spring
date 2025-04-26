@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
 @AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
 @NoArgsConstructor//Generates a constructor with no parameters
-@Builder
+@Builder(toBuilder = true)
 public class UserInfoDetails implements UserDetails {
 
 	private static final long serialVersionUID = 1L;

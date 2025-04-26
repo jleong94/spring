@@ -32,6 +32,7 @@ import com.pojo.ApiResponse;
 import com.utilities.Tool;
 import io.jsonwebtoken.JwtException;
 import jakarta.mail.MessagingException;
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 
 /*
@@ -138,11 +139,21 @@ public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
 				.build());
 	}
 
-	@ExceptionHandler(BadCredentialsException.class)
-	public ResponseEntity<ApiResponse> badCredentialsException(BadCredentialsException e) {
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse
+	@ExceptionHandler(UnsupportedOperationException.class)
+	public ResponseEntity<ApiResponse> unsupportedOperationException(UnsupportedOperationException e) {
+		return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(ApiResponse
 				.builder()
-				.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
+				.resp_code(ResponseCode.ERROR.getResponse_code())
+				.resp_msg(e.getMessage())
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
+	}
+
+	@ExceptionHandler(ValidationException.class)
+	public ResponseEntity<ApiResponse> validationException(ValidationException e) {
+		return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.ERROR.getResponse_code())
 				.resp_msg(e.getMessage())
 				.datetime(tool.getTodayDateTimeInString())
 				.build());
@@ -151,6 +162,16 @@ public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
 	@ExceptionHandler(UsernameNotFoundException.class)
 	public ResponseEntity<ApiResponse> usernameNotFoundException(UsernameNotFoundException e) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
+				.resp_msg(e.getMessage())
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
+	}
+
+	@ExceptionHandler(BadCredentialsException.class)
+	public ResponseEntity<ApiResponse> badCredentialsException(BadCredentialsException e) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse
 				.builder()
 				.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
 				.resp_msg(e.getMessage())

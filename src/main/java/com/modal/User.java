@@ -40,7 +40,7 @@ import lombok.NoArgsConstructor;
 @Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
 @AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
 @NoArgsConstructor//Generates a constructor with no parameters
-@Builder
+@Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Entity(name = "user")
 @Table(name = "user", schema = "appdb",
@@ -87,7 +87,8 @@ public class User {
 	@NotBlank(groups = {UserRegistration.class, OauthToken.class}, message = "Password is blank.")
 	@Size(groups = {UserRegistration.class, OauthToken.class}, max = 255, message = "Password exceed 255 characters.")
 	@Pattern(
-			regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,.<>/?]).{8,}$",
+			groups = {UserRegistration.class},
+			regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]).{8,}$",
 			message = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character."
 			)
 	@Column(name = "password", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 255)

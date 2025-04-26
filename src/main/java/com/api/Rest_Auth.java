@@ -23,7 +23,6 @@ import com.enums.ResponseCode;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.modal.User;
-import com.modal.User.OauthToken;
 import com.pojo.ApiResponse;
 import com.properties.Property;
 import com.service.JwtService;
@@ -89,7 +88,7 @@ public class Rest_Auth {
 	
 	@RateLimit
 	@PostMapping(value = "v1/oauth-token", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
-	@JsonView({OauthToken.class})//Which getter parameter should return within json
+	@JsonView({User.OauthToken.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
 	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Validated({User.OauthToken.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper();
