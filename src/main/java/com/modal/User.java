@@ -97,7 +97,7 @@ public class User {
 	@JsonProperty(value= "email", access = Access.READ_WRITE)
 	@NotBlank(groups = {UserRegistration.class, ResetPassword.class}, message = "Email is blank.")
 	@Size(groups = {UserRegistration.class, ResetPassword.class}, max = 50, message = "Email exceed 50 characters.")
-	@Column(name = "email", unique = false, nullable = false, insertable = true, updatable = true, table = "user", length = 50)
+	@Column(name = "email", unique = true, nullable = false, insertable = true, updatable = true, table = "user", length = 50)
 	@JsonView({UserRegistration.class})
 	private String email;
 	
