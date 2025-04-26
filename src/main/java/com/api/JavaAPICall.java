@@ -34,8 +34,8 @@ public class JavaAPICall {
 		String result = "";
 		String URL = "";
 		JSONObject requestJson = null, responseJson = null;
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.registerModule(new JavaTimeModule());
+		ObjectMapper objectMapper = new ObjectMapper()
+				.registerModule(new JavaTimeModule());
 		try {
 			log.info("URL: " + URL);
 			log.info("Request: " + requestJson.toString());

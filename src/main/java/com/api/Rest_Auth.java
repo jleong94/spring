@@ -22,6 +22,7 @@ import com.configuration.UserInfoDetails;
 import com.enums.ResponseCode;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.modal.User;
 import com.pojo.ApiResponse;
 import com.properties.Property;
@@ -91,7 +92,8 @@ public class Rest_Auth {
 	@JsonView({User.OauthToken.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
 	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Validated({User.OauthToken.class}) User user) throws Exception{
-		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectMapper objectMapper = new ObjectMapper()
+				.registerModule(new JavaTimeModule());
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-Generate oauth token start-");
 		try {
@@ -146,7 +148,8 @@ public class Rest_Auth {
 	@JsonView({User.UserRegistration.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
 	public ResponseEntity<ApiResponse> userRegistration(HttpServletRequest request, @RequestBody @Validated({User.UserRegistration.class}) User user) throws Exception{
-		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectMapper objectMapper = new ObjectMapper()
+				.registerModule(new JavaTimeModule());
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-User registration start-");
 		try {
@@ -181,7 +184,8 @@ public class Rest_Auth {
 	@JsonView({User.ResetPassword.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
 	public ResponseEntity<ApiResponse> resetPassword(HttpServletRequest request, @RequestBody @Validated({User.ResetPassword.class}) User user) throws Exception{
-		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectMapper objectMapper = new ObjectMapper()
+				.registerModule(new JavaTimeModule());
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-Reset password start-");
 		try {

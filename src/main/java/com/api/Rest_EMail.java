@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.enums.ResponseCode;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.modal.EMail;
 import com.pojo.ApiResponse;
 import com.properties.Property;
@@ -85,7 +86,8 @@ public class Rest_EMail {
 	@JsonView({EMail.SendEMail.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
 	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Validated({EMail.SendEMail.class}) EMail email, @RequestParam(required = false) MultipartFile[] upload_files) throws Exception{
-		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectMapper objectMapper = new ObjectMapper()
+				.registerModule(new JavaTimeModule());
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-Send email start-");
 		try {

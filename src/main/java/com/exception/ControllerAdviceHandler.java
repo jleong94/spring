@@ -28,6 +28,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import com.enums.ResponseCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pojo.ApiResponse;
 import com.utilities.Tool;
 import io.jsonwebtoken.JwtException;
@@ -41,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestControllerAdvice
 @ControllerAdvice
-public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
+public class ControllerAdviceHandler implements ResponseBodyAdvice<Object> {
 
 	@Autowired
 	Tool tool;
@@ -64,7 +65,9 @@ public class CustomExceptionHandler implements ResponseBodyAdvice<Object> {
 			log.info("Response to [{} {}] => {}", 
 					request.getMethod(), 
 					request.getURI(), 
-					new ObjectMapper().writeValueAsString(body));
+					new ObjectMapper()
+					.registerModule(new JavaTimeModule())
+					.writeValueAsString(body));
 		} catch (JsonProcessingException e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
