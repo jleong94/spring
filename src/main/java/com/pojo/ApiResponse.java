@@ -17,21 +17,24 @@ import lombok.*;
 public class ApiResponse {
 
 	@JsonProperty(value= "resp_code", access = Access.READ_ONLY)
-	@JsonView({User.OauthToken.class, User.UserRegistration.class, User.ResetPassword.class, EMail.SendEMail.class, EMail.GetMerchantDetailByMerchant_Id.class})
+	@JsonView({User.OauthToken.class, User.UserRegistration.class, User.ResetPassword.class, 
+		EMail.SendEMail.class, EMail.GetMerchantDetailByMerchant_Id.class})
 	private int resp_code;
-	
+
 	@JsonProperty(value= "resp_msg", access = Access.READ_ONLY)
-	@JsonView({User.OauthToken.class, User.UserRegistration.class, User.ResetPassword.class, EMail.SendEMail.class, EMail.GetMerchantDetailByMerchant_Id.class})
+	@JsonView({User.OauthToken.class, User.UserRegistration.class, User.ResetPassword.class, 
+		EMail.SendEMail.class, EMail.GetMerchantDetailByMerchant_Id.class})
 	private String resp_msg;
-	
+
 	@JsonProperty(value= "datetime", access = Access.READ_ONLY)
-	@JsonView({User.OauthToken.class, User.UserRegistration.class, User.ResetPassword.class, EMail.SendEMail.class, EMail.GetMerchantDetailByMerchant_Id.class})
+	@JsonView({User.OauthToken.class, User.UserRegistration.class, User.ResetPassword.class, 
+		EMail.SendEMail.class, EMail.GetMerchantDetailByMerchant_Id.class})
 	private String datetime;
-	
+
 	@JsonProperty(value= "user", access = Access.READ_ONLY)
 	@JsonView({User.OauthToken.class, User.UserRegistration.class, User.ResetPassword.class})
 	private User user;
-	
+
 	@JsonProperty(value= "email", access = Access.READ_ONLY)
 	@JsonView({EMail.SendEMail.class, EMail.GetMerchantDetailByMerchant_Id.class})
 	private EMail email;
