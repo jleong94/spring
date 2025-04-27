@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.Connection;
 
+/*Automate run script located at classpath once JPA done execution*/
 @Slf4j
 @Component
 public class SqlScriptRunner implements ApplicationListener<ApplicationReadyEvent> {

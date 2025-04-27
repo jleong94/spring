@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 
-@Aspect
+@Aspect//Marks this class to add extra behavior to methods in other classes
 @Component
 public class RateLimitAspect {
 
