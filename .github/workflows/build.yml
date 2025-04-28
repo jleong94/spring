@@ -25,7 +25,17 @@ jobs:
 
     - name: Build with Maven
       run: mvn clean package  # Builds the JAR file
-    
+
+    - name: Set UAT Environment Variables # Use vars.* if config is in repository variable, else use secrets.*
+      run: |
+        echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> $GITHUB_ENV
+        echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> $GITHUB_ENV
+        echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> $GITHUB_ENV
+        echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> $GITHUB_ENV
+        echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> $GITHUB_ENV
+        echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> $GITHUB_ENV
+        echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> $GITHUB_ENV
+
     - name: Create Incremental Version Tag
       id: tagger
       run: |
