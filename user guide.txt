@@ -22,4 +22,9 @@ Command(Spring):
 Lombok:
 Need to download the jar & click the jar to install at eclipse installation path.
 
-Github CI/CD yml file path for auto build: .github\workflows
+Github CI/CD:
+1. yml file for auto build should locate at .github\workflows
+2. Click on profile pic after logged in GitHub, look for developer setting & click on it
+3. Tick for repo & workflow in personal access token->tokens(classic)
+4. Click on generate token & copy the secret
+5. Add repository secret in secrets & variable->actions. Make sure the variable name must be same with the parameter, GITHUB_TOKEN found in yml file
