@@ -23,9 +23,6 @@ jobs:
         distribution: 'temurin'        # Uses Eclipse Temurin JDK
         java-version: '21'             # Set your desired Java version here
 
-    - name: Build with Maven
-      run: mvn clean package  # Builds the JAR file
-
     - name: Set UAT Environment Variables # Use vars.* if config is in repository variable, else use secrets.*
       run: |
         echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> $GITHUB_ENV
@@ -35,6 +32,9 @@ jobs:
         echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> $GITHUB_ENV
         echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> $GITHUB_ENV
         echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> $GITHUB_ENV
+
+    - name: Build with Maven
+      run: mvn clean package  # Builds the JAR file
 
     - name: Create Incremental Version Tag
       id: tagger
