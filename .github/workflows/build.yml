@@ -32,6 +32,7 @@ jobs:
         echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> $GITHUB_ENV
         echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> $GITHUB_ENV
         echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> $GITHUB_ENV
+        echo "SMTP_MAIL=${{ secrets.SMTP_MAIL }}" >> $GITHUB_ENV
 
     - name: Build with Maven
       run: mvn clean package  # Builds the JAR file
