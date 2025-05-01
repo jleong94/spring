@@ -1,5 +1,7 @@
 package com.properties;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -61,4 +63,7 @@ public class Property {
 	
 	@Value("${mail.upload.path}")
     private String mail_upload_path;
+	
+	@Value("#{'${allowed.origins}'.split(',')}")
+    private List<String> allowed_origins;
 }

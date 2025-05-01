@@ -261,4 +261,14 @@ public class ControllerAdviceHandler implements ResponseBodyAdvice<Object> {
 				.datetime(tool.getTodayDateTimeInString())
 				.build());
 	}
+
+	@ExceptionHandler(UnauthenticatedAccessException.class)
+	public ResponseEntity<ApiResponse> unauthenticatedAccessException(UnauthenticatedAccessException e) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
+				.resp_msg(e.getMessage())
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
+	}
 }
