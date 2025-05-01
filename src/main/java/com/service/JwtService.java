@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.configuration.UserInfoDetails;
+import com.pojo.UserInfoDetails;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

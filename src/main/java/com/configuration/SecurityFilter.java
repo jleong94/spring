@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.lang.NonNull;
 
+import com.pojo.UserInfoDetails;
 import com.service.JwtService;
 import com.service.UserService;
 

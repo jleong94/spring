@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.configuration.UserInfoDetails;
 import com.enums.ResponseCode;
 import com.modal.EMail;
 import com.modal.Permission;
@@ -20,6 +19,7 @@ import com.modal.User;
 import com.modal.UserActionLookup;
 import com.modal.UserActionPermission;
 import com.pojo.ApiResponse;
+import com.pojo.UserInfoDetails;
 import com.properties.Property;
 import com.repo.PermissionRepo;
 import com.repo.UserActionLookupRepo;

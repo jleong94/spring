@@ -1,4 +1,4 @@
-package com.configuration;
+package com.pojo;
 
 import java.util.Collection;
 import java.util.List;

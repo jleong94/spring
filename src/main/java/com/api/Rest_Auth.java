@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.configuration.UserInfoDetails;
 import com.enums.ResponseCode;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.modal.User;
 import com.pojo.ApiResponse;
+import com.pojo.UserInfoDetails;
 import com.properties.Property;
 import com.service.JwtService;
 import com.service.UserService;
