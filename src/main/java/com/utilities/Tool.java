@@ -86,8 +86,10 @@ public class Tool {
 				.optionalStart()
 				.appendLiteral(' ')           // Try parsing with space
 				.optionalEnd()
+				.optionalStart()
 				.appendPattern("HH:mm:ss")    // Time part
 				.optionalStart()
+				.optionalEnd()
 				.appendFraction(ChronoField.MILLI_OF_SECOND, 1, 3, true)  // Handle 1-3 digit milliseconds
 				.optionalEnd()
 				.toFormatter();
