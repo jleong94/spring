@@ -94,7 +94,7 @@ public class Rest_Auth {
 	public ResponseEntity<ApiResponse> oauthToken(HttpServletRequest request, @RequestBody @Validated({User.OauthToken.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
-		MDC.put("mdcId", UUID.randomUUID());
+		MDC.put("mdcId", request.getHeader("X-Correlation-ID") != null ? request.getHeader("X-Correlation-ID") : UUID.randomUUID());
 		log.info("-Generate oauth token start-");
 		try {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
@@ -150,7 +150,7 @@ public class Rest_Auth {
 	public ResponseEntity<ApiResponse> userRegistration(HttpServletRequest request, @RequestBody @Validated({User.UserRegistration.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
-		MDC.put("mdcId", UUID.randomUUID());
+		MDC.put("mdcId", request.getHeader("X-Correlation-ID") != null ? request.getHeader("X-Correlation-ID") : UUID.randomUUID());
 		log.info("-User registration start-");
 		try {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
@@ -186,7 +186,7 @@ public class Rest_Auth {
 	public ResponseEntity<ApiResponse> resetPassword(HttpServletRequest request, @RequestBody @Validated({User.ResetPassword.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
-		MDC.put("mdcId", UUID.randomUUID());
+		MDC.put("mdcId", request.getHeader("X-Correlation-ID") != null ? request.getHeader("X-Correlation-ID") : UUID.randomUUID());
 		log.info("-Reset password start-");
 		try {
 			log.info("Request: " + objectMapper.writeValueAsString(user));

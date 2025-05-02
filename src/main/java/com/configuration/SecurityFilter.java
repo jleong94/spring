@@ -74,7 +74,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 	
 	@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws IOException, ServletException{
-		MDC.put("mdcId", UUID.randomUUID());
+		MDC.put("mdcId", request.getHeader("X-Correlation-ID") != null ? request.getHeader("X-Correlation-ID") : UUID.randomUUID());
 		log.info("-Security filter start-");
 		try {
 			logHttpRequest(request, log);

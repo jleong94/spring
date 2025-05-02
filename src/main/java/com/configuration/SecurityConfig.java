@@ -23,6 +23,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 import com.exception.UnauthenticatedAccessException;
 import com.service.UserService;
@@ -56,6 +57,24 @@ public class SecurityConfig {
 		MDC.put("mdcId", UUID.randomUUID());
 		try {
 			return http
+					.headers(headers -> {
+						// Force HTTPS communication and prevent protocol downgrade attacks.
+						if (sslEnabled) {
+							headers.httpStrictTransportSecurity(hsts -> hsts
+									.includeSubDomains(true)
+									.maxAgeInSeconds(31536000)
+									);
+						}
+						// Prevent XSS, clickjacking, and content injection.
+						headers.contentSecurityPolicy(csp -> csp
+								.policyDirectives("default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none';")
+								);
+						headers.frameOptions(frame -> frame.deny());
+						headers.referrerPolicy(referrer -> referrer
+								.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)
+								);
+					})
+
 					// CSRF protection is disabled because we're stateless (JWT tokens, etc.)
 					.csrf(csrf -> csrf.disable())
 					// CORS Configuration
@@ -66,13 +85,13 @@ public class SecurityConfig {
 							)
 					// Exception Handling
 					.exceptionHandling(exception -> exception
-						.authenticationEntryPoint((request, response, authEx) -> {
-							throw new UnauthenticatedAccessException("Unauthorized access.");
-						})
-						.accessDeniedHandler((req, res, accessDeniedEx) -> {
-							throw new UnauthenticatedAccessException("Access denied.");
-						})
-					)
+							.authenticationEntryPoint((request, response, authEx) -> {
+								throw new UnauthenticatedAccessException("Unauthorized access.");
+							})
+							.accessDeniedHandler((req, res, accessDeniedEx) -> {
+								throw new UnauthenticatedAccessException("Access denied.");
+							})
+							)
 					.authorizeHttpRequests((requests) -> requests
 							.requestMatchers("/v1/user/registration").permitAll()
 							.requestMatchers("/v1/reset/password").permitAll()
