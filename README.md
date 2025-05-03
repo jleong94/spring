@@ -13,15 +13,14 @@ This project serves as a fully working **base template** for Java Spring Boot de
 ### 🔐 Security
 - [x] JWT-based Authentication
 - [x] Retrieval JWT (username & password)
-- [ ] User Registration
-- [x] Rate Limiting using Google Guava
+- [x] User Registration
+- [] Rate Limiter Control
 
 ### 🌐 API
 - [x] RESTful API using Spring
 - [x] JAX-RS Compatible Endpoints
 - [x] Apache HTTP Client for API Calls
 - [x] TCP Socket Communication
-- [ ] Asynchronous API Calls
 
 ### ⚙️ Scheduler
 - [x] Spring Batch Scheduler

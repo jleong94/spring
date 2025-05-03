@@ -29,7 +29,6 @@ import com.properties.Property;
 import com.service.JwtService;
 import com.service.UserService;
 import com.utilities.Tool;
-import com.validation.RateLimit;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -87,7 +86,6 @@ public class Rest_Auth {
 		}
 	}
 	
-	@RateLimit
 	@PostMapping(value = "v1/oauth-token", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({User.OauthToken.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
@@ -143,7 +141,6 @@ public class Rest_Auth {
 		}
 	}
 	
-	@RateLimit
 	@PostMapping(value = "v1/user/registration", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({User.UserRegistration.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
@@ -179,7 +176,6 @@ public class Rest_Auth {
 		}
 	}
 	
-	@RateLimit
 	@PutMapping(value = "v1/reset/password", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({User.ResetPassword.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.

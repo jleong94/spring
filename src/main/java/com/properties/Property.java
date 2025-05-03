@@ -25,14 +25,14 @@ public class Property {
 	@Value("${project.log.name}")
     private String project_log_name;
 
-	@Value("${rate.limit.requests}")
-    private int rate_limit_requests;
+	@Value("${rate.limit.capacity}")
+    private int rate_limit_capacity;
 
-	@Value("${rate.limit.unit}")
-    private String rate_limit_unit;
+	@Value("${rate.limit.tokens}")
+    private int rate_limit_tokens;
 	
-	@Value("${rate.limit.reset}")
-    private int rate_limit_reset;
+	@Value("${rate.limit.period}")
+    private int rate_limit_period;
 
 	@Value("${jwt.token.expiration}")
     private int jwt_token_expiration;
