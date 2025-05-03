@@ -14,7 +14,7 @@ This project serves as a fully working **base template** for Java Spring Boot de
 - [x] JWT-based Authentication
 - [x] Retrieval JWT (username & password)
 - [x] User Registration
-- [] Rate Limiter Control
+- [ ] Rate Limiter Control
 
 ### 🌐 API
 - [x] RESTful API using Spring
@@ -30,7 +30,7 @@ This project serves as a fully working **base template** for Java Spring Boot de
 - [x] SSH SFTP File Sync
 - [x] Date/Time Formatter (`yyyy-MM-dd'T'HH:mm:ss.SSS`)
 - [x] Centralized Exception Handling
-- [x] Send Mail API
+- [x] Send Mail via SMTP
 
 ---
 

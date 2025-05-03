@@ -158,9 +158,30 @@
 		</dependency>
 		<!-- Spring Batch -->
 		
-		<!-- Bucket4j -->
-		
-		<!-- Bucket4j -->
+		<!-- Bucket4j(Rate Limiter) -->
+		<dependency>
+		    <groupId>com.bucket4j</groupId>
+		    <artifactId>bucket4j-core</artifactId>
+		    <version>8.10.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.bucket4j</groupId>
+		    <artifactId>bucket4j_jdk17-jcache</artifactId>
+		    <version>8.14.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.cache2k</groupId>
+		    <artifactId>cache2k-jcache</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>com.github.ben-manes.caffeine</groupId>
+		    <artifactId>caffeine</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>com.github.ben-manes.caffeine</groupId>
+		    <artifactId>jcache</artifactId>
+		</dependency>
+		<!-- Bucket4j(Rate Limiter) -->
 		
 		<!-- Mail -->
 		<dependency>
