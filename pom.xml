@@ -159,29 +159,7 @@
 		<!-- Spring Batch -->
 		
 		<!-- Bucket4j -->
-		<dependency>
-	        <groupId>org.springframework.boot</groupId>
-	        <artifactId>spring-boot-starter-data-redis</artifactId>
-	    </dependency>
-	    <dependency>
-	        <groupId>com.bucket4j</groupId>
-	        <artifactId>bucket4j_jdk17-core</artifactId>
-	        <version>8.14.0</version>
-	    </dependency>
-	    <dependency>
-	        <groupId>com.bucket4j</groupId>
-	        <artifactId>bucket4j_jdk17-redis-common</artifactId>
-	        <version>8.14.0</version>
-	    </dependency>
-	    <dependency>
-	        <groupId>com.bucket4j</groupId>
-	        <artifactId>bucket4j_jdk17-lettuce</artifactId>
-	        <version>8.14.0</version>
-	    </dependency>
-		<dependency>
-		    <groupId>io.lettuce</groupId>
-		    <artifactId>lettuce-core</artifactId>
-		</dependency>
+		
 		<!-- Bucket4j -->
 		
 		<!-- Mail -->
