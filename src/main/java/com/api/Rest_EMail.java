@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.modal.EMail;
 import com.pojo.ApiResponse;
-import com.properties.Property;
+import com.pojo.Property;
 import com.service.EMailService;
 import com.utilities.Tool;
 import com.validation.RateLimit;

@@ -10,7 +10,7 @@ import com.enums.ResponseCode;
 import com.modal.EMail;
 import com.modal.EMailAttachment;
 import com.pojo.ApiResponse;
-import com.properties.Property;
+import com.pojo.Property;
 import com.repo.EMailRepo;
 import com.utilities.Tool;
 

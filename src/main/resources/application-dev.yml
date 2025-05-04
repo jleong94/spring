@@ -43,3 +43,28 @@ spring: #DB Config(Git will auto build using the details config in repository se
   batch: #Disable spring batch on startup
     job:
       enabled: false
+jwt:
+  token: 
+    expiration: 60
+    type: Bearer
+smtp:
+  mail: test@gmail.com
+  host: test@smtp.com
+  port: 0
+  username: test
+  password: 123456
+  tls: true
+  ssl: false
+mail:
+  upload: 
+    path: ./mail/upload #dot refer to current path
+project:
+  log:
+    name: ./logs #dot refer to current path
+rate:
+  limit:
+    capacity: 10 #max number of tokens the bucket can hold 
+    tokens: 10 #new tokens add per period
+    period: 60
+allowed:
+  origins: localhost:8080

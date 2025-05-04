@@ -1,11 +1,9 @@
-package com.properties;
+package com.pojo;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 
 import lombok.Getter;
 
@@ -14,16 +12,7 @@ import lombok.Getter;
  * */
 @Getter//Auto generate getter method
 @Configuration
-@PropertySources({@PropertySource("classpath:/properties/system.properties"),
-	@PropertySource("classpath:/properties/jwt.properties"),
-	@PropertySource("classpath:/properties/mail.properties")})
 public class Property {
-	
-	@Value("${app.name}")
-    private String app_name;
-
-	@Value("${project.log.name}")
-    private String project_log_name;
 
 	@Value("${rate.limit.capacity}")
     private int rate_limit_capacity;

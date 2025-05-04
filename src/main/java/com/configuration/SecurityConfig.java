@@ -28,8 +28,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 import com.exception.UnauthenticatedAccessException;
+import com.pojo.Property;
 import com.service.UserService;
-import com.properties.Property;
 
 import lombok.extern.slf4j.Slf4j;
 

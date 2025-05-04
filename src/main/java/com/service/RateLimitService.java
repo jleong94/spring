@@ -2,7 +2,7 @@ package com.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.properties.Property;
+import com.pojo.Property;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
