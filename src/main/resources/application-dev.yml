@@ -1,0 +1,45 @@
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  port: 8080 #Server port config 
+  ssl: #SSL TLS, Trust store, Key store
+    enabled: false
+    enabled-protocols: TLSv1.2,TLSv1.3
+    protocol: TLSv1.2
+    ciphers: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    trust-store: classpath:security/cacerts
+    trust-store-password:
+    trust-store-type: JKS
+    key-store: classpath:security/keystore.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
+    keyAlias: tomcat	
+  http2:
+    enabled: true
+spring: #DB Config(Git will auto build using the details config in repository secrets)
+  datasource:
+    url: jdbc:mysql://localhost:3306/appdb?createDatabaseIfNotExist=true&ssl-mode=DISABLED
+    username: root
+    password: Pass@123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      data-source-properties:
+        sslMode: DISABLED
+        trustCertificateKeyStoreUrl: classpath:security/mysql/ca.pem
+        trustCertificateKeyStoreType: PEM
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+      naming: #To maintain the exact same table & column name defined in JPA class
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    show-sql: true
+  batch: #Disable spring batch on startup
+    job:
+      enabled: false
