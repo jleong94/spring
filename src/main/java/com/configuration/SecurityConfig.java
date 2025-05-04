@@ -23,6 +23,8 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 import com.exception.UnauthenticatedAccessException;
@@ -38,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfig {
+public class SecurityConfig implements WebMvcConfigurer {
 
 	@Value("${server.ssl.enabled}")
 	private boolean sslEnabled;
@@ -51,6 +53,9 @@ public class SecurityConfig {
 	
 	@Autowired
 	Property property;
+	
+	@Autowired
+	RateLimitInterceptor rateLimitInterceptor;
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) {
@@ -161,4 +166,10 @@ public class SecurityConfig {
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}
+	
+	@Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(rateLimitInterceptor)
+                .addPathPatterns("/**"); // Customize your target paths
+    }
 }

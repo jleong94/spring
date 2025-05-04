@@ -27,6 +27,7 @@ import com.pojo.ApiResponse;
 import com.properties.Property;
 import com.service.EMailService;
 import com.utilities.Tool;
+import com.validation.RateLimit;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
@@ -79,6 +80,7 @@ public class Rest_EMail {
 		}
 	}
 
+	@RateLimit(capacity = 10, tokens = 10, period = 60)
 	@PostMapping(value = "v1/email/send", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_write')")
 	@JsonView({EMail.SendEMail.class})//Which getter parameter should return within json
@@ -124,6 +126,7 @@ public class Rest_EMail {
 		}
 	}
 	
+	@RateLimit(capacity = 10, tokens = 10, period = 60, pathVariable = "mail_id")
 	@GetMapping(value = "v1/email/check/{mail_id}", produces = "application/json; charset=UTF-8")
 	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_read')")
 	@JsonView({EMail.GetMerchantDetailByMerchant_Id.class})//Which getter parameter should return within json
