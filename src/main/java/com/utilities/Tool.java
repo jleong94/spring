@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.Cleanup;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.RemoteResourceInfo;
@@ -150,22 +149,5 @@ public class Tool {
 
     private static char getRandomChar(SecureRandom random, String chars) {
         return chars.charAt(random.nextInt(chars.length()));
-    }
-    
-    /**
-     * Extracts the client IP address from the request
-     * First checks the X-Forwarded-For header which contains the original client IP when behind a proxy
-     * Falls back to request.getRemoteAddr() if X-Forwarded-For is not present
-     * For X-Forwarded-For, takes the first IP in the list which represents the original client
-     *
-     * @param request The HTTP servlet request
-     * @return The client's IP address as a string
-     */
-    public String getClientIP(HttpServletRequest request) {
-        String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null || xfHeader.isBlank()) {
-            return request.getRemoteAddr();
-        }
-        return xfHeader.split(",")[0];
     }
 }
