@@ -16,7 +16,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,12 +32,12 @@ public class JavaAPICall {
 	public String httpClientApi(Logger log, String logFolder) {
 		String result = "";
 		String URL = "";
-		JSONObject requestJson = null, responseJson = null;
+		Object object = new Object();
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
 		try {
 			log.info("URL: " + URL);
-			log.info("Request: " + requestJson.toString());
+			log.info("Request: " + objectMapper.writeValueAsString(object));
 			if(!URL.isEmpty()){
 				/*List<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("", ));*/
@@ -58,7 +57,7 @@ public class JavaAPICall {
 				httpRequest.setURI(uri);*/
 				//HttpPut httpRequest = new HttpPut(URL);
 				//HttpDelete httpRequest = new HttpDelete(URL);
-				httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(requestJson)));
+				httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(object)));
 				httpRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
 				for(Header header : httpRequest.getAllHeaders()) {
 					log.info(header.getName() + "(Request): " + header.getValue());
@@ -74,8 +73,7 @@ public class JavaAPICall {
 						String responseString = EntityUtils.toString(entity);
 						log.info("Response: " + responseString);
 //						Read & update the response JSON parameter value into Object
-//						objectMapper.readerForUpdating(Object.class).readValue(responseString);
-						responseJson = new JSONObject(responseString);
+						object = objectMapper.readValue(responseString, Object.class);
 					}
 				} catch(Exception e) {
 					// Get the current stack trace element
