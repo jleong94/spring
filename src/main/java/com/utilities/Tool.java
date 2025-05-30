@@ -95,7 +95,7 @@ public class Tool {
 				.toFormatter();
 		LocalDateTime now = LocalDateTime.now();
 		result = formatter.format(now);
-		result = result.contains("T") ? result.replace(" ", "") : result;
+		result = result.contains("T") ? result.replace("T", "") : result;
 		return result;
 	}
 
