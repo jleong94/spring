@@ -10,7 +10,6 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -36,7 +35,6 @@ public class Scheduler {
 	@Qualifier("sampleJob")//To match with bean name for created job in BatchConfig
 	Job job;
 
-	@Async
 	@Scheduled(fixedRate = (1 * 60 * 60 * 1000))//Run every 5 seconds
 	public void sampleTask() {
         MDC.put("mdcId", UUID.randomUUID());
@@ -70,7 +68,6 @@ public class Scheduler {
         }
     }
 	
-	@Async
 	@Scheduled(cron = "*/3600 * * * * *", zone = "Asia/Kuala_Lumpur")//cron expression to perform scheduling 
 	public void sampleTask2() {
         MDC.put("mdcId", UUID.randomUUID());
