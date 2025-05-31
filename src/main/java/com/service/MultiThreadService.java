@@ -35,14 +35,13 @@ public class MultiThreadService {
     	MDC.put("mdcId", UUID.randomUUID());
 		try {
         	Tool tool = applicationContext.getBean(Tool.class);
-        	MultiThreadService sampleService = applicationContext.getBean(MultiThreadService.class);
         	// Single thread run & let it be
-        	threadPoolTaskExecutor.execute(new FireAndForgetTask(logFolder, 1, tool, sampleService));
+        	threadPoolTaskExecutor.execute(new FireAndForgetTask(logFolder, 1, tool));
         	// Multi thread
         	for(int i = 0; i < num_threads; i++) {
-        		Future<?> future = threadPoolTaskExecutor.submit(new FireAndForgetTask(logFolder, i + 1, tool, sampleService));
+        		Future<?> future = threadPoolTaskExecutor.submit(new FireAndForgetTask(logFolder, i + 1, tool));
                 futures.add(future);
-                Future<String> future_string = threadPoolTaskExecutor.submit(new ResultTask(logFolder, i + 1, tool, sampleService));
+                Future<String> future_string = threadPoolTaskExecutor.submit(new ResultTask(logFolder, i + 1, tool));
                 futures_string.add(future_string);
         	}
         	for (Future<String> future_string : futures_string) {
@@ -71,14 +70,12 @@ public class MultiThreadService {
 
 		int thread_no;
 		Tool tool;
-		MultiThreadService sampleService;
 		String logFolder;
 
-		FireAndForgetTask(String logFolder, int thread_no, Tool tool, MultiThreadService sampleService){
+		FireAndForgetTask(String logFolder, int thread_no, Tool tool){
 			this.thread_no = thread_no;
 			this.logFolder = logFolder;
 			this.tool = tool;
-			this.sampleService = sampleService;
 		}
 
 		@Override
@@ -114,14 +111,12 @@ public class MultiThreadService {
 
 		int thread_no;
 		Tool tool;
-		MultiThreadService sampleService;
 		String logFolder;
 
-		ResultTask(String logFolder, int thread_no, Tool tool, MultiThreadService sampleService){
+		ResultTask(String logFolder, int thread_no, Tool tool){
 			this.thread_no = thread_no;
 			this.logFolder = logFolder;
 			this.tool = tool;
-			this.sampleService = sampleService;
 		}
 
 		@Override
