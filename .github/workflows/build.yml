@@ -75,8 +75,9 @@ jobs:
     - name: Get the latest release URL
       id: get_release
       run: |
-        VERSIONED_JAR=$(ls target/*-${{ env.RELEASE_TAG }}.jar | xargs -n 1 basename)
-        echo "RELEASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/${VERSIONED_JAR}" >> $GITHUB_ENV
+        VERSIONED_JAR=$(ls target/*.jar | grep -v 'original' | xargs -n 1 basename | grep "${{ env.RELEASE_TAG }}")
+        echo "Final JAR found: $VERSIONED_JAR"
+        echo "RELEASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/$VERSIONED_JAR" >> $GITHUB_ENV
         # Builds the actual download link to your new JAR and stores it in environment variable RELEASE_URL
 
     - name: Install GitHub CLI
