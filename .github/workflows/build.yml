@@ -37,6 +37,14 @@ jobs:
     - name: Build with Maven
       run: mvn clean package  # Builds the JAR file
 
+    - name: Rename JAR with Version Tag
+      run: |
+        ORIGINAL_JAR=$(ls target/*.jar | head -n 1)
+        BASENAME=$(basename "$ORIGINAL_JAR" .jar)
+        VERSIONED_JAR="target/${BASENAME}-${{ env.RELEASE_TAG }}.jar"
+        mv "$ORIGINAL_JAR" "$VERSIONED_JAR"
+        echo "VERSIONED_JAR=$VERSIONED_JAR" >> $GITHUB_ENV
+
     - name: Create Incremental Version Tag
       id: tagger
       run: |
@@ -53,19 +61,21 @@ jobs:
        echo "New tag: $NEW_TAG"
        git tag "$NEW_TAG" # Create new Git tag
        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git --tags # Push tag to remote
-       echo "RELEASE_TAG=$NEW_TAG" >> $GITHUB_ENV # Save tag to environment for later use      	   	   	  	  	
+       echo "RELEASE_TAG=$NEW_TAG" >> $GITHUB_ENV # Save tag to environment for later use
+
     - name: Upload JAR as GitHub Release Asset
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG }}   # ← Use the generated tag
-        files: target/*.jar            # Uploads the JAR file from Maven's output to the GitHub "Releases" section
+        files: ${{ env.VERSIONED_JAR }}    # Uploads the JAR file from Maven's output to the GitHub "Releases" section
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required auth to make the release
 
     - name: Get the latest release URL
       id: get_release
       run: |
-        echo "RELEASE_URL=https://github.com/${{ github.repository }}/releases/latest/download/$(ls target/*.jar | xargs -n 1 basename)" >> $GITHUB_ENV
+        FILE_NAME=$(basename "${{ env.VERSIONED_JAR }}")
+        echo "RELEASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/$FILE_NAME" >> $GITHUB_ENV
         # Builds the actual download link to your new JAR and stores it in environment variable RELEASE_URL
 
     - name: Install GitHub CLI
