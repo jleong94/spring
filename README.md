@@ -4,7 +4,7 @@
 
 This project serves as a fully working **base template** for Java Spring Boot developers. Easily clone and duplicate this project as a solid starting point for building microservices or monoliths.
 
-[![Download Latest Build](https://img.shields.io/badge/Download-Build-blue?style=for-the-badge&logo=github)](https://github.com/jleong94/spring/releases/download/v0.84/spring.jar-v0.84.jar)
+[![Download Latest Build](https://img.shields.io/badge/Download-Build-blue?style=for-the-badge&logo=github)](RELEASE_URL)
 
 ---
 
