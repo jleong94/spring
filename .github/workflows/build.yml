@@ -12,6 +12,8 @@ jobs:
   build:
     if: github.ref_name == 'main' || github.ref_name == 'master' # Only run this job if the branch is main or master
     runs-on: ubuntu-latest             # This workflow runs in a fresh Ubuntu VM (GitHub-hosted)
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
     steps:
     - name: Checkout Code
@@ -34,75 +36,40 @@ jobs:
         echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> $GITHUB_ENV
         echo "SMTP_MAIL=${{ secrets.SMTP_MAIL }}" >> $GITHUB_ENV
 
-    - name: Generate Tag, Build, and Rename JAR
-      run: |
-        git fetch --tags
-        LAST_TAG=$(git tag --list 'v0.*' | sort -V | tail -n 1)
-        echo "Last tag found: $LAST_TAG"
-        if [[ -z "$LAST_TAG" ]]; then
-          LAST_TAG="v0.0"
-        fi
-        LAST_MINOR=${LAST_TAG#v0.}
-        NEXT_MINOR=$((LAST_MINOR + 1))
-        RELEASE_TAG="v0.${NEXT_MINOR}"
-        echo "✅ New release tag: $RELEASE_TAG"
-        echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
-        git tag "$RELEASE_TAG"
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git --tags
-        # Build and rename
-        mvn clean package
-        ORIGINAL_JAR=$(ls target/*.jar | grep -v 'original' | head -n 1)
-        BASE_NAME=$(basename "$ORIGINAL_JAR" | sed -E 's/-[0-9]+.*\.jar//')
-        source $GITHUB_ENV  # ✅ This makes RELEASE_TAG available
-        VERSIONED_JAR="target/${BASE_NAME}-${RELEASE_TAG}.jar"
-        echo "Renaming $ORIGINAL_JAR to $VERSIONED_JAR"
-        mv "$ORIGINAL_JAR" "$VERSIONED_JAR"
-        echo "VERSIONED_JAR_NAME=$(basename $VERSIONED_JAR)" >> $GITHUB_ENV
+    - name: Build with Maven
+      run: mvn clean package  # Builds the JAR file
 
+    - name: Rename JAR to include version
+      run: |
+        JAR_NAME=$(ls target/*.jar | head -n 1)  # get the built JAR
+        VERSION_TAG=${{ env.RELEASE_TAG }}
+        NEW_JAR_NAME="target/springboot-app-${VERSION_TAG}.jar"
+        mv "$JAR_NAME" "$NEW_JAR_NAME"
+        echo "VERSIONED_JAR=$NEW_JAR_NAME" >> $GITHUB_ENV
+
+    - name: Create Incremental Version Tag
+      id: tagger
+      run: |
+       git fetch --tags  # 👈 fetch remote tags to ensure local is synced
+       LAST_TAG=$(git tag --list 'v0.*' | sort -V | tail -n 1)
+       echo "Last tag found: $LAST_TAG"
+       if [[ -z "$LAST_TAG" ]]; then
+        LAST_TAG="v0.0" #Default if no tag exists
+       fi
+       # Extract the numeric part, increment
+       LAST_MINOR=${LAST_TAG#v0.} # Remove 'v0.' prefix to get minor version
+       NEXT_MINOR=$((LAST_MINOR + 1)) # Increment the version number
+       NEW_TAG="v0.${NEXT_MINOR}" # Form the new tag
+       echo "New tag: $NEW_TAG"
+       git tag "$NEW_TAG" # Create new Git tag
+       git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git --tags # Push tag to remote
+       echo "RELEASE_TAG=$NEW_TAG" >> $GITHUB_ENV # Save tag to environment for later use
+         	   	   	  	  	
     - name: Upload JAR as GitHub Release Asset
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG }}   # ← Use the generated tag
-        files: target/${{ env.VERSIONED_JAR_NAME }} # Uploads the JAR file from Maven's output to the GitHub "Releases" section
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required auth to make the release
-
-    - name: Get the latest release URL
-      id: get_release
-      run: |
-        echo "RELEASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/${{ env.VERSIONED_JAR_NAME }}" >> $GITHUB_ENV
-        # Builds the actual download link to your new JAR and stores it in environment variable RELEASE_URL
+        files: ${{ env.VERSIONED_JAR }}    # Uploads the JAR file from Maven's output to the GitHub "Releases" section
 
     - name: Install GitHub CLI
       run: sudo apt-get install gh -y # Installs GitHub CLI to interact with GitHub programmatically
-
-    - name: Update README with JAR link
-      run: |
-       git config --global user.name 'github-actions[bot]' # Set commit username
-       git config --global user.email 'github-actions[bot]@users.noreply.github.com' # Set commit email
-       BRANCH="update-readme-${RELEASE_TAG}"
-       git checkout -b "$BRANCH"
-       # Safely replace the placeholder
-       sed -i "s|RELEASE_URL|$RELEASE_URL|g" README.md
-       git add README.md
-       if git diff --cached --quiet; then
-         echo "⚠️ No changes to commit. Exiting."
-         exit 0
-       fi
-       git commit -m "Update README with latest JAR link for $RELEASE_TAG"
-       git push origin "$BRANCH"
-       # Create PR and auto-merge
-       gh pr create --title "Update README for $RELEASE_TAG" \
-                    --body "Auto-update README with latest JAR link." \
-                    --base master
-       PR_NUMBER=$(gh pr list --head "$BRANCH" --json number -q '.[0].number')
-       echo "Auto-merging PR #$PR_NUMBER..."
-       gh pr merge "$PR_NUMBER" --merge --admin --delete-branch
-      env:
-        #In github, click profile pic->setting->developer setting->personal access token->token(classic)
-        #Tick repo & workflow
-        #Go to target repository->setting->secrets and variables->actions
-        #Add secret at repository secret section. The name put, GH_PAT
-        RELEASE_URL: ${{ env.RELEASE_URL }}
-        RELEASE_TAG: ${{ env.RELEASE_TAG }}
-        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
