@@ -14,7 +14,7 @@ This project serves as a fully working **base template** for Java Spring Boot de
 - [x] JWT-based Authentication
 - [x] Retrieval JWT (username & password)
 - [x] User Registration
-- [ ] Rate Limiter Control
+- [x] Rate Limiter Control
 
 ### 🌐 API
 - [x] RESTful API using Spring
@@ -40,7 +40,7 @@ This project serves as a fully working **base template** for Java Spring Boot de
 - **Framework:** Spring Boot  
 - **Database:** MySQL  
 - **HTTP Client:** Apache HTTP Client  
-- **Security:** OAuth2, JWT, Google Guava  
+- **Security:** OAuth2, JWT  
 - **Other:** SFTP, TCP Socket, Multi-threading, Spring Batch  
 
 ---
