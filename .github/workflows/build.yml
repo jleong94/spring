@@ -84,7 +84,7 @@ jobs:
     - name: Update README with JAR link
       run: |
        git checkout master # Make sure we are on master branch
-       sed -i '/Download latest build:/c\Download latest build: [Download Latest Build]('${RELEASE_URL}')' README.md # Replace line with new JAR link
+       sed -i '/Download latest build:/c\Download latest build: [![Download Latest Build](https://img.shields.io/badge/Download-Build-blue?style=for-the-badge&logo=github)]('${RELEASE_URL}')' README.md # Replace line with new JAR link
        git config --global user.name 'github-actions[bot]' # Set commit username
        git config --global user.email 'github-actions[bot]@users.noreply.github.com' # Set commit email
        git add README.md # Stage README changes
