@@ -39,7 +39,7 @@ jobs:
 
     - name: Rename JAR with Version Tag
       run: |
-        ORIGINAL_JAR=$(ls target/*.jar | xargs -n 1 basename)
+        ORIGINAL_JAR=$(ls target/*.jar | head -n 1)
         BASENAME=$(basename "$ORIGINAL_JAR" .jar)
         VERSIONED_JAR="target/${BASENAME}-${{ env.RELEASE_TAG }}.jar"
         mv "$ORIGINAL_JAR" "$VERSIONED_JAR"
