@@ -34,36 +34,29 @@ jobs:
         echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> $GITHUB_ENV
         echo "SMTP_MAIL=${{ secrets.SMTP_MAIL }}" >> $GITHUB_ENV
 
-    - name: Create Incremental Version Tag
-      id: tagger
+    - name: Generate Tag, Build, and Rename JAR
       run: |
-       git fetch --tags  # 👈 fetch remote tags to ensure local is synced
-       LAST_TAG=$(git tag --list 'v0.*' | sort -V | tail -n 1)
-       echo "Last tag found: $LAST_TAG"
-       if [[ -z "$LAST_TAG" ]]; then
-        LAST_TAG="v0.0" #Default if no tag exists
-       fi
-       # Extract the numeric part, increment
-       LAST_MINOR=${LAST_TAG#v0.} # Remove 'v0.' prefix to get minor version
-       NEXT_MINOR=$((LAST_MINOR + 1)) # Increment the version number
-       NEW_TAG="v0.${NEXT_MINOR}" # Form the new tag
-       echo "RELEASE_TAG=$NEW_TAG" >> $GITHUB_ENV
-       echo "NEW_TAG=$NEW_TAG"
-       git tag "$NEW_TAG" # Create new Git tag
-       git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git --tags # Push tag to remote
-       echo "RELEASE_TAG=$NEW_TAG" >> $GITHUB_ENV # Save tag to environment for later use
-
-    - name: Build with Maven
-      run: |
-       mvn clean package  # Builds the JAR file  
-       ORIGINAL_JAR=$(ls target/*.jar | grep -v 'original' | head -n 1)
-       BASE_NAME=$(basename "$ORIGINAL_JAR" | sed -E 's/-[0-9]+.*\.jar//')
-       source $GITHUB_ENV # ✅ This makes RELEASE_TAG available
-       VERSIONED_JAR="target/${BASE_NAME}-${RELEASE_TAG}.jar"
-       echo "Renaming $ORIGINAL_JAR to $VERSIONED_JAR"
-       mv "$ORIGINAL_JAR" "$VERSIONED_JAR"
-       # Export for use in later steps
-       echo "VERSIONED_JAR_NAME=$(basename $VERSIONED_JAR)" >> $GITHUB_ENV
+        git fetch --tags
+        LAST_TAG=$(git tag --list 'v0.*' | sort -V | tail -n 1)
+        echo "Last tag found: $LAST_TAG"
+        if [[ -z "$LAST_TAG" ]]; then
+          LAST_TAG="v0.0"
+        fi
+        LAST_MINOR=${LAST_TAG#v0.}
+        NEXT_MINOR=$((LAST_MINOR + 1))
+        RELEASE_TAG="v0.${NEXT_MINOR}"
+        echo "✅ New release tag: $RELEASE_TAG"
+        echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+        git tag "$RELEASE_TAG"
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git --tags
+        # Build and rename
+        mvn clean package
+        ORIGINAL_JAR=$(ls target/*.jar | grep -v 'original' | head -n 1)
+        BASE_NAME=$(basename "$ORIGINAL_JAR" | sed -E 's/-[0-9]+.*\.jar//')
+        VERSIONED_JAR="target/${BASE_NAME}-${RELEASE_TAG}.jar"
+        echo "Renaming $ORIGINAL_JAR to $VERSIONED_JAR"
+        mv "$ORIGINAL_JAR" "$VERSIONED_JAR"
+        echo "VERSIONED_JAR_NAME=$(basename $VERSIONED_JAR)" >> $GITHUB_ENV
 
     - name: Upload JAR as GitHub Release Asset
       uses: softprops/action-gh-release@v1
