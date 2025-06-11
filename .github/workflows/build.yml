@@ -83,20 +83,22 @@ jobs:
 
     - name: Update README with JAR link
       run: |
-       git checkout master # Make sure we are on master branch
-       echo "Replacing RELEASE_URL in README.md with ${{ env.RELEASE_URL }}"
-       sed -i "s|RELEASE_URL|$RELEASE_URL|g" README.md # Replace line with new JAR link
-       # Replace line with new JAR link
        git config --global user.name 'github-actions[bot]' # Set commit username
        git config --global user.email 'github-actions[bot]@users.noreply.github.com' # Set commit email
-       git add README.md # Stage README changes
-       # Only commit if there are staged changes
-       if git diff --cached --quiet; then
-         echo "No changes to commit." # Skip commit if nothing changed
-       else	   
-         git commit -m "Update README with latest JAR link for ${{ env.RELEASE_TAG }}" # Commit with message
-         git push origin master # Push README changes back to master
-       fi
+       BRANCH="update-readme-${RELEASE_TAG}"
+       git checkout -b "$BRANCH"
+       # Safely replace the placeholder
+       sed -i "s|RELEASE_URL|$RELEASE_URL|g" README.md
+       git add README.md
+       git commit -m "Update README with latest JAR link for $RELEASE_TAG"
+       git push origin "$BRANCH"
+       # Create PR and auto-merge
+       gh pr create --title "Update README for $RELEASE_TAG" \
+                    --body "Auto-update README with latest JAR link." \
+                    --base master
+       PR_NUMBER=$(gh pr list --head "$BRANCH" --json number -q '.[0].number')
+       echo "Auto-merging PR #$PR_NUMBER..."
+       gh pr merge "$PR_NUMBER" --merge --admin --delete-branch
       env:
         #In github, click profile pic->setting->developer setting->personal access token->token(classic)
         #Tick repo & workflow
