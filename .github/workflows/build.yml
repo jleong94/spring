@@ -37,14 +37,13 @@ jobs:
     - name: Build with Maven
       run: |
         mvn clean package  # Builds the JAR file  
-        # Get original jar name (skip the 'original-' if present)
         ORIGINAL_JAR=$(ls target/*.jar | grep -v 'original' | head -n 1)
-        # Extract base name from original JAR (e.g., springboot-template-0.0.1-SNAPSHOT.jar → springboot-template)
-        BASE_NAME=$(basename "$ORIGINAL_JAR" | sed -E 's/-[0-9]+.*\.jar//' )
-        # Construct versioned name: <base>-<tag>.jar (e.g., springboot-template-v0.1.jar)
+        BASE_NAME=$(basename "$ORIGINAL_JAR" | sed -E 's/-[0-9]+.*\.jar//')
         VERSIONED_JAR="target/${BASE_NAME}-${{ env.RELEASE_TAG }}.jar"
         echo "Renaming $ORIGINAL_JAR to $VERSIONED_JAR"
         mv "$ORIGINAL_JAR" "$VERSIONED_JAR"
+        # Export for use in later steps
+        echo "VERSIONED_JAR_NAME=$(basename $VERSIONED_JAR)" >> $GITHUB_ENV
 
     - name: Create Incremental Version Tag
       id: tagger
@@ -68,16 +67,14 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG }}   # ← Use the generated tag
-        files: target/*-${{ env.RELEASE_TAG }}.jar # Uploads the JAR file from Maven's output to the GitHub "Releases" section
+        files: target/${{ env.VERSIONED_JAR_NAME }} # Uploads the JAR file from Maven's output to the GitHub "Releases" section
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required auth to make the release
 
     - name: Get the latest release URL
       id: get_release
       run: |
-        VERSIONED_JAR=$(ls target/*.jar | grep -v 'original' | xargs -n 1 basename | grep "${{ env.RELEASE_TAG }}")
-        echo "Final JAR found: $VERSIONED_JAR"
-        echo "RELEASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/$VERSIONED_JAR" >> $GITHUB_ENV
+        echo "RELEASE_URL=https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_TAG }}/${{ env.VERSIONED_JAR_NAME }}" >> $GITHUB_ENV
         # Builds the actual download link to your new JAR and stores it in environment variable RELEASE_URL
 
     - name: Install GitHub CLI
