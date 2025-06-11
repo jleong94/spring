@@ -85,7 +85,7 @@ jobs:
       run: |
        git checkout master # Make sure we are on master branch
        echo "Replacing RELEASE_URL in README.md with ${{ env.RELEASE_URL }}"
-       sed -i "s|RELEASE_URL|$RELEASE_URL|g" README.md
+       sed -i '/Download latest build:/c\Download latest build: [Download Latest Build]('${RELEASE_URL}')' README.md # Replace line with new JAR link
        # Replace line with new JAR link
        git config --global user.name 'github-actions[bot]' # Set commit username
        git config --global user.email 'github-actions[bot]@users.noreply.github.com' # Set commit email
