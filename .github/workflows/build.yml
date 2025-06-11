@@ -90,6 +90,10 @@ jobs:
        # Safely replace the placeholder
        sed -i "s|RELEASE_URL|$RELEASE_URL|g" README.md
        git add README.md
+       if git diff --cached --quiet; then
+         echo "⚠️ No changes to commit. Exiting."
+         exit 0
+       fi
        git commit -m "Update README with latest JAR link for $RELEASE_TAG"
        git push origin "$BRANCH"
        # Create PR and auto-merge
