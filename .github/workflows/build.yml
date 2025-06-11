@@ -53,6 +53,7 @@ jobs:
         mvn clean package
         ORIGINAL_JAR=$(ls target/*.jar | grep -v 'original' | head -n 1)
         BASE_NAME=$(basename "$ORIGINAL_JAR" | sed -E 's/-[0-9]+.*\.jar//')
+        source $GITHUB_ENV  # ✅ This makes RELEASE_TAG available
         VERSIONED_JAR="target/${BASE_NAME}-${RELEASE_TAG}.jar"
         echo "Renaming $ORIGINAL_JAR to $VERSIONED_JAR"
         mv "$ORIGINAL_JAR" "$VERSIONED_JAR"
