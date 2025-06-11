@@ -39,11 +39,13 @@ jobs:
         mvn clean package  # Builds the JAR file  
         ORIGINAL_JAR=$(ls target/*.jar | grep -v 'original' | head -n 1)
         BASE_NAME=$(basename "$ORIGINAL_JAR" | sed -E 's/-[0-9]+.*\.jar//')
-        VERSIONED_JAR="target/${BASE_NAME}-${{ env.RELEASE_TAG }}.jar"
+        VERSIONED_JAR="target/${BASE_NAME}-${RELEASE_TAG}.jar"
         echo "Renaming $ORIGINAL_JAR to $VERSIONED_JAR"
         mv "$ORIGINAL_JAR" "$VERSIONED_JAR"
         # Export for use in later steps
         echo "VERSIONED_JAR_NAME=$(basename $VERSIONED_JAR)" >> $GITHUB_ENV
+      env:
+        RELEASE_TAG: ${{ env.RELEASE_TAG }}  # ✅ inject RELEASE_TAG as real env var
 
     - name: Create Incremental Version Tag
       id: tagger
