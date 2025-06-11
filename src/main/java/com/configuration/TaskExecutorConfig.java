@@ -13,7 +13,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 public class TaskExecutorConfig {
 
 	@Bean(name = "threadPoolTaskExecutor")
-    public Executor threadPoolTaskExecutor() {
+    Executor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(10);         // Core threads always alive
         executor.setMaxPoolSize(20);          // Max threads allowed
