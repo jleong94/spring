@@ -102,4 +102,6 @@ jobs:
         #Tick repo & workflow
         #Go to target repository->setting->secrets and variables->actions
         #Add secret at repository secret section. The name put, GH_PAT
+        RELEASE_URL: ${{ env.RELEASE_URL }}
+        RELEASE_TAG: ${{ env.RELEASE_TAG }}
         GITHUB_TOKEN: ${{ secrets.GH_PAT }}
