@@ -34,19 +34,6 @@ jobs:
         echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> $GITHUB_ENV
         echo "SMTP_MAIL=${{ secrets.SMTP_MAIL }}" >> $GITHUB_ENV
 
-    - name: Build with Maven
-      run: |
-        mvn clean package  # Builds the JAR file  
-        ORIGINAL_JAR=$(ls target/*.jar | grep -v 'original' | head -n 1)
-        BASE_NAME=$(basename "$ORIGINAL_JAR" | sed -E 's/-[0-9]+.*\.jar//')
-        VERSIONED_JAR="target/${BASE_NAME}-${RELEASE_TAG}.jar"
-        echo "Renaming $ORIGINAL_JAR to $VERSIONED_JAR"
-        mv "$ORIGINAL_JAR" "$VERSIONED_JAR"
-        # Export for use in later steps
-        echo "VERSIONED_JAR_NAME=$(basename $VERSIONED_JAR)" >> $GITHUB_ENV
-      env:
-        RELEASE_TAG: ${{ env.RELEASE_TAG }}  # ✅ inject RELEASE_TAG as real env var
-
     - name: Create Incremental Version Tag
       id: tagger
       run: |
@@ -64,6 +51,19 @@ jobs:
        git tag "$NEW_TAG" # Create new Git tag
        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git --tags # Push tag to remote
        echo "RELEASE_TAG=$NEW_TAG" >> $GITHUB_ENV # Save tag to environment for later use
+
+    - name: Build with Maven
+      run: |
+       mvn clean package  # Builds the JAR file  
+       ORIGINAL_JAR=$(ls target/*.jar | grep -v 'original' | head -n 1)
+       BASE_NAME=$(basename "$ORIGINAL_JAR" | sed -E 's/-[0-9]+.*\.jar//')
+       VERSIONED_JAR="target/${BASE_NAME}-${RELEASE_TAG}.jar"
+       echo "Renaming $ORIGINAL_JAR to $VERSIONED_JAR"
+       mv "$ORIGINAL_JAR" "$VERSIONED_JAR"
+       # Export for use in later steps
+       echo "VERSIONED_JAR_NAME=$(basename $VERSIONED_JAR)" >> $GITHUB_ENV
+      env:
+        RELEASE_TAG: ${{ env.RELEASE_TAG }}  # ✅ inject RELEASE_TAG as real env var
 
     - name: Upload JAR as GitHub Release Asset
       uses: softprops/action-gh-release@v1
