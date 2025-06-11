@@ -60,8 +60,8 @@ jobs:
     - name: Rename JAR to include version
       run: |
         VERSION_TAG=${{ env.RELEASE_TAG }}
-        ORIGINAL_JAR=$(ls target/*.jar | grep -v 'original' | head -n 1) # avoid original-*.jar
-        BASENAME=$(basename "$ORIGINAL_JAR" .jar)
+        ORIGINAL_JAR=$(ls target/*.jar | grep -v 'original' | head -n 1) #avoids renaming original-*.jar if spring-boot creates both.
+        BASENAME=$(basename "$ORIGINAL_JAR" .jar) #basename strips target/ and .jar, giving you the base name from Maven config.
         NEW_JAR_NAME="target/${BASENAME}-${VERSION_TAG}.jar"
         mv "$ORIGINAL_JAR" "$NEW_JAR_NAME"
         echo "VERSIONED_JAR=$NEW_JAR_NAME" >> $GITHUB_ENV
