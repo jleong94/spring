@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -155,19 +156,19 @@ public class Tool {
 		return chars.charAt(random.nextInt(chars.length()));
 	}
 
-	public String maskJson(String jsonKey, String inputJson) throws Exception {
+	public String maskJson(Set<String> jsonKey, String inputJson) throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
 		JsonNode root = objectMapper.readTree(inputJson);
 		maskNode(jsonKey, root);
 		return objectMapper.writeValueAsString(root);
 	}
 
-	private void maskNode(String jsonKey, JsonNode node) {
+	private void maskNode(Set<String> jsonKey, JsonNode node) {
 		if (node.isObject()) {
 			ObjectNode object = (ObjectNode) node;
 			object.fieldNames().forEachRemaining(field -> {
 				JsonNode child = object.get(field);
-				if (jsonKey.equals(field) && child.isTextual()) {
+				if (jsonKey.contains(field) && child.isTextual()) {
 					String masked = maskValue(child.asText());
 					object.put(field, masked);
 				} else {
