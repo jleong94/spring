@@ -182,7 +182,7 @@ public class Tool {
 		}
 	}
 
-	private String maskValue(String plainValue) {
+	public String maskValue(String plainValue) {
 		if (plainValue == null || plainValue.isBlank()) return "";
 		int length = plainValue.length();
 		if (length <= 10) return "*".repeat(length); // not enough room to show 6 + 4
