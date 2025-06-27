@@ -66,12 +66,7 @@
 		</dependency>
 		<!-- Test -->
 		
-		<!-- Lombok & Logging -->
-		<dependency>
-		    <groupId>org.projectlombok</groupId>
-		    <artifactId>lombok</artifactId>
-		    <scope>provided</scope>
-		</dependency>
+		<!-- Logging -->
 		<dependency>
 		    <groupId>ch.qos.logback</groupId>
 		    <artifactId>logback-classic</artifactId>
@@ -81,12 +76,25 @@
 		    <artifactId>logstash-logback-encoder</artifactId>
 		    <version>7.4</version>
 		</dependency>
-		<!-- Lombok & Logging -->
+		<!-- Logging -->
+		
+		<!-- Lombok -->
+		<dependency>
+		    <groupId>org.projectlombok</groupId>
+		    <artifactId>lombok</artifactId>
+		    <scope>provided</scope>
+		</dependency>
+		<!-- Lombok -->
 		
 		<!-- Database -->
 		<dependency>
 		   <groupId>org.springframework.boot</groupId>
 		   <artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.mybatis</groupId>
+		    <artifactId>mybatis</artifactId>
+		    <version>3.5.19</version>
 		</dependency>
 		<dependency>
 			<groupId>com.mysql</groupId>
@@ -254,6 +262,24 @@
 			    </executions>
 			</plugin>
 			<!--Check Component Vulnerabilities Using OWASP Dependency-Check-->
+			<!--To detects any problems in the properties files-->
+			<plugin>
+			    <groupId>uk.org.webcompere</groupId>
+			    <artifactId>spring-properties-cleaner-plugin</artifactId>
+			    <version>1.0.6</version>
+			    <configuration>
+			        <sort>clustered</sort>
+			        <whitespace>section</whitespace> <!--To remove vertical white space-->
+			    </configuration>
+			    <executions>
+			        <execution>
+			            <goals>
+			                <goal>scan</goal>
+			            </goals>
+			        </execution>
+			    </executions>
+			</plugin>
+			<!--To detects any problems in the properties files-->
 		</plugins>
     </build>
 
