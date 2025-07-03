@@ -43,6 +43,11 @@ spring: #DB Config(Git will auto build using the details config in repository se
   batch: #Disable spring batch on startup
     job:
       enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9999/realms/spring
 jwt:
   token: 
     expiration: 60

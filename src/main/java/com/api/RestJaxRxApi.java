@@ -1,3 +1,4 @@
+/*
 package com.api;
 
 import java.util.Enumeration;
@@ -111,3 +112,4 @@ public class RestJaxRxApi {
 		return Response.status(httpStatus).entity(responseJson.toString()).build();
 	}
 }
+*/

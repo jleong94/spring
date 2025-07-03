@@ -31,7 +31,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pojo.ApiResponse;
 import com.utilities.Tool;
-import io.jsonwebtoken.JwtException;
 import jakarta.mail.MessagingException;
 import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
@@ -244,16 +243,6 @@ public class ControllerAdviceHandler implements ResponseBodyAdvice<Object> {
 
 	@ExceptionHandler(InsufficientAuthenticationException.class)
 	public ResponseEntity<ApiResponse> insufficientAuthenticationException(InsufficientAuthenticationException e) {
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse
-				.builder()
-				.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
-				.resp_msg(e.getMessage())
-				.datetime(tool.getTodayDateTimeInString())
-				.build());
-	}
-
-	@ExceptionHandler(JwtException.class)
-	public ResponseEntity<ApiResponse> jwtException(JwtException e) {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse
 				.builder()
 				.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())

@@ -18,15 +18,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.configuration.MutableHttpServletRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Cleanup;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.sftp.RemoteResourceInfo;
@@ -35,6 +38,32 @@ import net.schmizz.sshj.transport.verification.HostKeyVerifier;
 
 @Component
 public class Tool {
+	
+	public MutableHttpServletRequest setRequestHeaderMdcId(Logger log, HttpServletRequest request) {
+		MutableHttpServletRequest wrappedRequest = new MutableHttpServletRequest(request);
+		try {
+			if(request.getHeader("mdcId") == null || request.getHeader("mdcId").isBlank()) {
+				UUID mdcId = UUID.randomUUID();
+		        wrappedRequest.putHeader("mdcId", mdcId);
+			}
+		} catch(Exception e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+		}
+		return wrappedRequest;
+	}
 
 	public boolean syncFileFromSftp(Logger log, String host, String username, String password, String remote_path, String local_path) throws Exception {
 		@Cleanup SSHClient sshClient = new SSHClient();//@Cleanup - automatically clean up resources when a method exits

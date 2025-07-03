@@ -8,16 +8,10 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.jboss.logging.MDC;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.lang.NonNull;
-
-import com.pojo.UserInfoDetails;
-import com.service.JwtService;
-import com.service.UserService;
+import com.utilities.Tool;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,10 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SecurityFilter extends OncePerRequestFilter {
 	
 	@Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private UserService userService;
+    private Tool tool;
 	
 	private void logHttpRequest(HttpServletRequest request, Logger log) {
 		try {
@@ -73,31 +64,22 @@ public class SecurityFilter extends OncePerRequestFilter {
 	}
 	
 	@Override
-	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws IOException, ServletException{
-		MDC.put("mdcId", request.getHeader("X-Correlation-ID") != null ? request.getHeader("X-Correlation-ID") : UUID.randomUUID());
-		log.info("-Security filter start-");
+	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws IOException, ServletException{		
 		try {
+			MutableHttpServletRequest mutableHttpServletRequest = tool.setRequestHeaderMdcId(log, request);
+			MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+			log.info("-Security filter start-");
 			logHttpRequest(request, log);
 			String token = request.getHeader("Authorization");
 			if (token == null || !token.startsWith("Bearer ")) {
-				chain.doFilter(request, response);
+				chain.doFilter(mutableHttpServletRequest, response);
 				return;
 			}
 			if(token != null && token.startsWith("Bearer ")) {
 				token = token.replace("Bearer ", "").trim();
-				if (SecurityContextHolder.getContext().getAuthentication() == null) {
-					String username = jwtService.extractUsername(token);
-					if(username != null && !username.isBlank()) {
-						UserInfoDetails userInfoDetails = (UserInfoDetails) userService.loadUserByUsername(username);
-						if (jwtService.validateToken(token, userInfoDetails.getJwt_token_secret_key())) {
-							UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userInfoDetails, null, userInfoDetails.getAuthorities());
-							usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-							SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-						}
-					}		            
-				}
+				
 			}
-			chain.doFilter(request, response);
+			chain.doFilter(mutableHttpServletRequest, response);
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
