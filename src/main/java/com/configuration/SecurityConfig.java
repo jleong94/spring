@@ -9,8 +9,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -104,16 +102,6 @@ public class SecurityConfig implements WebMvcConfigurer {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakConverter());
         return jwtAuthenticationConverter;
     }
-
-	/*
-	 * @param3 Parallelism (number of threads)
-	 * @param4 Memory in KB
-	 * @param5 Number of iterations (higher = more secure but slower)
-	 * */
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new Argon2PasswordEncoder(16, 32, 1, 65536, 10);
-	}
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
