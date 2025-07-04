@@ -65,7 +65,7 @@ public class Tool {
 		return wrappedRequest;
 	}
 
-	public boolean syncFileFromSftp(Logger log, String host, String username, String password, String remote_path, String local_path) throws Exception {
+	public boolean downloadFileFromSftp(Logger log, String host, String username, String password, String remote_path, String local_path) throws Exception {
 		@Cleanup SSHClient sshClient = new SSHClient();//@Cleanup - automatically clean up resources when a method exits
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.HOUR_OF_DAY, 0);

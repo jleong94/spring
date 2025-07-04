@@ -2,6 +2,7 @@
 package com.api;
 
 import java.util.Enumeration;
+import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
@@ -23,6 +24,7 @@ import jakarta.ws.rs.core.Response.Status;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.jboss.logging.MDC;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,11 +84,12 @@ public class RestJaxRxApi {
 			@PathParam("x3") @DefaultValue("") String x3,// /token/{x3}			
 			@FormParam("x4") @DefaultValue("") String x4,//Values from form submission
 			String x) {
+		MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		log.info("-start-".concat(x));
 		Status httpStatus = Status.OK;
 		JSONObject requestJson = null, responseJson = null;
 		try {
 			logHttpRequest(request, log);
-			log.info("x(request): " + x);
 			requestJson = new JSONObject(x);
 			
 		} catch(Exception e) {
@@ -106,7 +109,7 @@ public class RestJaxRxApi {
 			}
 		} finally{
 			try {
-				
+				log.info("-end-".concat(responseJson.toString()));
 			} catch(Exception e) {}
 		}
 		return Response.status(httpStatus).entity(responseJson.toString()).build();

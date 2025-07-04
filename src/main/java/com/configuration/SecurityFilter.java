@@ -70,15 +70,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 			MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 			log.info("-Security filter start-");
 			logHttpRequest(request, log);
-			String token = request.getHeader("Authorization");
-			if (token == null || !token.startsWith("Bearer ")) {
-				chain.doFilter(mutableHttpServletRequest, response);
-				return;
-			}
-			if(token != null && token.startsWith("Bearer ")) {
-				token = token.replace("Bearer ", "").trim();
-				
-			}
+
 			chain.doFilter(mutableHttpServletRequest, response);
 		} catch(Exception e) {
 			// Get the current stack trace element

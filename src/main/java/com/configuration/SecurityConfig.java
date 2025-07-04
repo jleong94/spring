@@ -85,11 +85,13 @@ public class SecurityConfig implements WebMvcConfigurer {
 							throw new UnauthenticatedAccessException("Access denied.");
 						})
 						)
+				//Filter handling
+				.addFilterBefore(securityFilter, BasicAuthenticationFilter.class)
+				//Authentication & authorization handling
 				.authorizeHttpRequests((requests) -> requests
 						.requestMatchers("/v1/email/**").authenticated()
 						.anyRequest().permitAll() // allow all other requests without authentication
 						)
-				.addFilterBefore(securityFilter, BasicAuthenticationFilter.class)
 				.oauth2ResourceServer(oauth -> oauth.jwt(jwt -> 
 				jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
 						))
@@ -99,7 +101,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 	@Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakConverter());
         return jwtAuthenticationConverter;
     }
 
