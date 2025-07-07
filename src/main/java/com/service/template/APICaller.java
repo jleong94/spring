@@ -34,9 +34,9 @@ import com.solab.iso8583.impl.SimpleTraceGenerator;
 import lombok.Cleanup;
 
 @Service
-public class JavaAPICall {
+public class APICaller {
 
-	public String httpClientApi(Logger log, String logFolder) {
+	protected String httpClientApi(Logger log, String logFolder) {
 		String result = "";
 		String URL = "";
 		Object object = new Object();
@@ -137,7 +137,7 @@ public class JavaAPICall {
 		return result;
 	}
 
-	public String httpClientApiAsync(Logger log, String logFolder) {
+	protected String httpClientApiAsync(Logger log, String logFolder) {
 		String result = "";
 		String URL = "";
 		Object object = new Object();

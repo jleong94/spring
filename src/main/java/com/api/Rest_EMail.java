@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -82,7 +81,6 @@ public class Rest_EMail {
 
 	@RateLimit(capacity = 10, tokens = 10, period = 60)
 	@PostMapping(value = "v1/email/send", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
-	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_write')")
 	@JsonView({EMail.SendEMail.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
 	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Validated({EMail.SendEMail.class}) EMail email, @RequestParam(required = false) MultipartFile[] upload_files) throws Exception{
@@ -128,8 +126,7 @@ public class Rest_EMail {
 	
 	@RateLimit(capacity = 10, tokens = 10, period = 60, pathVariable = "mail_id")
 	@GetMapping(value = "v1/email/check/{mail_id}", produces = "application/json; charset=UTF-8")
-	@PreAuthorize("hasAnyRole('ROLE_SuperUser', 'ROLE_User', 'ROLE_Admin') and hasAnyAuthority('EMail_read')")
-	@JsonView({EMail.GetMerchantDetailByMerchant_Id.class})//Which getter parameter should return within json
+	@JsonView({EMail.GetEmailDetailById.class})//Which getter parameter should return within json
 	public ResponseEntity<ApiResponse> getMerchantDetailByMerchant_Id(HttpServletRequest request, @PathVariable @NotBlank Long mail_id) throws Exception{
 		MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-Get sent email detail start-");

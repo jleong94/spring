@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.enums.ResponseCode;
@@ -36,6 +37,7 @@ public class EMailService {
 	 * Send email
 	 * @param email
 	 * */
+	@Transactional
 	public EMail sendEMail(EMail email) throws Exception {
 		try {
 			email.setSender(property.getSmtp_mail());

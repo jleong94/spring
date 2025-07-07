@@ -1,4 +1,3 @@
-/*
 package com.api.template;
 
 import java.util.Enumeration;
@@ -32,7 +31,7 @@ import com.utilities.Tool;
 
 @Slf4j
 @Path("/api/test")
-public class RestJaxRxApi {
+public class RestJAXRS {
 	
 	@Autowired
 	Tool tool;
@@ -77,7 +76,7 @@ public class RestJaxRxApi {
 	@Path("/token/{x3}")
 	@Consumes({"application/json; charset=UTF-8"})
 	@Produces({"application/json; charset=UTF-8"})
-	public Response methodName(@Context HttpServletRequest request,
+	protected Response methodName(@Context HttpServletRequest request,
 			@HeaderParam("authorization") @DefaultValue("") String authorization,//Values from header
 			@CookieParam("session") @DefaultValue("") String session,//Values from cookies
 			@QueryParam("x2") @DefaultValue("") String x2,// /token?x2=test & with default value empty string
@@ -115,4 +114,4 @@ public class RestJaxRxApi {
 		return Response.status(httpStatus).entity(responseJson.toString()).build();
 	}
 }
-*/
+
