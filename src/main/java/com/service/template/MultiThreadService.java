@@ -1,4 +1,4 @@
-package com.service;
+package com.service.template;
 
 import java.util.ArrayList;
 import java.util.List;
