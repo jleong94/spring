@@ -78,5 +78,15 @@
     "name": "keycloak.realm",
     "type": "java.lang.String",
     "description": "A description for 'keycloak.realm'"
+  },
+  {
+    "name": "keycloak.username",
+    "type": "java.lang.String",
+    "description": "A description for 'keycloak.username'"
+  },
+  {
+    "name": "keycloak.password",
+    "type": "java.lang.String",
+    "description": "A description for 'keycloak.password'"
   }
 ]}

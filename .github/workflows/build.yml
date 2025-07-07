@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest             # This workflow runs in a fresh Ubuntu VM (GitHub-hosted)
     env:
       GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-      KEYCLOAK_URL: http://localhost:8888/realms/spring
+      KEYCLOAK_ADMIN: ${{ secrets.KEYCLOAK_ADMIN }}
+      KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
 
     steps:
     - name: Checkout Code
@@ -30,8 +31,8 @@ jobs:
       run: |
         docker run -d \
           -p 8888:8080 \
-          -e KEYCLOAK_ADMIN=admin \
-          -e KEYCLOAK_ADMIN_PASSWORD=admin \
+          -e KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN} \
+          -e KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD} \
           --name keycloak \
           quay.io/keycloak/keycloak:24.0 \
           start-dev --http-port=8080 --hostname-strict=false
@@ -44,7 +45,7 @@ jobs:
         done
         echo "Keycloak is up!"
 
-    - name: Set UAT Environment Variables # Use vars.* if config is in repository variable, else use secrets.*
+    - name: Set UAT Environment Variables # Get secret stored in github repo & set into application yml
       run: |
         echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> $GITHUB_ENV
         echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> $GITHUB_ENV
@@ -54,6 +55,8 @@ jobs:
         echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> $GITHUB_ENV
         echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> $GITHUB_ENV
         echo "SMTP_MAIL=${{ secrets.SMTP_MAIL }}" >> $GITHUB_ENV
+        echo "KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN }}" >> $GITHUB_ENV
+        echo "KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" >> $GITHUB_ENV
 
     - name: Build with Maven
       run: mvn clean package  # Builds the JAR file

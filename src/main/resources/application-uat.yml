@@ -67,4 +67,6 @@ allowed:
 keycloak:
   base_url: http://localhost:8888/realms/
   realm: spring
+  username: ${KEYCLOAK_ADMIN}
+  password: ${KEYCLOAK_ADMIN_PASSWORD}
   cert_endpoint: /protocol/openid-connect/certs
