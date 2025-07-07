@@ -148,14 +148,6 @@
 		</dependency>
 		<!-- Security -->
 		
-	    <!-- Keycloak -->
-		<dependency>
-		    <groupId>org.keycloak</groupId>
-		    <artifactId>keycloak-admin-client</artifactId>
-		    <version>26.0.6</version>
-		</dependency>
-	    <!-- Keycloak -->
-		
 		<!-- Spring Batch -->
 		<dependency>
 		    <groupId>org.springframework.boot</groupId>
