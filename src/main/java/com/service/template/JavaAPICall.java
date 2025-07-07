@@ -1,4 +1,4 @@
-package com.api;
+package com.service.template;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,6 +22,7 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -32,6 +33,7 @@ import com.solab.iso8583.impl.SimpleTraceGenerator;
 
 import lombok.Cleanup;
 
+@Service
 public class JavaAPICall {
 
 	public String httpClientApi(Logger log, String logFolder) {

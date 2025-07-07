@@ -1,5 +1,5 @@
 /*
-package com.api;
+package com.api.template;
 
 import java.util.Enumeration;
 import java.util.UUID;
