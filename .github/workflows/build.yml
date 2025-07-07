@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest             # This workflow runs in a fresh Ubuntu VM (GitHub-hosted)
     env:
       GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+      KEYCLOAK_URL: http://localhost:8888/realms/spring
 
     steps:
     - name: Checkout Code
@@ -24,6 +25,24 @@ jobs:
       with:
         distribution: 'temurin'        # Uses Eclipse Temurin JDK
         java-version: '21'             # Set your desired Java version here
+
+    - name: Start Keycloak on port 8888
+      run: |
+        docker run -d \
+          -p 8888:8080 \
+          -e KEYCLOAK_ADMIN=admin \
+          -e KEYCLOAK_ADMIN_PASSWORD=admin \
+          --name keycloak \
+          quay.io/keycloak/keycloak:24.0 \
+          start-dev --http-port=8080 --hostname-strict=false
+
+    - name: Wait for Keycloak to be ready
+      run: |
+        echo "Waiting for Keycloak..."
+        until curl -s http://localhost:8888/realms/master; do
+          sleep 2
+        done
+        echo "Keycloak is up!"
 
     - name: Set UAT Environment Variables # Use vars.* if config is in repository variable, else use secrets.*
       run: |
