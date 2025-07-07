@@ -14,6 +14,7 @@ import lombok.Getter;
 @Configuration
 public class Property {
 
+	//Rate limit
 	@Value("${rate.limit.capacity}")
     private int rate_limit_capacity;
 
@@ -23,12 +24,7 @@ public class Property {
 	@Value("${rate.limit.period}")
     private int rate_limit_period;
 
-	@Value("${jwt.token.expiration}")
-    private int jwt_token_expiration;
-	
-	@Value("${jwt.token.type}")
-    private String jwt_token_type;
-
+	//Email SMTP
 	@Value("${smtp.mail}")
     private String smtp_mail;
 	
@@ -53,6 +49,17 @@ public class Property {
 	@Value("${mail.upload.path}")
     private String mail_upload_path;
 	
+	//CORS
 	@Value("#{'${allowed.origins}'.split(',')}")
     private List<String> allowed_origins;
+	
+	//Keycloak
+	@Value("${keycloak.base_url}")
+    private String keycloak_base_url;
+	
+	@Value("${keycloak.realm}")
+    private String keycloak_realm;
+	
+	@Value("${keycloak.cert_endpoint}")
+    private String keycloak_cert_endpoint;
 }

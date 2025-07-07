@@ -1,15 +1,5 @@
 {"properties": [
   {
-    "name": "jwt.token.expiration",
-    "type": "java.lang.String",
-    "description": "A description for 'jwt.token.expiration'"
-  },
-  {
-    "name": "jwt.token.type",
-    "type": "java.lang.String",
-    "description": "A description for 'jwt.token.type'"
-  },
-  {
     "name": "smtp.mail",
     "type": "java.lang.String",
     "description": "A description for 'smtp.mail'"
@@ -35,14 +25,14 @@
     "description": "A description for 'smtp.password'"
   },
   {
-    "name": "smtp.ssl",
-    "type": "java.lang.String",
-    "description": "A description for 'smtp.ssl'"
-  },
-  {
     "name": "smtp.tls",
     "type": "java.lang.String",
     "description": "A description for 'smtp.tls'"
+  },
+  {
+    "name": "smtp.ssl",
+    "type": "java.lang.String",
+    "description": "A description for 'smtp.ssl'"
   },
   {
     "name": "mail.upload.path",
@@ -50,9 +40,9 @@
     "description": "A description for 'mail.upload.path'"
   },
   {
-    "name": "allowed.origins",
+    "name": "project.log.name",
     "type": "java.lang.String",
-    "description": "A description for 'allowed.origins'"
+    "description": "A description for 'project.log.name'"
   },
   {
     "name": "rate.limit.capacity",
@@ -70,13 +60,23 @@
     "description": "A description for 'rate.limit.period'"
   },
   {
-    "name": "project.log.name",
+    "name": "allowed.origins",
     "type": "java.lang.String",
-    "description": "A description for 'project.log.name'"
+    "description": "A description for 'allowed.origins'"
   },
   {
-    "name": "app.name",
+    "name": "keycloak.base_url",
     "type": "java.lang.String",
-    "description": "A description for 'app.name'"
+    "description": "A description for 'keycloak.base_url'"
+  },
+  {
+    "name": "keycloak.cert_endpoint",
+    "type": "java.lang.String",
+    "description": "A description for 'keycloak.cert_endpoint'"
+  },
+  {
+    "name": "keycloak.realm",
+    "type": "java.lang.String",
+    "description": "A description for 'keycloak.realm'"
   }
 ]}
