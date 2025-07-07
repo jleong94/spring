@@ -39,7 +39,7 @@ jobs:
     - name: Wait for Keycloak to be ready
       run: |
         echo "Waiting for Keycloak..."
-        until curl -s http://localhost:8888/realms/master; do
+        until curl -s http://localhost:8888/realms/spring; do
           sleep 2
         done
         echo "Keycloak is up!"

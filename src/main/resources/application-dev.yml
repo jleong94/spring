@@ -65,6 +65,6 @@ rate:
 allowed:
   origins: localhost:8080
 keycloak:
-  base_url: localhost:8888/realms/
+  base_url: http://localhost:8888/realms/
   realm: spring
   cert_endpoint: /protocol/openid-connect/certs
