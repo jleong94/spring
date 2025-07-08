@@ -9,7 +9,7 @@ This project serves as a fully working **base template** for Java Spring Boot de
 ## 🧩 Features
 
 ### 🔐 Security
-- [ ] JWT-based Authentication(Keycloak)
+- [x] JWT-based Authentication(Keycloak)
 - [x] Rate Limiter Control
 
 ### 🌐 API

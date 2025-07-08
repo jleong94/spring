@@ -10,7 +10,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.exception.RateLimitExceededException;
 import com.service.RateLimitService;
-import com.validation.RateLimit;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,30 +24,20 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 	
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		MDC.put("mdcId", request.getHeader("X-Correlation-ID") != null ? request.getHeader("X-Correlation-ID") : UUID.randomUUID());
+		MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-Rate limit interceptor start-");
 		try {
 			if (!(handler instanceof HandlerMethod)) {
 				return true;
 			}
 
-			HandlerMethod handlerMethod = (HandlerMethod) handler;
-			RateLimit rateLimit = handlerMethod.getMethodAnnotation(RateLimit.class);
-
-			if (rateLimit == null) {
-				// No rate limit annotation, proceed as normal
-				return true;
-			}
-
-			String ip = rateLimit.ip();
-			String resolvedIpKey = rateLimitService.resolveKeyFromRequest(log, request, "ip", ip);
-			String headerName = rateLimit.headerName();
+			String resolvedIpKey = rateLimitService.resolveKeyFromRequest(log, request, "ip", "");
+			String headerName = "";
 			String resolvedHeaderKey = rateLimitService.resolveKeyFromRequest(log, request, "header", headerName);
-			String pathVariable = rateLimit.pathVariable();
+			String pathVariable = "";
 			String resolvedPathVariableKey = rateLimitService.resolveKeyFromRequest(log, request, "pathVariable", pathVariable); 
-			String requestBodyField = rateLimit.requestBodyField();
-			String resolvedRequestBodyFieldKey = rateLimitService.resolveKeyFromRequest(log, request, "requestBody", requestBodyField); 
-			int capacity = rateLimit.capacity(), tokens = rateLimit.tokens(), period = rateLimit.period();
+			String requestBodyField = "";
+			String resolvedRequestBodyFieldKey = rateLimitService.resolveKeyFromRequest(log, request, "requestBody", requestBodyField);
 
 			// Resolve the actual key from the request
 			String resolvedKey = resolvedIpKey;
@@ -69,11 +58,10 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 				resolvedKey = resolvedKey.concat(resolvedRequestBodyFieldKey);
 			}
 			// Try to consume a token
-			boolean allowed = rateLimitService.tryConsume(resolvedKey, capacity, tokens, period);
+			boolean allowed = rateLimitService.resolveBucket(resolvedKey, request.getRequestURI()).tryConsume(1);
 
 			if (!allowed) {
-				long availableTokens = rateLimitService.getAvailableTokens(resolvedKey, capacity, tokens, period);
-				log.info("Rate limit exceeded for key: {}, available tokens: {}", resolvedKey, availableTokens);
+				log.info("Rate limit exceeded for key: {} at endpoint {} ", resolvedKey, request.getRequestURI());
 				throw new RateLimitExceededException("Rate limit exceeded");
 			}
 

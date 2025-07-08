@@ -1,15 +1,12 @@
 package com.service;
 
+import com.configuration.RateLimitProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pojo.Property;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.BucketConfiguration;
-import io.github.bucket4j.Refill;
-import io.github.bucket4j.distributed.proxy.ProxyManager;
-import io.github.bucket4j.grid.jcache.JCacheProxyManager;
+import io.github.bucket4j.Bucket4j;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -18,46 +15,37 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.cache.Cache;
+import javax.cache.CacheManager;
+
 import java.io.IOException;
-import java.time.Duration;
 import java.util.Map;
 
 @Service
 public class RateLimitService {
-
-	@Autowired
-	private Property property;
-	
-	private final ProxyManager<String> buckets;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
 
-	public RateLimitService(Cache<String, byte[]> cache) {
-		this.buckets = new JCacheProxyManager<>(cache);
-	}
+	private final Cache<String, Bucket> cache;
+	
+	@Autowired
+    private RateLimitProperties rateLimitProperties;
 
-	public boolean tryConsume(String key, int capacity, int tokens, int period) {
-		Bucket bucket = resolveBucket(key, capacity, tokens, period);
-		return bucket.tryConsume(1);
+	public RateLimitService(CacheManager cacheManager) {
+		this.cache = cacheManager.getCache("buckets", String.class, Bucket.class);
 	}
-
-	public long getAvailableTokens(String key, int capacity, int tokens, int period) {
-		Bucket bucket = resolveBucket(key, capacity, tokens, period);
-		return bucket.getAvailableTokens();
-	}
-
-	private Bucket resolveBucket(String key, int capacity, int tokens, int period) {
-		return buckets.builder().build(key, () -> getBucketConfiguration(capacity, tokens, period));
-	}
-
-	private BucketConfiguration getBucketConfiguration(int capacity, int tokens, int period) {
-		capacity = capacity > 0 ? capacity : property.getRate_limit_capacity();
-		tokens = tokens > 0 ? tokens : property.getRate_limit_tokens();
-		period = period > 0 ? period : property.getRate_limit_period();
-		Bandwidth bandwidth = Bandwidth.classic(capacity, Refill.greedy(tokens, Duration.ofSeconds(period)));
-		return BucketConfiguration.builder().addLimit(bandwidth).build();
-	}
+	
+	public Bucket resolveBucket(String key, String path) {
+        Bucket bucket = cache.get(key);
+        if (bucket == null) {
+            Bandwidth bandwidth = rateLimitProperties.getLimitForPath(path);
+            bucket = Bucket4j.builder()
+                    .addLimit(bandwidth)
+                    .build();
+            cache.put(key, bucket);
+        }
+        return bucket;
+    }
 
 	public String resolveKeyFromRequest(Logger log, HttpServletRequest request, String keyType, String keyValues) throws IOException {
 		String result = "";

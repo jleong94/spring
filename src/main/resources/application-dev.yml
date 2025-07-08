@@ -70,3 +70,16 @@ keycloak:
   username: admin
   password: admin
   cert_endpoint: /protocol/openid-connect/certs
+management: #Spring actuator
+  endpoints:
+    web:
+      exposure:
+      #endpoint: /actuator Description: Shows list of available endpoints
+      #endpoint: /actuator/health Description: Health check info
+      #endpoint: /actuator/info Description: App metadata
+      #endpoint: /actuator/metrics Description: System and app metrics
+      #endpoint: /actuator/env Description: Environment properties
+        include: health,info #health,info,metrics,env
+  endpoint:
+    health:
+      show-details: never
