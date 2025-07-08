@@ -14,11 +14,14 @@ import javax.cache.spi.CachingProvider;
 
 @Configuration
 public class RateLimitCacheConfig {
+	
+	private CacheManager cacheManager;
 
 	@Bean
 	CacheManager cacheManager() {
 		CachingProvider provider = Caching.getCachingProvider();
-        return provider.getCacheManager();
+        this.cacheManager = provider.getCacheManager(); // Assign it to the field
+        return this.cacheManager;
 	}
 
 	@PostConstruct
@@ -27,6 +30,6 @@ public class RateLimitCacheConfig {
                 .setStoreByValue(false)
                 .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))
                 .setStatisticsEnabled(true);
-        cacheManager().createCache("buckets", config);
+        cacheManager.createCache("buckets", config); // use the injected one
     }
 }
