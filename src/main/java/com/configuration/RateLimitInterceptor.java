@@ -11,6 +11,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import com.exception.RateLimitExceededException;
 import com.service.RateLimitService;
 
+import io.github.bucket4j.Bucket;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -58,10 +59,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 				resolvedKey = resolvedKey.concat(resolvedRequestBodyFieldKey);
 			}
 			// Try to consume a token
-			boolean allowed = rateLimitService.resolveBucket(resolvedKey, request.getRequestURI()).tryConsume(1);
+			Bucket bucket = rateLimitService.resolveBucket(resolvedKey, request.getRequestURI());
+			boolean allowed = bucket.tryConsume(1);
 
 			if (!allowed) {
-				log.info("Rate limit exceeded for key: {} at endpoint {} ", resolvedKey, request.getRequestURI());
+				log.info("Rate limit exceeded for key: {} at endpoint {} with available tokens: {}", resolvedKey, request.getRequestURI(), bucket.getAvailableTokens());
 				throw new RateLimitExceededException("Rate limit exceeded");
 			}
 

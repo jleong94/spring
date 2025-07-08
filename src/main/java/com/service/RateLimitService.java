@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Bucket4j;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -39,7 +38,7 @@ public class RateLimitService {
         Bucket bucket = cache.get(key);
         if (bucket == null) {
             Bandwidth bandwidth = rateLimitProperties.getLimitForPath(path);
-            bucket = Bucket4j.builder()
+            bucket = Bucket.builder()
                     .addLimit(bandwidth)
                     .build();
             cache.put(key, bucket);
