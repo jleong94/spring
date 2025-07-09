@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.github.bucket4j.Bucket;
-import jakarta.annotation.PostConstruct;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -23,8 +22,8 @@ public class RateLimitCacheConfig {
         return provider.getCacheManager();
 	}
 
-	@PostConstruct
-    public Cache<String, Bucket> createBucketCache(CacheManager cacheManager) {
+	@Bean
+    Cache<String, Bucket> bucketCache(CacheManager cacheManager) {
         MutableConfiguration<String, Bucket> config = new MutableConfiguration<String, Bucket>()
                 .setStoreByValue(false)
                 .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.cache.Cache;
-import javax.cache.CacheManager;
 
 import java.io.IOException;
 import java.util.Map;
@@ -27,11 +26,11 @@ public class RateLimitService {
 
 	private final Cache<String, Bucket> cache;
 	
-	@Autowired
     private RateLimitProperties rateLimitProperties;
 
-	public RateLimitService(CacheManager cacheManager) {
-		this.cache = cacheManager.getCache("buckets", String.class, Bucket.class);
+	public RateLimitService(Cache<String, Bucket> cache, RateLimitProperties rateLimitProperties) {
+		this.cache = cache;
+		this.rateLimitProperties = rateLimitProperties;
 	}
 	
 	public Bucket resolveBucket(String key, String path) {

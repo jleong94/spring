@@ -15,19 +15,19 @@ public class RateLimitProperties {
 
 	public RateLimitProperties() {
 		limits.put("/v1/email/send", Bandwidth.builder()
-				.capacity(5)
-				.refillGreedy(5, Duration.ofSeconds(60))
-				.build());   // 5 req / 60 sec
+				.capacity(50)//maximum number of tokens (or requests) allowed in the bucket
+				.refillGreedy(5, Duration.ofSeconds(5))//Every nth seconds, instantly add nth tokens back
+				.build());   
 		limits.put("/v1/email/check", Bandwidth.builder()
-				.capacity(2)
-				.refillGreedy(2, Duration.ofSeconds(60))
-				.build());  // 2 req / 60 sec
+				.capacity(100)//maximum number of tokens (or requests) allowed in the bucket
+				.refillGreedy(5, Duration.ofSeconds(3))//Every nth seconds, instantly add nth tokens back
+				.build());  
 	}
 
     public Bandwidth getLimitForPath(String path) {
         return limits.getOrDefault(path, Bandwidth.builder()
 				.capacity(10)
-				.refillGreedy(10, Duration.ofSeconds(60))
+				.refillGreedy(1, Duration.ofSeconds(1))
 				.build()); // default
     }
 }
