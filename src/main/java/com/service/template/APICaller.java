@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.http.Header;
@@ -22,7 +23,12 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -359,6 +365,76 @@ public class APICaller {
 		} finally {
 			try {
 				
+			}catch(Exception e) {}
+		}
+		return result;
+	}
+	
+	//Async api call using webflux client
+	protected String webClient(Logger log, String logFolder) {
+		String result = "";
+		String URL = "";
+		Object object = new Object();
+		ObjectMapper objectMapper = new ObjectMapper()
+				.registerModule(new JavaTimeModule());
+		try {
+			log.info("URL: " + URL);
+			log.info("Request: " + objectMapper.writeValueAsString(object));
+			if(URL != null && !URL.isBlank()){
+				WebClient webClient = WebClient.builder()
+						// Optional: Define base URL
+						// .baseUrl("https://your-api-base-url.com")
+						.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+						.build();
+				RequestHeadersSpec<?> requestHeadersSpec = webClient
+						.post() // ⬅️ Change HTTP verb here
+						// .get()
+						// .put()
+						// .delete()
+						.uri(uriBuilder -> uriBuilder
+								.path(URL)
+								// .queryParam("paramName", "paramValue") // <-- Uncomment for query params
+								.build()
+								)
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+						.bodyValue(objectMapper.writeValueAsString(object));
+				// Optional: Add custom headers
+				// requestHeadersSpec = requestHeadersSpec.header("X-Custom-Header", "value");
+				String responseString = requestHeadersSpec //Change data type from String to Mono<String> if async & vice versa
+						.retrieve()
+						.onStatus(HttpStatusCode::isError, clientResponse ->
+						clientResponse.bodyToMono(String.class)
+						.map(errorBody -> {
+							log.error("HTTP Error: {}", errorBody);
+							return new RuntimeException("Error Response: " + errorBody);
+						})
+								)
+						.bodyToMono(String.class)
+						.timeout(Duration.ofSeconds(5))
+						.doOnSuccess(body -> log.info("Response: {}", body))
+						.block();// Remove .block() if want to be aysnc
+				// Read & update the response JSON parameter value into Object & vice versa
+				object = objectMapper.readValue(responseString, Object.class);
+			}
+		} catch(Exception e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+		} finally {
+			try {
+
 			}catch(Exception e) {}
 		}
 		return result;
