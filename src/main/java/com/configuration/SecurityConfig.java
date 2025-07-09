@@ -101,6 +101,10 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.build();
 	}
 	
+	/**
+     * Configures how authorities (roles) are extracted from the JWT token.
+     * Uses a custom KeycloakConverter to extract and convert "realm_access.roles".
+     */
 	@Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
@@ -108,28 +112,46 @@ public class SecurityConfig implements WebMvcConfigurer {
         return jwtAuthenticationConverter;
     }
 
+	/**
+     * Defines global CORS configuration.
+     * - Restricts origins to those specified in application properties.
+     * - Allows common HTTP methods and all headers.
+     * - Enables credentials support (e.g., for cookies).
+     */
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(property.getAllowed_origins()); // Whitelist only trusted domains
-		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		configuration.setAllowedHeaders(List.of("*"));
-		configuration.setAllowCredentials(true);
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));// Common HTTP methods
+		configuration.setAllowedHeaders(List.of("*"));// Accept all headers
+		configuration.setAllowCredentials(true);// Required for session cookies
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
+		source.registerCorsConfiguration("/**", configuration);// Apply to all endpoints
 		return source;
 	}
 	
+	/**
+     * Adds a custom rate limiting interceptor to all endpoints.
+     * This enforces per-path rate limit rules defined elsewhere.
+     */
 	@Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(rateLimitInterceptor)
                 .addPathPatterns("/**"); // Customize your target paths
     }
 	
+	/**
+     * Configures the JWT decoder with a JWK Set URI and issuer validation.
+     * - Retrieves public keys from Keycloak to verify tokens.
+     * - Validates that the token was issued by the expected realm.
+     */
 	@Bean
 	JwtDecoder jwtDecoder() {
+		// Construct the JWK set URI: <base-url>/realms/<realm>/protocol/openid-connect/certs
 		String jwkSetUri = property.getKeycloak_base_url().concat(property.getKeycloak_realm()).concat(property.getKeycloak_cert_endpoint());
+		// Build decoder that uses public keys from Keycloak
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+		// Validate the token issuer (Keycloak realm)
 		OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(property.getKeycloak_base_url().concat(property.getKeycloak_realm()));
 		jwtDecoder.setJwtValidator(withIssuer);
 		return jwtDecoder;

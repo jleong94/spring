@@ -119,7 +119,9 @@ public class Scheduler {
     }
 	
 	@Recover //Fallback when all attempts fail
-    public void recover(RuntimeException e) {
+    public void recover(RuntimeException e, UUID uuid) {
+		MDC.put("mdcId", uuid); // Restore MDC manually
         log.error("Recovering from task failure: " + e.getMessage());
+        MDC.clear();
     }
 }

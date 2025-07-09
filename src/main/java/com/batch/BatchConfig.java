@@ -46,7 +46,7 @@ public class BatchConfig {
 	 * 
 	 * Flow:
 	 * 1. Creates a new step named "sampleStep"
-	 * 2. Configures the step with a tasklet and transaction manager
+	 * 2. Configures the step with a tasklet and transaction manager(auto commit by spring if tasklet success run else rollback)
 	 * 3. Builds and returns the configured step
 	 * 
 	 * @return Step object representing the configured batch step
@@ -71,6 +71,7 @@ public class BatchConfig {
     Tasklet sampleTasklet() {
         return (contribution, chunkContext) -> {
     		// Add your batch processing logic here
+        	
             return RepeatStatus.FINISHED; // Indicates successful completion
         };
     }
