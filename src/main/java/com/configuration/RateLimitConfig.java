@@ -14,7 +14,7 @@ import javax.cache.expiry.Duration;
 import javax.cache.spi.CachingProvider;
 
 @Configuration
-public class RateLimitCacheConfig {
+public class RateLimitConfig {
 
 	@Bean
 	CacheManager cacheManager() {
@@ -29,5 +29,10 @@ public class RateLimitCacheConfig {
                 .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))
                 .setStatisticsEnabled(true);
         return cacheManager.createCache("buckets", config);
+    }
+	
+	@Bean
+    RateLimitProperties rateLimitProperties() {
+        return new RateLimitProperties();
     }
 }
