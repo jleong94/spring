@@ -200,6 +200,17 @@
 		</dependency>
 		<!-- Bucket4j(Rate Limiter) -->
 		
+		<!-- Auto-Retry with Backoff -->
+		<dependency>
+		    <groupId>org.springframework.retry</groupId>
+		    <artifactId>spring-retry</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-aop</artifactId> <!-- Needed for @Retryable to work -->
+		</dependency>
+		<!-- Auto-Retry with Backoff -->
+		
 		<!-- Mail -->
 		<dependency>
 		    <groupId>jakarta.mail</groupId>

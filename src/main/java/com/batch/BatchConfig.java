@@ -68,7 +68,7 @@ public class BatchConfig {
 	 * @return Tasklet object that executes the step's business logic
 	 */
 	@Bean
-    public Tasklet sampleTasklet() {
+    Tasklet sampleTasklet() {
         return (contribution, chunkContext) -> {
     		// Add your batch processing logic here
             return RepeatStatus.FINISHED; // Indicates successful completion
