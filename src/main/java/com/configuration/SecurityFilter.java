@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.lang.NonNull;
 import com.utilities.Tool;
 
@@ -66,7 +67,12 @@ public class SecurityFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws IOException, ServletException{		
 		try {
-			MutableHttpServletRequest mutableHttpServletRequest = tool.setRequestHeaderMdcId(log, request);
+			// Wrap the original HttpServletRequest in a ContentCachingRequestWrapper
+			// This enables multiple reads of the request body (e.g., for logging, auditing, etc.)
+			ContentCachingRequestWrapper contentCachingRequestWrapper = new ContentCachingRequestWrapper((HttpServletRequest) request);
+			// Wrap the caching request with your custom MutableHttpServletRequest
+			// This allows you to programmatically modify request headers (e.g., inject MDC ID)
+			MutableHttpServletRequest mutableHttpServletRequest = tool.setRequestHeaderMdcId(log, contentCachingRequestWrapper);
 			MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 			log.info("-Security filter start-");
 			logHttpRequest(request, log);

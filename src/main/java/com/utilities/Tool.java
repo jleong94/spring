@@ -44,7 +44,7 @@ public class Tool {
 		try {
 			if(request.getHeader("mdcId") == null || request.getHeader("mdcId").isBlank()) {
 				UUID mdcId = UUID.randomUUID();
-		        wrappedRequest.putHeader("mdcId", mdcId);
+		        wrappedRequest.putHeader("mdcId", mdcId.toString());
 			}
 		} catch(Exception e) {
 			// Get the current stack trace element

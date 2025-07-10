@@ -57,48 +57,53 @@ public class SecurityConfig implements WebMvcConfigurer {
 					// Force HTTPS communication and prevent protocol downgrade attacks.
 					if (sslEnabled) {
 						headers.httpStrictTransportSecurity(hsts -> hsts
-								.includeSubDomains(true)
-								.maxAgeInSeconds(31536000)
+								.includeSubDomains(true)// Applies HSTS to subdomains
+								.maxAgeInSeconds(31536000)// Cache duration: 1 year
 								);
 					}
-					// Prevent XSS, clickjacking, and content injection.
+					 // Mitigate XSS, clickjacking, and content injection attacks
 					headers.contentSecurityPolicy(csp -> csp
 							.policyDirectives("default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none';")
 							);
+					//Prevent the site from being embedded in frames (defense against clickjacking)
 					headers.frameOptions(frame -> frame.deny());
+					//Referrer policy to prevent leaking full URLs when navigating offsite
 					headers.referrerPolicy(referrer -> referrer
 							.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)
 							);
 				})
 
-				// CSRF protection is disabled because we're stateless (JWT tokens, etc.)
+				// Disable CSRF protection because app is stateless (e.g., uses JWT tokens)
 				.csrf(csrf -> csrf.disable())
-				// CORS Configuration
+				// Enable Cross-Origin Resource Sharing with custom config
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				// Stateless sessions
+				// Stateless session management: no HTTP session stored server-side
 				.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 						)
-				// Exception Handling
+				// Handle authentication & access errors with custom exceptions
 				.exceptionHandling(exception -> exception
 						.authenticationEntryPoint((request, response, authEx) -> {
+							//Fired when an unauthenticated request tries to access a protected resource
 							throw new UnauthenticatedAccessException("Unauthorized access.");
 						})
 						.accessDeniedHandler((req, res, accessDeniedEx) -> {
+							//Fired when an authenticated user lacks required permissions
 							throw new UnauthenticatedAccessException("Access denied.");
 						})
 						)
-				//Filter handling
+				// Register custom filter before Spring Security’s BasicAuthenticationFilter
 				.addFilterBefore(securityFilter, BasicAuthenticationFilter.class)
-				//Authentication & authorization handling
+				// Secure endpoint access rules
 				.authorizeHttpRequests((requests) -> requests
 						.requestMatchers("/v1/email/**").authenticated()
-						.anyRequest().permitAll() // allow all other requests without authentication
+						.anyRequest().permitAll() // All other endpoints are publicly accessible
 						)
+				// Configure OAuth2 resource server to validate JWT tokens
 				.oauth2ResourceServer(oauth -> oauth.jwt(jwt -> 
-				jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+				jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()) // Customize authentication conversion
 						))
-				.build();
+				.build();// Return the built filter chain
 	}
 	
 	/**

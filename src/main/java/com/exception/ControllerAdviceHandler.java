@@ -36,7 +36,7 @@ import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 
 /*
- * Here is to handle all the exception that throw by the application
+ * Centralize place to handle all the exception that throw by the application
  * */
 @Slf4j
 @RestControllerAdvice

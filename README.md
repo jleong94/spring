@@ -54,4 +54,4 @@ This project serves as a fully working **base template** for Java Spring Boot de
 cd path\to\your\jar\directory
 
 # Step 5: Run the JAR with custom JVM options
-java -Xms256m -Xmx2048m -XX:+PrintGCDetails -enableassertions -jar spring.jar
+java -Xms256m -Xmx2048m -XX:+PrintGCDetails -jar spring.jar
