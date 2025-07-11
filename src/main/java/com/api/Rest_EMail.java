@@ -26,6 +26,7 @@ import com.pojo.ApiResponse;
 import com.pojo.Property;
 import com.service.EMailService;
 import com.utilities.Tool;
+import com.validation.RateLimit;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotBlank;
@@ -78,6 +79,7 @@ public class Rest_EMail {
 		}
 	}
 
+	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "receiver,cc,bcc")
 	@PostMapping(value = "v1/email/send", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({EMail.SendEMail.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
@@ -122,6 +124,7 @@ public class Rest_EMail {
 		}
 	}
 	
+	@RateLimit(headerName = "", pathVariable = "mail_id", requestBodyField = "")
 	@GetMapping(value = "v1/email/check/{mail_id}", produces = "application/json; charset=UTF-8")
 	@JsonView({EMail.GetEmailDetailById.class})//Which getter parameter should return within json
 	public ResponseEntity<ApiResponse> getMerchantDetailByMerchant_Id(HttpServletRequest request, @PathVariable @NotBlank Long mail_id) throws Exception{

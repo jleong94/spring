@@ -10,6 +10,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.exception.RateLimitExceededException;
 import com.service.RateLimitService;
+import com.validation.RateLimit;
 
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,17 +29,23 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 		MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-Rate limit interceptor start-");
 		try {
+			// Check if the handler is a HandlerMethod (i.e., a controller method).
+			// This allows access to method-level annotations such as @RateLimitHeader.
 			if (!(handler instanceof HandlerMethod)) {
 				return true;
 			}
+			// Cast the generic handler object to HandlerMethod to access controller method metadata
+			HandlerMethod handlerMethod = (HandlerMethod) handler;
+			// Retrieve the @RateLimit annotation (custom) from the handler method, if present
+			RateLimit rateLimit = handlerMethod.getMethodAnnotation(RateLimit.class);
 
 			String resolvedIpKey = rateLimitService.resolveKeyFromRequest(log, request, "ip", "");
-			String headerName = "";
-			String resolvedHeaderKey = rateLimitService.resolveKeyFromRequest(log, request, "header", headerName);
-			String pathVariable = "";
-			String resolvedPathVariableKey = rateLimitService.resolveKeyFromRequest(log, request, "pathVariable", pathVariable); 
-			String requestBodyField = "";
-			String resolvedRequestBodyFieldKey = rateLimitService.resolveKeyFromRequest(log, request, "requestBody", requestBodyField);
+			String headerName = rateLimit.headerName();
+			String resolvedHeaderKey = headerName != null && !headerName.isBlank() ? rateLimitService.resolveKeyFromRequest(log, request, "header", headerName) : null;
+			String pathVariable = rateLimit.pathVariable();
+			String resolvedPathVariableKey = pathVariable != null && !pathVariable.isBlank() ? rateLimitService.resolveKeyFromRequest(log, request, "pathVariable", pathVariable) : null;
+			String requestBodyField = rateLimit.requestBodyField();
+			String resolvedRequestBodyFieldKey = requestBodyField != null && !requestBodyField.isBlank() ? rateLimitService.resolveKeyFromRequest(log, request, "requestBody", requestBodyField) : null;
 
 			// Resolve the actual key from the request
 			String resolvedKey = resolvedIpKey;
