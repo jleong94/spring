@@ -27,7 +27,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
-		log.info("-Rate limit interceptor start-");
+		log.info("-Handler interceptor start-");
 		try {
 			// Check if the handler is a HandlerMethod (i.e., a controller method).
 			// This allows access to method-level annotations such as @RateLimitHeader.
@@ -92,7 +92,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 			}
 			throw e;
 		} finally {
-			log.info("-Rate limit interceptor end-");
+			log.info("-Handler interceptor end-");
 			MDC.clear();
 		}
     }
