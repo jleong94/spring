@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class RateLimitInterceptor implements HandlerInterceptor {
+public class CustomHandlerInterceptor implements HandlerInterceptor {
 
 	@Autowired
 	private RateLimitService rateLimitService;

@@ -48,7 +48,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 	Property property;
 	
 	@Autowired
-	RateLimitInterceptor rateLimitInterceptor;
+	CustomHandlerInterceptor customHandlerInterceptor;
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -141,7 +141,7 @@ public class SecurityConfig implements WebMvcConfigurer {
      */
 	@Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(rateLimitInterceptor)
+        registry.addInterceptor(customHandlerInterceptor)
                 .addPathPatterns("/**"); // Customize your target paths
     }
 	
