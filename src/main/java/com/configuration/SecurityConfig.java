@@ -42,7 +42,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 	private boolean sslEnabled;
 
 	@Autowired
-	SecurityFilter securityFilter;
+	CustomOncePerRequestFilter customOncePerRequestFilter;
 	
 	@Autowired
 	Property property;
@@ -93,7 +93,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 						})
 						)
 				// Register custom filter before Spring Security’s BasicAuthenticationFilter
-				.addFilterBefore(securityFilter, BasicAuthenticationFilter.class)
+				.addFilterBefore(customOncePerRequestFilter, BasicAuthenticationFilter.class)
 				// Secure endpoint access rules
 				.authorizeHttpRequests((requests) -> requests
 						.requestMatchers("/v1/email/**").authenticated()
@@ -108,12 +108,12 @@ public class SecurityConfig implements WebMvcConfigurer {
 	
 	/**
      * Configures how authorities (roles) are extracted from the JWT token.
-     * Uses a custom KeycloakConverter to extract and convert "realm_access.roles".
+     * Uses a custom CustomConverter to extract and convert "realm_access.roles".
      */
 	@Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakConverter());
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new CustomConverter());
         return jwtAuthenticationConverter;
     }
 

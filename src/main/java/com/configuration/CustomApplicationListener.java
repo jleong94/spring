@@ -15,11 +15,11 @@ import java.sql.Connection;
 
 @Slf4j
 @Component
-public class SqlScriptRunner implements ApplicationListener<ApplicationReadyEvent> {
+public class CustomApplicationListener implements ApplicationListener<ApplicationReadyEvent> {
 
 	private final DataSource dataSource;
 
-	public SqlScriptRunner(DataSource dataSource) {
+	public CustomApplicationListener(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
 

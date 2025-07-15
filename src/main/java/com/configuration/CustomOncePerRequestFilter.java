@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * */
 @Slf4j
 @Component
-public class SecurityFilter extends OncePerRequestFilter {
+public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 	
 	@Autowired
     private Tool tool;

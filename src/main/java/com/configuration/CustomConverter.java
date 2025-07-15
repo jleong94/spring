@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 @Component
 //Converts Keycloak roles from a JWT into Spring Security GrantedAuthority objects.
-public class KeycloakConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
+public class CustomConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
 	/**
 	 * Extracts roles from the "realm_access" claim in the JWT and converts them to GrantedAuthority.
