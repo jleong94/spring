@@ -41,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestControllerAdvice
 @ControllerAdvice
-public class ControllerAdviceHandler implements ResponseBodyAdvice<Object> {
+public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
 	@Autowired
 	Tool tool;
