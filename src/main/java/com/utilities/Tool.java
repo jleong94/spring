@@ -122,8 +122,8 @@ public class Tool {
 				.optionalEnd()
 				.optionalStart()
 				.appendPattern("HH:mm:ss")    // Time part
-				.optionalStart()
 				.optionalEnd()
+				.optionalStart()
 				.appendFraction(ChronoField.MILLI_OF_SECOND, 1, 3, true)  // Handle 1-3 digit milliseconds
 				.optionalEnd()
 				.toFormatter();
