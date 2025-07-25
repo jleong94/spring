@@ -1,3 +1,4 @@
+/*
 package com.api.template;
 
 import java.util.Enumeration;
@@ -114,4 +115,4 @@ public class RestJAXRS {
 		return Response.status(httpStatus).entity(responseJson.toString()).build();
 	}
 }
-
+*/

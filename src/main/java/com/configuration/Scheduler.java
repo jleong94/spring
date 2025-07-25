@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.retry.annotation.Backoff;
@@ -49,6 +50,7 @@ public class Scheduler {
             backoff = @Backoff(delay = 1000, multiplier = 2)
         )
 	@Scheduled(fixedRate = (1 * 60 * 60 * 1000))//Run every 5 seconds
+	@Async//Run on separate thread, non-blocking the scheduler 
 	public void sampleTask() {
         MDC.put("mdcId", UUID.randomUUID());
 		try {
@@ -91,7 +93,8 @@ public class Scheduler {
              * */
             backoff = @Backoff(delay = 1000, multiplier = 2)
         )
-	@Scheduled(cron = "*/3600 * * * * *", zone = "Asia/Kuala_Lumpur")//cron expression to perform scheduling 
+	@Scheduled(cron = "*/3600 * * * * *", zone = "Asia/Kuala_Lumpur")//cron expression to perform scheduling
+	@Async//Run on separate thread, non-blocking the scheduler  
 	public void sampleTask2() {
         MDC.put("mdcId", UUID.randomUUID());
 		try {

@@ -6,12 +6,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -27,7 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.configuration.MutableHttpServletRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Cleanup;
@@ -143,53 +143,30 @@ public class Tool {
 		return targetPath.toAbsolutePath().toString();
 	}
 
-	public String generatePassword(int length) {
-		final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		final String LOWER = "abcdefghijklmnopqrstuvwxyz";
-		final String DIGITS = "0123456789";
-		final String SPECIAL = "!@#$%^&*()-_=+[]{}";
-		final String ALL_CHARS = UPPER + LOWER + DIGITS + SPECIAL;
-		final SecureRandom random = new SecureRandom();
-		// Ensure at least one of each type
-		List<Character> passwordChars = new ArrayList<>();
-		passwordChars.add(getRandomChar(random, UPPER));
-		passwordChars.add(getRandomChar(random, LOWER));
-		passwordChars.add(getRandomChar(random, DIGITS));
-		passwordChars.add(getRandomChar(random, SPECIAL));
-		// Fill remaining characters
-		while (passwordChars.size() < length) {
-			char nextChar = getRandomChar(random, ALL_CHARS);
-			// Avoid repeating adjacent characters
-			if (passwordChars.isEmpty() || passwordChars.get(passwordChars.size() - 1) != nextChar) {
-				passwordChars.add(nextChar);
+	public String maskJson(Logger log, Set<String> jsonKey, String inputJson) {
+		String result = "";
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode root = objectMapper.readTree(inputJson);
+			maskNode(jsonKey, root);
+			result = objectMapper.writeValueAsString(root);
+		} catch(Exception e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
 			}
 		}
-		// Shuffle to ensure randomness of the guaranteed characters
-		Collections.shuffle(passwordChars);
-		// Check again for adjacent repetitions
-		for (int i = 1; i < passwordChars.size(); i++) {
-			if (passwordChars.get(i).equals(passwordChars.get(i - 1))) {
-				// regenerate
-				return generatePassword(length); // Recursive retry
-			}
-		}
-		// Convert to string
-		StringBuilder password = new StringBuilder();
-		for (char ch : passwordChars) {
-			password.append(ch);
-		}
-		return password.toString();
-	}
-
-	private char getRandomChar(SecureRandom random, String chars) {
-		return chars.charAt(random.nextInt(chars.length()));
-	}
-
-	public String maskJson(Set<String> jsonKey, String inputJson) throws Exception {
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode root = objectMapper.readTree(inputJson);
-		maskNode(jsonKey, root);
-		return objectMapper.writeValueAsString(root);
+		return result;
 	}
 
 	private void maskNode(Set<String> jsonKey, JsonNode node) {
@@ -197,9 +174,22 @@ public class Tool {
 			ObjectNode object = (ObjectNode) node;
 			object.fieldNames().forEachRemaining(field -> {
 				JsonNode child = object.get(field);
-				if (jsonKey.contains(field) && child.isTextual()) {
-					String masked = maskValue(child.asText());
-					object.put(field, masked);
+				if (jsonKey.contains(field)) {
+					if (child.isTextual()) {
+						object.put(field, maskValue(child.asText()));
+					} else if (child.isArray()) {
+						ArrayNode array = (ArrayNode) child;
+						for (int i = 0; i < array.size(); i++) {
+							JsonNode item = array.get(i);
+							if (item.isTextual()) {
+								array.set(i, TextNode.valueOf(maskValue(item.asText())));
+							} else {
+								maskNode(jsonKey, item); // array of objects
+							}
+						}
+					} else {
+						maskNode(jsonKey, child);
+					}
 				} else {
 					maskNode(jsonKey, child);  // recurse
 				}
@@ -218,6 +208,6 @@ public class Tool {
 		String front = plainValue.substring(0, 6);
 		String end = plainValue.substring(length - 4);
 		String masked = "*".repeat(length - 10);
-		return front + masked + end;
+		return front.concat(masked).concat(end);
 	}
 }
