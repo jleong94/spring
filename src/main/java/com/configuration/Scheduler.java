@@ -17,6 +17,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.retry.annotation.Backoff;
 
+import com.pojo.template.SampleSharedStack;
+import com.service.template.SampleThreadService;
 import com.utilities.Tool;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +51,7 @@ public class Scheduler {
              * */
             backoff = @Backoff(delay = 1000, multiplier = 2)
         )
-	@Scheduled(fixedRate = (1 * 60 * 60 * 1000))//Run every 5 seconds
+	@Scheduled(cron = "*/5 * * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler 
 	public void sampleTask() {
         MDC.put("mdcId", UUID.randomUUID());
@@ -57,12 +59,6 @@ public class Scheduler {
         	JobParameters parameters = new JobParametersBuilder()
         			.toJobParameters();
         	jobLauncher.run(job, parameters);
-        	/*for(int i = 0; i < 20; i ++) {
-        		log.info("sampleTask message " + i);
-        		if(i == 9) {
-        			Thread.sleep(10 * 1000);
-        		}
-        	}*/
         } catch(Exception e) {
         	// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -83,6 +79,12 @@ public class Scheduler {
         }
     }
 	
+	@Autowired
+    private SampleSharedStack sampleSharedStack;
+
+    @Autowired
+    private SampleThreadService SampleThreadService;
+	
 	@Retryable(//Retry the method on exception
             value = { Exception.class },
             maxAttempts = 5,//Retry up to nth times
@@ -93,14 +95,16 @@ public class Scheduler {
              * */
             backoff = @Backoff(delay = 1000, multiplier = 2)
         )
-	@Scheduled(cron = "*/3600 * * * * *", zone = "Asia/Kuala_Lumpur")//cron expression to perform scheduling
+	@Scheduled(cron = "*/10 * * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler  
 	public void sampleTask2() {
         MDC.put("mdcId", UUID.randomUUID());
+        log.info("Sample task 2 start.");
 		try {
-        	/*for(int i = 0; i < 20; i ++) {
-        		log.info("sampleTask2 message " + i);
-        	}*/
+			sampleSharedStack.addDummyRecord(1000);
+			for(int i = 0; i < 2; i++) {
+				SampleThreadService.processRecords(log, ("Process dummy records at thread " + (i + 1)));
+			}
         } catch(Exception e) {
         	// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -117,6 +121,7 @@ public class Scheduler {
 				}
 			}
         } finally{
+            log.info("Sample task 2 end.");
         	MDC.clear();
         }
     }
