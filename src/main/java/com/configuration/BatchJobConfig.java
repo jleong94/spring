@@ -1,4 +1,4 @@
-package com.batch;
+package com.configuration;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -16,7 +16,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @EnableBatchProcessing//Enables batch processing
-public class BatchConfig {
+public class BatchJobConfig {
 
 	@Autowired
 	private JobRepository jobRepository;

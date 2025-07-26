@@ -24,7 +24,7 @@ import com.utilities.Tool;
 import lombok.extern.slf4j.Slf4j;
 
 /*
- * Here will configure the trigger date time & it's parameter for each task created in class, BatchConfig
+ * Here will configure the trigger date time & it's parameter for each task created in class, BatchJobConfig
  * */
 @Slf4j
 @Configuration
@@ -38,7 +38,7 @@ public class Scheduler {
 	JobLauncher jobLauncher;
 
 	@Autowired
-	@Qualifier("sampleJob")//To match with bean name for created job in BatchConfig
+	@Qualifier("sampleJob")//To match with bean name for created job in BatchJobConfig
 	Job job;
 
 	@Retryable(//Retry the method on exception
@@ -98,12 +98,13 @@ public class Scheduler {
 	@Scheduled(cron = "*/10 * * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler  
 	public void sampleTask2() {
-        MDC.put("mdcId", UUID.randomUUID());
+		UUID mdcId = UUID.randomUUID();
+        MDC.put("mdcId", mdcId);
         log.info("Sample task 2 start.");
 		try {
 			sampleSharedStack.addDummyRecord(1000);
 			for(int i = 0; i < 2; i++) {
-				SampleThreadService.processRecords(log, ("Process dummy records at thread " + (i + 1)));
+				SampleThreadService.processRecords(mdcId, ("Process dummy records at thread " + (i + 1)));
 			}
         } catch(Exception e) {
         	// Get the current stack trace element

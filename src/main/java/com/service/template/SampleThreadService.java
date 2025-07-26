@@ -1,20 +1,26 @@
 package com.service.template;
 
-import org.slf4j.Logger;
+import java.util.UUID;
+
+import org.jboss.logging.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import com.pojo.template.SampleRecord;
 import com.pojo.template.SampleSharedStack;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class SampleThreadService {
 
 	@Autowired
     private SampleSharedStack sampleSharedStack;
 	
 	@Async
-	public void processRecords(Logger log, String thread_name) {
+	public void processRecords(UUID mdcId, String thread_name) {
+		MDC.put("mdcId", mdcId);
 		log.info(thread_name.concat(" start."));
 		try {
 			SampleRecord sampleRecord;
