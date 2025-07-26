@@ -1,5 +1,6 @@
 package com.configuration;
 
+import java.util.Deque;
 import java.util.UUID;
 
 import org.jboss.logging.MDC;
@@ -17,7 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.retry.annotation.Backoff;
 
-import com.pojo.template.SampleSharedStack;
+import com.pojo.template.SampleRecord;
 import com.service.template.SampleThreadService;
 import com.utilities.Tool;
 
@@ -78,12 +79,9 @@ public class Scheduler {
         	MDC.clear();
         }
     }
-	
-	@Autowired
-    private SampleSharedStack sampleSharedStack;
 
     @Autowired
-    private SampleThreadService SampleThreadService;
+    private SampleThreadService sampleThreadService;
 	
 	@Retryable(//Retry the method on exception
             value = { Exception.class },
@@ -102,9 +100,9 @@ public class Scheduler {
         MDC.put("mdcId", mdcId);
         log.info("Sample task 2 start.");
 		try {
-			sampleSharedStack.addDummyRecord(1000);
+			Deque<SampleRecord> deque = sampleThreadService.addDummyRecord(1000);
 			for(int i = 0; i < 2; i++) {
-				SampleThreadService.processRecords(mdcId, ("Process dummy records at thread " + (i + 1)));
+				sampleThreadService.processRecords(mdcId, (i + 1), deque);
 			}
         } catch(Exception e) {
         	// Get the current stack trace element

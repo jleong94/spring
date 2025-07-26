@@ -21,7 +21,7 @@ server:
     enabled: true
 spring: #DB Config(Git will auto build using the details config in repository secrets)
   datasource:
-    url: jdbc:mysql://localhost:3306/appdb?createDatabaseIfNotExist=true&ssl-mode=DISABLED
+    url: jdbc:mysql://localhost:3306/appdb?createDatabaseIfNotExist=true&useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: Pass@123
     driver-class-name: com.mysql.cj.jdbc.Driver

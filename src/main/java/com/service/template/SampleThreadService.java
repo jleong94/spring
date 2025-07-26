@@ -1,30 +1,30 @@
 package com.service.template;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Deque;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.jboss.logging.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import com.pojo.template.SampleRecord;
-import com.pojo.template.SampleSharedStack;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
 public class SampleThreadService {
-
-	@Autowired
-    private SampleSharedStack sampleSharedStack;
 	
 	@Async
-	public void processRecords(UUID mdcId, String thread_name) {
+	public void processRecords(UUID mdcId, int thread_nno, Deque<SampleRecord> deque) {
 		MDC.put("mdcId", mdcId);
-		log.info(thread_name.concat(" start."));
+		log.info("Process dummy record at thread no. " + thread_nno + " start.");
 		try {
 			SampleRecord sampleRecord;
-			while ((sampleRecord = sampleSharedStack.pollRecord()) != null) {
+			while ((sampleRecord = deque.pollLast()) != null) {
 				log.info("Row no: " + sampleRecord.getRow_no());
 				log.info("Txn id: " + sampleRecord.getTxn_id());
 				log.info("Txn amount: " + sampleRecord.getTxn_amount());
@@ -46,7 +46,20 @@ public class SampleThreadService {
 				}
 			}
 		} finally {
-			log.info(thread_name.concat(" end."));
+			log.info("Process dummy record at thread no. " + thread_nno + " END.");
 		}
 	}
+	
+	public Deque<SampleRecord> addDummyRecord(int count) {
+		Deque<SampleRecord> result = new ConcurrentLinkedDeque<>();
+		double randomDouble = ThreadLocalRandom.current().nextDouble(0.00, 9999999.99);
+        for (int i = 1; i <= count; i++) {
+        	result.addLast(SampleRecord.builder()
+            		.row_no(i)
+            		.txn_id(UUID.randomUUID().toString())
+            		.txn_amount(new BigDecimal(randomDouble).setScale(2, RoundingMode.HALF_UP))
+            		.build());
+        }
+        return result;
+    }
 }
