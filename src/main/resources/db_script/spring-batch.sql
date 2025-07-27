@@ -1,3 +1,4 @@
+--Can refer to Spring Batch Documentation>Appendices>Meta-Data Schema
 USE appdb;
 
 CREATE TABLE BATCH_STEP_EXECUTION_SEQ (ID BIGINT NOT NULL) ENGINE=InnoDB;

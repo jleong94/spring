@@ -21,14 +21,36 @@ server:
     enabled: true
 spring: #DB Config(Git will auto build using the details config in repository secrets)
   datasource:
-    url: jdbc:mysql://localhost:3306/appdb?createDatabaseIfNotExist=true&useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/appdb?createDatabaseIfNotExist=true
     username: root
     password: Pass@123
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
+      maximum-pool-size: 30 # Defines how many connections can be open concurrently
+      minimum-idle: 10 # Minimum idle connections in the pool(in count)
+      idle-timeout: 600000  # Helps recycle connections and free up resources(in milliseconds). idle-timeout must be less than max-lifetime
+      max-lifetime: 1800000  # Helps recycle connections and free up resources(in milliseconds). idle-timeout must be less than max-lifetime
+      connection-timeout: 30000  # Maximum time to wait for a connection from the pool before throwing an exception(in milliseconds)
+      leak-detection-threshold: 20000  # Helps identify if connections are not closed properly(in milliseconds)
+      pool-name: HikariCP
       data-source-properties:
+        # JDBC driver optimizations that reduce parsing overhead and improve latency
+        cachePrepStmts: true  # Enable caching of prepared statements
+        prepStmtCacheSize: 250 # Sets the number of prepared statements that the driver will cache per connection(in count)
+        prepStmtCacheSqlLimit: 2048 # Sets the maximum length of SQL statements that will be cached
+        useServerPrepStmts: true # Uses server-side prepared statements (MySQL feature); helps reduce client-side parsing
+        useSSL: false
+        requireSSL: false
+        allowPublicKeyRetrieval: true
+        # List of ssl mode:
+        # DISABLED - SSL is not used
+        # PREFERRED - SSL is used if available on the server
+        # REQUIRED - SSL is required, but no certificate verification is done.
+        # VERIFY_CA - SSL is required, and server cert must be signed by a trusted CA.
+        # VERIFY_IDENTITY - Like VERIFY_CA, plus it validates hostname matches certificate CN/SAN.
         sslMode: DISABLED
         trustCertificateKeyStoreUrl: classpath:security/mysql/ca.pem
+        trustCertificateKeyStorePassword:
         trustCertificateKeyStoreType: PEM
   jpa:
     properties:
