@@ -10,10 +10,10 @@ server:
     enabled-protocols: TLSv1.2,TLSv1.3
     protocol: TLSv1.2
     ciphers: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-    trust-store: classpath:security/cacerts
+    trust-store: file:./src/main/resources/security/cacerts
     trust-store-password:
     trust-store-type: JKS
-    key-store: classpath:security/keystore.p12
+    key-store: ./src/main/resources/security/keystore.p12
     key-store-password: changeit
     key-store-type: PKCS12
     keyAlias: tomcat  
@@ -49,7 +49,7 @@ spring: #DB Config(Git will auto build using the details config in repository se
         # VERIFY_CA - SSL is required, and server cert must be signed by a trusted CA.
         # VERIFY_IDENTITY - Like VERIFY_CA, plus it validates hostname matches certificate CN/SAN.
         sslMode: VERIFY_IDENTITY
-        trustCertificateKeyStoreUrl: classpath:security/mysql/ca.pem
+        trustCertificateKeyStoreUrl: ./src/main/resources/security/mysql/ca.pem
         trustCertificateKeyStorePassword:
         trustCertificateKeyStoreType: PEM
   jpa:
