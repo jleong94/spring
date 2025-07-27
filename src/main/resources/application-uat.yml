@@ -49,9 +49,9 @@ spring: #DB Config(Git will auto build using the details config in repository se
         # VERIFY_CA - SSL is required, and server cert must be signed by a trusted CA.
         # VERIFY_IDENTITY - Like VERIFY_CA, plus it validates hostname matches certificate CN/SAN.
         sslMode: VERIFY_IDENTITY
-        trustCertificateKeyStoreUrl: file:./src/main/resources/security/mysql/ca.pem
+        trustCertificateKeyStoreUrl: file:./src/main/resources/security/mysql/ca.jks
         trustCertificateKeyStorePassword:
-        trustCertificateKeyStoreType: PEM
+        trustCertificateKeyStoreType: JKS
   jpa:
     properties:
       hibernate:
