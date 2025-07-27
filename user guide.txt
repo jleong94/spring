@@ -28,3 +28,7 @@ Github CI/CD:
 3. Tick for repo & workflow in personal access token->tokens(classic)
 4. Click on generate token & copy the secret
 5. Add repository secret in GitHub repo ➔ settings ➔ secrets and variables ➔ actions ➔ new repository secret. Make sure the variable name must be same with the parameter, GITHUB_TOKEN found in yml file
+
+Command to import public cert into cacerts:
+1. Open cmd as admin & cd the path to <Java installation path>>\bin
+2. keytool -importcert -trustcacerts -alias <alias name for source file> -file <source file path> -keystore <cacerts path>
