@@ -26,12 +26,11 @@ public class KeycloakService {
 
 	public User userCreation(Logger log, String logFolder, User user) throws Exception {
 		String URL = "";
-		Object object = new Object();
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
 		try {
 			log.info("URL: " + URL);
-			log.info("Request: " + objectMapper.writeValueAsString(object));
+			log.info("Request: " + objectMapper.writeValueAsString(user));
 			if(URL != null && !URL.isBlank()){
 				/*List<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("", ));*/
@@ -51,7 +50,7 @@ public class KeycloakService {
 				httpRequest.setURI(uri);*/
 				//HttpPut httpRequest = new HttpPut(URL);
 				//HttpDelete httpRequest = new HttpDelete(URL);
-				httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(object)));
+				httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(user)));
 				httpRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
 				for(Header header : httpRequest.getAllHeaders()) {
 					log.info(header.getName() + "(Request): " + header.getValue());
@@ -67,7 +66,7 @@ public class KeycloakService {
 						String responseString = EntityUtils.toString(entity);
 						log.info("Response: " + responseString);
 //						Read & update the response JSON parameter value into Object
-						object = objectMapper.readValue(responseString, Object.class);
+						user = objectMapper.readValue(responseString, User.class);
 					}
 				} catch(Exception e) {
 					// Get the current stack trace element
@@ -131,12 +130,11 @@ public class KeycloakService {
 
 	public User userMaintenance(Logger log, String logFolder, User user) throws Exception {
 		String URL = "";
-		Object object = new Object();
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
 		try {
 			log.info("URL: " + URL);
-			log.info("Request: " + objectMapper.writeValueAsString(object));
+			log.info("Request: " + objectMapper.writeValueAsString(user));
 			if(URL != null && !URL.isBlank()){
 				/*List<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("", ));*/
@@ -156,7 +154,7 @@ public class KeycloakService {
 				httpRequest.setURI(uri);*/
 				//HttpPut httpRequest = new HttpPut(URL);
 				//HttpDelete httpRequest = new HttpDelete(URL);
-				httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(object)));
+				httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(user)));
 				httpRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
 				for(Header header : httpRequest.getAllHeaders()) {
 					log.info(header.getName() + "(Request): " + header.getValue());
@@ -172,7 +170,7 @@ public class KeycloakService {
 						String responseString = EntityUtils.toString(entity);
 						log.info("Response: " + responseString);
 //						Read & update the response JSON parameter value into Object
-						object = objectMapper.readValue(responseString, Object.class);
+						user = objectMapper.readValue(responseString, User.class);
 					}
 				} catch(Exception e) {
 					// Get the current stack trace element
@@ -236,12 +234,11 @@ public class KeycloakService {
 
 	public User checkStatus(Logger log, String logFolder, User user) throws Exception {
 		String URL = "";
-		Object object = new Object();
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
 		try {
 			log.info("URL: " + URL);
-			log.info("Request: " + objectMapper.writeValueAsString(object));
+			log.info("Request: " + objectMapper.writeValueAsString(user));
 			if(URL != null && !URL.isBlank()){
 				/*List<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("", ));*/
@@ -261,7 +258,7 @@ public class KeycloakService {
 				httpRequest.setURI(uri);*/
 				//HttpPut httpRequest = new HttpPut(URL);
 				//HttpDelete httpRequest = new HttpDelete(URL);
-				httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(object)));
+				httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(user)));
 				httpRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
 				for(Header header : httpRequest.getAllHeaders()) {
 					log.info(header.getName() + "(Request): " + header.getValue());
@@ -277,7 +274,7 @@ public class KeycloakService {
 						String responseString = EntityUtils.toString(entity);
 						log.info("Response: " + responseString);
 //						Read & update the response JSON parameter value into Object
-						object = objectMapper.readValue(responseString, Object.class);
+						user = objectMapper.readValue(responseString, User.class);
 					}
 				} catch(Exception e) {
 					// Get the current stack trace element
