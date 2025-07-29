@@ -60,6 +60,12 @@ public class Property {
 	@Value("${keycloak.realm}")
     private String keycloak_realm;
 	
-	@Value("${keycloak.cert_endpoint}")
-    private String keycloak_cert_endpoint;
+	@Value("${keycloak.client-id}")
+    private String keycloak_client_id;
+	
+	@Value("${keycloak.username}")
+    private String keycloak_username;
+	
+	@Value("${keycloak.password}")
+    private String keycloak_password;
 }
