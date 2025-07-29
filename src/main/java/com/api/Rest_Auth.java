@@ -127,7 +127,7 @@ public class Rest_Auth {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
 			logHttpRequest(request, log);
 			
-			user = keycloakService.userMaintenance(log, null, user);
+			user = keycloakService.userMaintenance(log, null, user, null);
 			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 					.builder()
 					.resp_code(ResponseCode.SUCCESS.getResponse_code())

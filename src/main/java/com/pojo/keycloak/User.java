@@ -3,6 +3,7 @@ package com.pojo.keycloak;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.validation.keycloak.CredentialTypeValidator;
@@ -26,9 +27,7 @@ public class User {
 	public interface Update {}
 	public interface Select {}
 
-	@NotBlank(groups = {Update.class}, message = "Id is blank.")
-	@JsonProperty(value= "id", access = Access.READ_WRITE)
-	@JsonView({Update.class, Select.class})
+	@JsonIgnore
 	private String id;
 	
 	@NotBlank(groups = {Create.class, Update.class}, message = "Username is blank.")
@@ -84,7 +83,7 @@ public class User {
 	@JsonView({Create.class, Update.class, Select.class})
 	private List<FederatedIdentitie> federatedIdentities;
 	
-	@JsonProperty(value= "realmRoles", access = Access.READ_WRITE)
+	@JsonProperty(value= "realmRoles", access = Access.READ_ONLY)
 	@JsonView({Create.class, Update.class, Select.class})
 	private List<String> realmRoles;
 	
