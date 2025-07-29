@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.validation.keycloak.CredentialTypeValidator;
@@ -21,6 +22,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
 @NoArgsConstructor//Generates a constructor with no parameters
 @Builder(toBuilder = true)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class User {
 	
 	public interface Create {}
