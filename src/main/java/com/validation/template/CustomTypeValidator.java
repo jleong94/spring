@@ -1,4 +1,4 @@
-package com.validation;
+package com.validation.template;
 
 import java.util.Arrays;
 import java.util.List;

@@ -87,11 +87,11 @@ rate:
 allowed:
   origins: localhost:8080
 keycloak:
-  base_url: http://localhost:8888/realms/
+  base_url: http://localhost:8888
   realm: spring
+  client-id: admin
   username: admin
   password: admin
-  cert_endpoint: /protocol/openid-connect/certs
 management: #Spring actuator
   endpoints:
     web:

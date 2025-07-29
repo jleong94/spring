@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.modal.EMail;
+import com.pojo.keycloak.User;
+import com.pojo.keycloak.User.Create;
+import com.pojo.keycloak.User.Select;
+import com.pojo.keycloak.User.Update;
 
 import lombok.*;
 
@@ -30,4 +34,8 @@ public class ApiResponse {
 	@JsonProperty(value= "email", access = Access.READ_ONLY)
 	@JsonView({EMail.SendEMail.class, EMail.GetEmailDetailById.class})
 	private EMail email;
+
+	@JsonProperty(value= "user", access = Access.READ_ONLY)
+	@JsonView({Create.class, Update.class, Select.class})
+	private User user;
 }

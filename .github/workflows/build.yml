@@ -51,6 +51,7 @@ jobs:
         echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> $GITHUB_ENV
         echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> $GITHUB_ENV
         echo "SMTP_MAIL=${{ secrets.SMTP_MAIL }}" >> $GITHUB_ENV
+        echo "KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }}" >> $GITHUB_ENV
         echo "KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN }}" >> $GITHUB_ENV
         echo "KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" >> $GITHUB_ENV
 

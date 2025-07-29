@@ -88,5 +88,10 @@
     "name": "keycloak.password",
     "type": "java.lang.String",
     "description": "A description for 'keycloak.password'"
+  },
+  {
+    "name": "keycloak.client-id",
+    "type": "java.lang.String",
+    "description": "A description for 'keycloak.client-id'"
   }
 ]}
