@@ -153,7 +153,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 	@Bean
 	JwtDecoder jwtDecoder() {
 		// Construct the JWK set URI: <base-url>/realms/<realm>/protocol/openid-connect/certs
-		String jwkSetUri = property.getKeycloak_base_url().concat(property.getKeycloak_realm()).concat(property.getKeycloak_cert_endpoint());
+		String jwkSetUri = property.getKeycloak_base_url().concat("/realms/").concat(property.getKeycloak_realm()).concat("/protocol/openid-connect/certs");
 		// Build decoder that uses public keys from Keycloak
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
 		// Validate the token issuer (Keycloak realm)
