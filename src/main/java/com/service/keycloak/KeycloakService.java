@@ -356,7 +356,7 @@ public class KeycloakService {
 		return user;
 	}
 
-	public User checkStatus(Logger log, String logFolder, User user, String token) throws Exception {
+	public User getUserDetailByUsername(Logger log, String logFolder, User user, String token) throws Exception {
 		String URL = "";
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
@@ -367,7 +367,7 @@ public class KeycloakService {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
 			if(URL != null && !URL.isBlank()){
 				List<NameValuePair> params = new ArrayList<>();
-				params.add(new BasicNameValuePair("user", user.getUsername()));
+				params.add(new BasicNameValuePair("username", user.getUsername()));
 				RequestConfig requestConfig = RequestConfig.custom()
 		                .setConnectTimeout(5 * 1000)//in miliseconds
 		                .setSocketTimeout(5 * 1000)//in miliseconds
