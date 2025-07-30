@@ -26,7 +26,7 @@ public class RateLimitConfig {
      *
      * @return a JSR-107 compatible CacheManager
      */
-	@Bean(name = "cacheManager")
+	@Bean(name = "rateLimitCacheManager")
 	CacheManager cacheManager() {
 		// Get the default caching provider (e.g., Ehcache, Hazelcast, etc.)
 		CachingProvider provider = Caching.getCachingProvider();
