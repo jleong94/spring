@@ -65,6 +65,23 @@ spring: #DB Config(Git will auto build using the details config in repository se
   batch: #Disable spring batch on startup
     job:
       enabled: false
+  cache:
+    cache-names:
+      - keycloak-admin-token
+    caffeine:
+      # initialCapacity - Initial number of entries
+      # maximumSize - Max total entries in cache (evicts using LRU)
+      # maximumWeight - Max weight (combined "cost" of entries), used with weigher
+      # weigher - Used with maximumWeight for entry cost
+      # expireAfterWrite - Time after write to expire entry (e.g., 30s, 5m)
+      # expireAfterAccess - Time after last read to expire entry
+      # refreshAfterWrite - Time after write to trigger background refresh
+      # recordStats - Track cache hit/miss metrics (helpful for debugging)
+      # weakKeys - Use weak references for keys (garbage collected if not used)
+      # softValues - Use soft references for values (GC when memory low)
+      # weakValues - Use weak references for values
+      # expireAfter - Custom expiry strategy (Java code only)
+      spec: expireAfterWrite=55s, maximumSize=100
 smtp:
   mail: ${SMTP_MAIL}
   host: ${SMTP_HOST}

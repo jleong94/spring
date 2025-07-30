@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +27,7 @@ import com.utilities.Tool;
 import com.validation.RateLimit;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -78,7 +81,7 @@ public class Rest_Auth {
 	public ResponseEntity<ApiResponse> userCreation(HttpServletRequest request, @RequestBody @Validated({User.Create.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
-		MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-User creation start-");
 		try {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
@@ -121,7 +124,7 @@ public class Rest_Auth {
 	public ResponseEntity<ApiResponse> userMaintenance(HttpServletRequest request, @RequestBody @Validated({User.Update.class}) User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
-		MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-User maintenance start-");
 		try {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
@@ -153,6 +156,50 @@ public class Rest_Auth {
 			throw e;
 		} finally {
 			log.info("-User maintenance end-");
+			MDC.clear();
+		}
+	}
+	
+
+	
+	@RateLimit(headerName = "", pathVariable = "username", requestBodyField = "")
+	@GetMapping(value = "v1/auth/check/{username}", produces = "application/json; charset=UTF-8")
+	@JsonView({User.Select.class})//Which getter parameter should return within json
+	public ResponseEntity<ApiResponse> getUserDetailByUsername(HttpServletRequest request, @PathVariable @NotBlank String username) throws Exception{
+		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		log.info("-Get user detail start-");
+		try {
+			logHttpRequest(request, log);
+			
+			User user = User.builder()
+					.username(username)
+					.build();
+			user = keycloakService.getUserDetailByUsername(log, null, user, null);
+			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
+					.builder()
+					.resp_code(ResponseCode.SUCCESS.getResponse_code())
+					.resp_msg(ResponseCode.SUCCESS.getResponse_desc())
+					.datetime(tool.getTodayDateTimeInString())
+					.user(user)
+					.build());
+		} catch(Exception e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} finally {
+			log.info("-Get user detail end-");
 			MDC.clear();
 		}
 	}

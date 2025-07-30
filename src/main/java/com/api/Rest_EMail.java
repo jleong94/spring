@@ -86,7 +86,7 @@ public class Rest_EMail {
 	public ResponseEntity<ApiResponse> sendEMail(HttpServletRequest request, @RequestBody @Validated({EMail.SendEMail.class}) EMail email, @RequestParam(required = false) MultipartFile[] upload_files) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
-		MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-Send email start-");
 		try {
 			log.info("Request: " + objectMapper.writeValueAsString(email));
@@ -128,7 +128,7 @@ public class Rest_EMail {
 	@GetMapping(value = "v1/email/check/{mail_id}", produces = "application/json; charset=UTF-8")
 	@JsonView({EMail.GetEmailDetailById.class})//Which getter parameter should return within json
 	public ResponseEntity<ApiResponse> getMerchantDetailByMerchant_Id(HttpServletRequest request, @PathVariable @NotBlank Long mail_id) throws Exception{
-		MDC.put("mdcId", request.getHeader("mdcId") != null && request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-Get sent email detail start-");
 		try {
 			logHttpRequest(request, log);

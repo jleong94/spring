@@ -21,6 +21,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +37,8 @@ public class KeycloakService {
 	@Autowired
 	Property property;
 	
-	public String requestAdminToken(Logger log, String logFolder) throws Exception {
+	@Cacheable("keycloak-admin-token")
+	private String requestAdminToken(Logger log, String logFolder) throws Exception {
 		String result = "";
 		String URL = "";
 		ObjectMapper objectMapper = new ObjectMapper()
