@@ -108,7 +108,7 @@ keycloak:
   realm: spring
   client-id: admin
   username: admin
-  password: admin
+  password: Pass@2025
 management: #Spring actuator
   endpoints:
     web:
