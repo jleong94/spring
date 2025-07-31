@@ -50,7 +50,7 @@ This project serves as a fully working **base template** for Java Spring Boot de
 # Step 4: Copy the content keycloak.conf(git version) & replace with keycloak.conf at path, <Installation path>\keycloak-<version>\conf
 # Step 5: Navigate cmd to path, <Installation path>\keycloak-<version>\bin & run, kc.bat start
 # Step 6: Access url, localhost:<port> on browser to test whether keycloak is accessible
-# Step 7: Download the latest JAR file
+# Step 7: Download the latest JAR file from git release
 # Step 8: Open Command Prompt as Administrator (Windows)
 # Step 9: Navigate to the folder containing spring.jar
 cd path\to\your\jar\directory
