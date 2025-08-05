@@ -2,31 +2,7 @@
 
 > Java 21 + Spring Boot + MySQL
 
-This project serves as a fully working **base template** for Java Spring Boot developers. Easily clone and duplicate this project as a solid starting point for building microservices or monoliths.
-
----
-
-## 🧩 Features
-
-### 🔐 Security
-- [x] JWT-based Authentication(Keycloak)
-- [x] Rate Limiter Control
-
-### 🌐 API
-- [x] RESTful API using Spring
-- [x] JAX-RS Compatible Endpoints
-- [x] Apache HTTP Client for API Calls
-- [x] TCP Socket Communication
-
-### ⚙️ Scheduler
-- [x] Spring Batch Scheduler
-
-### 📦 Utility
-- [x] Multi-threaded Operations
-- [x] SSH SFTP File Sync
-- [x] Date/Time Formatter (`yyyy-MM-dd'T'HH:mm:ss.SSS`)
-- [x] Centralized Exception Handling
-- [x] Send Mail via SMTP
+This project serves as a fully working **base template** for Java Spring Boot application. Easily clone and duplicate this project as a solid starting point for building microservices or monoliths.
 
 ---
 
