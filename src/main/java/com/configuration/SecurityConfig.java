@@ -96,7 +96,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.addFilterBefore(customOncePerRequestFilter, BasicAuthenticationFilter.class)
 				// Secure endpoint access rules
 				.authorizeHttpRequests((requests) -> requests
-						.requestMatchers("/v1/email/**").authenticated()
+						//.requestMatchers("/v1/test/**").authenticated()
 						.anyRequest().permitAll() // All other endpoints are publicly accessible
 						)
 				// Configure OAuth2 resource server to validate JWT tokens

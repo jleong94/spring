@@ -13,7 +13,7 @@ This project serves as a fully working **base template** for Java Spring Boot ap
 - **Database:** MySQL  
 - **HTTP Client:** Apache HTTP Client  
 - **Security:** OAuth2, JWT, Keycloak  
-- **Other:** SFTP, TCP Socket, Multi-threading, Spring Batch, SMTP Mail  
+- **Other:** SFTP, TCP Socket, Multi-threading, Spring Batch, JavaMailSender  
 
 ---
 

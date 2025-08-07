@@ -25,29 +25,8 @@ public class Property {
     private int rate_limit_period;
 
 	//Email SMTP
-	@Value("${smtp.mail}")
-    private String smtp_mail;
-	
-	@Value("${smtp.host}")
-    private String smtp_host;
-	
-	@Value("${smtp.port}")
-    private int smtpPort;
-	
-	@Value("${smtp.username}")
-    private String smtp_username;
-	
-	@Value("${smtp.password}")
-    private String smtp_password;
-	
-	@Value("${smtp.tls}")
-    private boolean smtp_tls;
-	
-	@Value("${smtp.ssl}")
-    private boolean smtp_ssl;
-	
-	@Value("${mail.upload.path}")
-    private String mail_upload_path;
+	@Value("${spring.mail.username}")
+    private String spring_mail_username;
 	
 	//CORS
 	@Value("#{'${allowed.origins}'.split(',')}")

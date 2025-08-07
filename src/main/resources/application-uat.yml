@@ -82,17 +82,19 @@ spring: #DB Config(Git will auto build using the details config in repository se
       # weakValues - Use weak references for values
       # expireAfter - Custom expiry strategy (Java code only)
       spec: expireAfterWrite=55s, maximumSize=100
-smtp:
-  mail: ${SMTP_MAIL}
-  host: ${SMTP_HOST}
-  port: ${SMTP_PORT}
-  username: ${SMTP_USERNAME}
-  password: ${SMTP_PASSWORD}
-  tls: true
-  ssl: false
-mail:
-  upload: 
-    path: ./mail/upload #dot refer to current path
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    protocol: smtp
+    default-encoding: UTF-8
 project:
   log:
     name: ./logs #dot refer to current path

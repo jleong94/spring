@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.modal.EMail;
 import com.pojo.keycloak.User;
 import com.pojo.keycloak.User.Create;
 import com.pojo.keycloak.User.Select;
@@ -20,20 +19,16 @@ import lombok.*;
 public class ApiResponse {
 
 	@JsonProperty(value= "resp_code", access = Access.READ_ONLY)
-	@JsonView({EMail.SendEMail.class, EMail.GetEmailDetailById.class})
+	@JsonView({Create.class, Update.class, Select.class})
 	private int resp_code;
 
 	@JsonProperty(value= "resp_msg", access = Access.READ_ONLY)
-	@JsonView({EMail.SendEMail.class, EMail.GetEmailDetailById.class})
+	@JsonView({Create.class, Update.class, Select.class})
 	private String resp_msg;
 
 	@JsonProperty(value= "datetime", access = Access.READ_ONLY)
-	@JsonView({EMail.SendEMail.class, EMail.GetEmailDetailById.class})
+	@JsonView({Create.class, Update.class, Select.class})
 	private String datetime;
-
-	@JsonProperty(value= "email", access = Access.READ_ONLY)
-	@JsonView({EMail.SendEMail.class, EMail.GetEmailDetailById.class})
-	private EMail email;
 
 	@JsonProperty(value= "user", access = Access.READ_ONLY)
 	@JsonView({Create.class, Update.class, Select.class})
