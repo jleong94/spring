@@ -130,7 +130,7 @@ public class Rest_Auth {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
 			logHttpRequest(request, log);
 			
-			user = keycloakService.userMaintenance(log, null, user, null);
+			user = keycloakService.userMaintenance(log, null, user);
 			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 					.builder()
 					.resp_code(ResponseCode.SUCCESS.getResponse_code())
@@ -174,7 +174,7 @@ public class Rest_Auth {
 			User user = User.builder()
 					.username(username)
 					.build();
-			user = keycloakService.getUserDetailByUsername(log, null, user, null);
+			user = keycloakService.getUserDetailByUsernameOrId(log, null, user);
 			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 					.builder()
 					.resp_code(ResponseCode.SUCCESS.getResponse_code())

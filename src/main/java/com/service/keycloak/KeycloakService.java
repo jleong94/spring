@@ -1,34 +1,21 @@
 package com.service.keycloak;
 
-import java.net.SocketTimeoutException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.springframework.cache.annotation.Cacheable;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.FederatedIdentityRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.ws.rs.core.Response;
 import com.pojo.Property;
 import com.pojo.keycloak.User;
-
+import jakarta.ws.rs.core.MultivaluedMap;
 import lombok.Cleanup;
 
 @Service
@@ -37,90 +24,17 @@ public class KeycloakService {
 	@Autowired
 	Property property;
 	
-	@Cacheable("keycloak-admin-token")
+	private final Keycloak keycloak;
+	
+	KeycloakService(Keycloak keycloak) {
+        this.keycloak = keycloak;
+    }
+	
+	@Cacheable("keycloak-token")
 	private String requestAdminToken(Logger log, String logFolder) throws Exception {
 		String result = "";
-		String URL = "";
-		ObjectMapper objectMapper = new ObjectMapper()
-				.registerModule(new JavaTimeModule());
 		try {
-			URL = URL.concat(property.getKeycloak_base_url()).concat("/realms/").concat(property.getKeycloak_realm()).concat("/protocol/openid-connect/token");
-			log.info("URL: " + URL);
-			if(URL != null && !URL.isBlank()){
-				List<NameValuePair> params = new ArrayList<>();
-				params.add(new BasicNameValuePair("grant_type", "password")); //authorization_code, client_credentials, password, refresh_token
-				params.add(new BasicNameValuePair("client_id", property.getKeycloak_client_id()));
-				params.add(new BasicNameValuePair("username", property.getKeycloak_username()));
-				params.add(new BasicNameValuePair("password", property.getKeycloak_password()));
-				RequestConfig requestConfig = RequestConfig.custom()
-		                .setConnectTimeout(5 * 1000)//in miliseconds
-		                .setSocketTimeout(5 * 1000)//in miliseconds
-		                .setConnectionRequestTimeout(5 * 1000)//in miliseconds
-		                .build();
-				@Cleanup CloseableHttpClient httpClient = HttpClients.custom()
-		                .setDefaultRequestConfig(requestConfig)
-		                .build();
-				HttpPost httpRequest = new HttpPost(URL);
-				// HttpGet httpRequest = new HttpGet(URL);
-				URI uri = new URIBuilder(httpRequest.getURI())
-						.addParameters(params)
-						.build();
-				httpRequest.setURI(uri);
-				//HttpPut httpRequest = new HttpPut(URL);
-				//HttpDelete httpRequest = new HttpDelete(URL);
-				httpRequest.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-				for(Header header : httpRequest.getAllHeaders()) {
-					log.info(header.getName() + "(Request): " + header.getValue());
-				}
-				@Cleanup CloseableHttpResponse httpResponse = httpClient.execute(httpRequest);
-				for(Header header : httpResponse.getAllHeaders()) {
-					log.info(header.getName() + "(Response): " + header.getValue());
-				}
-				HttpEntity entity = httpResponse.getEntity();
-				log.info("HTTP Response code: " + httpResponse.getStatusLine().getStatusCode());
-				try {
-					if(entity != null) {
-						String responseString = EntityUtils.toString(entity);
-						log.info("Response: " + responseString);
-//						Read & update the response JSON parameter value into Object
-						
-					}
-				} catch(Exception e) {
-					// Get the current stack trace element
-					StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-					// Find matching stack trace element from exception
-					for (StackTraceElement element : e.getStackTrace()) {
-						if (currentElement.getClassName().equals(element.getClassName())
-								&& currentElement.getMethodName().equals(element.getMethodName())) {
-							log.error("Error in {} at line {}: {} - {}",
-									element.getClassName(),
-									element.getLineNumber(),
-									e.getClass().getName(),
-									e.getMessage());
-							break;
-						}
-					}
-					throw e;
-				}
-				
-				
-			}
-		} catch(SocketTimeoutException | ConnectTimeoutException e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-			throw e;
+			
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -146,73 +60,86 @@ public class KeycloakService {
 	}
 
 	public User userCreation(Logger log, String logFolder, User user) throws Exception {
-		String URL = "", token = "";
-		ObjectMapper objectMapper = new ObjectMapper()
-				.registerModule(new JavaTimeModule());
 		try {
-			token = requestAdminToken(log, logFolder);
-			URL = URL.concat(property.getKeycloak_base_url()).concat("/admin/realms/").concat(property.getKeycloak_realm()).concat("/users");
-			log.info("URL: " + URL);
-			log.info("Request: " + objectMapper.writeValueAsString(user));
-			if(URL != null && !URL.isBlank()){
-				/*List<NameValuePair> params = new ArrayList<>();
-				params.add(new BasicNameValuePair("", ));*/
-				RequestConfig requestConfig = RequestConfig.custom()
-		                .setConnectTimeout(5 * 1000)//in miliseconds
-		                .setSocketTimeout(5 * 1000)//in miliseconds
-		                .setConnectionRequestTimeout(5 * 1000)//in miliseconds
-		                .build();
-				@Cleanup CloseableHttpClient httpClient = HttpClients.custom()
-		                .setDefaultRequestConfig(requestConfig)
-		                .build();
-				HttpPost httpRequest = new HttpPost(URL);
-				/*HttpGet httpRequest = new HttpGet(URL);
-				URI uri = new URIBuilder(httpRequest.getURI())
-						.addParameters(params)
-						.build();
-				httpRequest.setURI(uri);*/
-				//HttpPut httpRequest = new HttpPut(URL);
-				//HttpDelete httpRequest = new HttpDelete(URL);
-				httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(user)));
-				httpRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
-				httpRequest.setHeader("Authorization", "Bearer " + token);
-				for(Header header : httpRequest.getAllHeaders()) {
-					log.info(header.getName() + "(Request): " + header.getValue());
-				}
-				@Cleanup CloseableHttpResponse httpResponse = httpClient.execute(httpRequest);
-				for(Header header : httpResponse.getAllHeaders()) {
-					log.info(header.getName() + "(Response): " + header.getValue());
-				}
-				HttpEntity entity = httpResponse.getEntity();
-				log.info("HTTP Response code: " + httpResponse.getStatusLine().getStatusCode());
-				try {
-					if(entity != null) {
-						String responseString = EntityUtils.toString(entity);
-						log.info("Response: " + responseString);
-//						Read & update the response JSON parameter value into Object
-						user = objectMapper.readValue(responseString, User.class);
-					}
-				} catch(Exception e) {
-					// Get the current stack trace element
-					StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-					// Find matching stack trace element from exception
-					for (StackTraceElement element : e.getStackTrace()) {
-						if (currentElement.getClassName().equals(element.getClassName())
-								&& currentElement.getMethodName().equals(element.getMethodName())) {
-							log.error("Error in {} at line {}: {} - {}",
-									element.getClassName(),
-									element.getLineNumber(),
-									e.getClass().getName(),
-									e.getMessage());
-							break;
-						}
-					}
-					throw e;
-				}
-				
-				
+			UserRepresentation userRepresentation = new UserRepresentation();
+			userRepresentation.setUsername(user.getUsername());
+			userRepresentation.setEnabled(user.isEnabled());
+			userRepresentation.setEmailVerified(user.isEmailVerified());
+			userRepresentation.setEmail(user.getEmail());
+			userRepresentation.setFirstName(user.getFirstName());
+			userRepresentation.setLastName(user.getLastName());
+			userRepresentation.setAttributes(user.getAttributes());
+			userRepresentation.setRequiredActions(user.getRequiredActions());
+
+			if(user.getAttributes() != null && user.getAttributes().size() > 0) {
+				userRepresentation.setAttributes(user.getAttributes());
 			}
-		} catch(SocketTimeoutException | ConnectTimeoutException e) {
+
+			// Credentials (e.g., password)
+			if (user.getCredentials() != null && user.getCredentials().size() > 0) {
+				List<CredentialRepresentation> creds = user.getCredentials().stream()
+						.map(c -> {
+							CredentialRepresentation cr = new CredentialRepresentation();
+							cr.setType(c.getType());
+							cr.setValue(c.getValue());
+							cr.setTemporary(c.isTemporary());
+							return cr;
+						}).collect(Collectors.toList());
+				userRepresentation.setCredentials(creds);
+			}
+
+			if(user.getDisableableCredentialTypes() != null && user.getDisableableCredentialTypes().size() > 0) {
+				userRepresentation.setDisableableCredentialTypes(user.getDisableableCredentialTypes());
+			}
+
+			if(user.getRequiredActions() != null && user.getRequiredActions().size() > 0) {
+				userRepresentation.setRequiredActions(user.getRequiredActions());
+			}
+
+			// Federated Identities (optional)
+			if (user.getFederatedIdentities() != null && user.getFederatedIdentities().size() > 0) {
+				List<FederatedIdentityRepresentation> federatedReps = user.getFederatedIdentities().stream()
+						.map(f -> {
+							FederatedIdentityRepresentation fir = new FederatedIdentityRepresentation();
+							fir.setIdentityProvider(f.getIdentityProvider());
+							fir.setUserId(f.getUserId());
+							fir.setUserName(f.getUserName());
+							return fir;
+						}).collect(Collectors.toList());
+				userRepresentation.setFederatedIdentities(federatedReps);
+			}
+
+			if(user.getRealmRoles() != null && user.getRealmRoles().size() > 0) {
+				userRepresentation.setRealmRoles(user.getRealmRoles());
+			}
+
+			if(user.getClientRoles() != null && user.getClientRoles().size() > 0) {
+				userRepresentation.setClientRoles(user.getClientRoles());
+			}
+
+			if(user.getGroups() != null && user.getGroups().size() > 0) {
+				userRepresentation.setGroups(user.getGroups());
+			}
+
+			userRepresentation.setServiceAccountClientId(user.getServiceAccountClientId());
+			userRepresentation.setSelf(user.getSelf());
+			userRepresentation.setCreatedTimestamp(user.getCreatedTimestamp());
+			userRepresentation.setAccess(user.getAccess());
+			userRepresentation.setNotBefore(user.getNotBefore());
+
+			@Cleanup Response response = keycloak.realm(property.getKeycloak_realm()).users().create(userRepresentation);
+			MultivaluedMap<String, Object> headers = response.getHeaders();
+			for (Map.Entry<String, List<Object>> entry : headers.entrySet()) {
+				String headerName = entry.getKey();
+			    List<Object> headerValues = entry.getValue();
+				log.info(headerName + "(Response): " + headerValues);
+			}
+			log.info("HTTP Response code: " + response.getStatus());
+			if(response.getStatus() == 201) {
+				String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+				user.setId(userId);
+			}
+		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -228,6 +155,17 @@ public class KeycloakService {
 				}
 			}
 			throw e;
+		} finally {
+			try {
+
+			}catch(Exception e) {}
+		}
+		return user;
+	}
+
+	public User userMaintenance(Logger log, String logFolder, User user) throws Exception {
+		try {
+			
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -252,196 +190,36 @@ public class KeycloakService {
 		return user;
 	}
 
-	public User userMaintenance(Logger log, String logFolder, User user, String token) throws Exception {
-		String URL = "";
-		ObjectMapper objectMapper = new ObjectMapper()
-				.registerModule(new JavaTimeModule());
+	public User getUserDetailByUsernameOrId(Logger log, String logFolder, User user) throws Exception {
+		List<UserRepresentation> userRepresentations = new ArrayList<>();
+		UserRepresentation userRepresentation = null;
 		try {
-			token = token == null || token.isBlank() ? requestAdminToken(log, logFolder) : token;
-			log.info("URL: " + URL);
-			log.info("Request: " + objectMapper.writeValueAsString(user));
-			if(URL != null && !URL.isBlank()){
-				/*List<NameValuePair> params = new ArrayList<>();
-				params.add(new BasicNameValuePair("", ));*/
-				RequestConfig requestConfig = RequestConfig.custom()
-		                .setConnectTimeout(5 * 1000)//in miliseconds
-		                .setSocketTimeout(5 * 1000)//in miliseconds
-		                .setConnectionRequestTimeout(5 * 1000)//in miliseconds
-		                .build();
-				@Cleanup CloseableHttpClient httpClient = HttpClients.custom()
-		                .setDefaultRequestConfig(requestConfig)
-		                .build();
-				HttpPost httpRequest = new HttpPost(URL);
-				/*HttpGet httpRequest = new HttpGet(URL);
-				URI uri = new URIBuilder(httpRequest.getURI())
-						.addParameters(params)
-						.build();
-				httpRequest.setURI(uri);*/
-				//HttpPut httpRequest = new HttpPut(URL);
-				//HttpDelete httpRequest = new HttpDelete(URL);
-				httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(user)));
-				httpRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
-				httpRequest.setHeader("Authorization", "Bearer " + token);
-				for(Header header : httpRequest.getAllHeaders()) {
-					log.info(header.getName() + "(Request): " + header.getValue());
-				}
-				@Cleanup CloseableHttpResponse httpResponse = httpClient.execute(httpRequest);
-				for(Header header : httpResponse.getAllHeaders()) {
-					log.info(header.getName() + "(Response): " + header.getValue());
-				}
-				HttpEntity entity = httpResponse.getEntity();
-				log.info("HTTP Response code: " + httpResponse.getStatusLine().getStatusCode());
-				try {
-					if(entity != null) {
-						String responseString = EntityUtils.toString(entity);
-						log.info("Response: " + responseString);
-//						Read & update the response JSON parameter value into Object
-						user = objectMapper.readValue(responseString, User.class);
-					}
-				} catch(Exception e) {
-					// Get the current stack trace element
-					StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-					// Find matching stack trace element from exception
-					for (StackTraceElement element : e.getStackTrace()) {
-						if (currentElement.getClassName().equals(element.getClassName())
-								&& currentElement.getMethodName().equals(element.getMethodName())) {
-							log.error("Error in {} at line {}: {} - {}",
-									element.getClassName(),
-									element.getLineNumber(),
-									e.getClass().getName(),
-									e.getMessage());
-							break;
-						}
-					}
-					throw e;
-				}
-				
-				
-			}
-		} catch(SocketTimeoutException | ConnectTimeoutException e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-			throw e;
-		} catch(Exception e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-			throw e;
-		} finally {
-			try {
-				
-			}catch(Exception e) {}
-		}
-		return user;
-	}
-
-	public User getUserDetailByUsername(Logger log, String logFolder, User user, String token) throws Exception {
-		String URL = "";
-		ObjectMapper objectMapper = new ObjectMapper()
-				.registerModule(new JavaTimeModule());
-		try {
-			token = token == null || token.isBlank() ? requestAdminToken(log, logFolder) : token;
-			URL = URL.concat(property.getKeycloak_base_url()).concat("/admin/realms/").concat(property.getKeycloak_realm()).concat("/users");
-			log.info("URL: " + URL);
-			log.info("Request: " + objectMapper.writeValueAsString(user));
-			if(URL != null && !URL.isBlank()){
-				List<NameValuePair> params = new ArrayList<>();
-				params.add(new BasicNameValuePair("username", user.getUsername()));
-				RequestConfig requestConfig = RequestConfig.custom()
-		                .setConnectTimeout(5 * 1000)//in miliseconds
-		                .setSocketTimeout(5 * 1000)//in miliseconds
-		                .setConnectionRequestTimeout(5 * 1000)//in miliseconds
-		                .build();
-				@Cleanup CloseableHttpClient httpClient = HttpClients.custom()
-		                .setDefaultRequestConfig(requestConfig)
-		                .build();
-				// HttpPost httpRequest = new HttpPost(URL);
-				HttpGet httpRequest = new HttpGet(URL);
-				URI uri = new URIBuilder(httpRequest.getURI())
-						.addParameters(params)
-						.build();
-				httpRequest.setURI(uri);
-				log.info("Full URL: " + httpRequest.getURI());
-				//HttpPut httpRequest = new HttpPut(URL);
-				//HttpDelete httpRequest = new HttpDelete(URL);
-				//httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(user)));
-				httpRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
-				httpRequest.setHeader("Authorization", "Bearer " + token);
-				for(Header header : httpRequest.getAllHeaders()) {
-					log.info(header.getName() + "(Request): " + header.getValue());
-				}
-				@Cleanup CloseableHttpResponse httpResponse = httpClient.execute(httpRequest);
-				for(Header header : httpResponse.getAllHeaders()) {
-					log.info(header.getName() + "(Response): " + header.getValue());
-				}
-				HttpEntity entity = httpResponse.getEntity();
-				log.info("HTTP Response code: " + httpResponse.getStatusLine().getStatusCode());
-				try {
-					if(entity != null) {
-						String responseString = EntityUtils.toString(entity);
-						log.info("Response: " + responseString);
-//						Read & update the response JSON parameter value into Object
-						user = objectMapper.readValue(responseString, User.class);
-					}
-				} catch(Exception e) {
-					// Get the current stack trace element
-					StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-					// Find matching stack trace element from exception
-					for (StackTraceElement element : e.getStackTrace()) {
-						if (currentElement.getClassName().equals(element.getClassName())
-								&& currentElement.getMethodName().equals(element.getMethodName())) {
-							log.error("Error in {} at line {}: {} - {}",
-									element.getClassName(),
-									element.getLineNumber(),
-									e.getClass().getName(),
-									e.getMessage());
-							break;
-						}
-					}
-					throw e;
-				}
-				
-				
-			}
-		} catch(SocketTimeoutException | ConnectTimeoutException e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-			throw e;
+			if(user.getId() == null || user.getId().isBlank()) {
+				userRepresentations = keycloak.realm(property.getKeycloak_realm())
+					    .users()
+					    .search(user.getUsername(), true);
+				userRepresentation = userRepresentations.get(0);
+			} else {userRepresentation = keycloak.realm(property.getKeycloak_realm()).users().get(user.getId()).toRepresentation();}
+			user.toBuilder()
+			.id(userRepresentation.getId())
+			.username(userRepresentation.getUsername())
+			.enabled(userRepresentation.isEnabled())
+			.emailVerified(userRepresentation.isEmailVerified())
+			.email(userRepresentation.getEmail())
+			.firstName(userRepresentation.getFirstName())
+			.lastName(userRepresentation.getLastName())
+			.attributes(userRepresentation.getAttributes())
+			.disableableCredentialTypes(userRepresentation.getDisableableCredentialTypes())
+			.requiredActions(userRepresentation.getRequiredActions())
+			.realmRoles(userRepresentation.getRealmRoles())
+			.clientRoles(userRepresentation.getClientRoles())
+			.groups(userRepresentation.getGroups())
+			.serviceAccountClientId(userRepresentation.getServiceAccountClientId())
+			.self(userRepresentation.getSelf())
+			.createdTimestamp(userRepresentation.getCreatedTimestamp())
+			.access(userRepresentation.getAccess())
+			.notBefore(userRepresentation.getNotBefore())
+			.build();
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];

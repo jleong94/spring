@@ -1,45 +1,5 @@
 {"properties": [
   {
-    "name": "smtp.mail",
-    "type": "java.lang.String",
-    "description": "A description for 'smtp.mail'"
-  },
-  {
-    "name": "smtp.host",
-    "type": "java.lang.String",
-    "description": "A description for 'smtp.host'"
-  },
-  {
-    "name": "smtp.port",
-    "type": "java.lang.String",
-    "description": "A description for 'smtp.port'"
-  },
-  {
-    "name": "smtp.username",
-    "type": "java.lang.String",
-    "description": "A description for 'smtp.username'"
-  },
-  {
-    "name": "smtp.password",
-    "type": "java.lang.String",
-    "description": "A description for 'smtp.password'"
-  },
-  {
-    "name": "smtp.tls",
-    "type": "java.lang.String",
-    "description": "A description for 'smtp.tls'"
-  },
-  {
-    "name": "smtp.ssl",
-    "type": "java.lang.String",
-    "description": "A description for 'smtp.ssl'"
-  },
-  {
-    "name": "mail.upload.path",
-    "type": "java.lang.String",
-    "description": "A description for 'mail.upload.path'"
-  },
-  {
     "name": "project.log.name",
     "type": "java.lang.String",
     "description": "A description for 'project.log.name'"
@@ -70,14 +30,14 @@
     "description": "A description for 'keycloak.base_url'"
   },
   {
-    "name": "keycloak.cert_endpoint",
-    "type": "java.lang.String",
-    "description": "A description for 'keycloak.cert_endpoint'"
-  },
-  {
     "name": "keycloak.realm",
     "type": "java.lang.String",
     "description": "A description for 'keycloak.realm'"
+  },
+  {
+    "name": "keycloak.client-id",
+    "type": "java.lang.String",
+    "description": "A description for 'keycloak.client-id'"
   },
   {
     "name": "keycloak.username",
@@ -88,10 +48,5 @@
     "name": "keycloak.password",
     "type": "java.lang.String",
     "description": "A description for 'keycloak.password'"
-  },
-  {
-    "name": "keycloak.client-id",
-    "type": "java.lang.String",
-    "description": "A description for 'keycloak.client-id'"
   }
 ]}

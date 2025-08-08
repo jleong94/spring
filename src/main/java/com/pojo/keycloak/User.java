@@ -2,6 +2,7 @@ package com.pojo.keycloak;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -74,7 +75,7 @@ public class User {
 	@CredentialTypeValidator(groups = {Create.class, Update.class})
 	@JsonProperty(value= "disableableCredentialTypes", access = Access.READ_ONLY)
 	@JsonView({Create.class, Update.class, Select.class})
-	private List<String> disableableCredentialTypes; // password, otp, webauthn, webauthn-passwordless, authenticator
+	private Set<String> disableableCredentialTypes; // password, otp, webauthn, webauthn-passwordless, authenticator
 	
 	@RequiredActionValidator(groups = {Create.class, Update.class})
 	@JsonProperty(value= "requiredActions", access = Access.READ_ONLY)
@@ -109,9 +110,10 @@ public class User {
 	@JsonView({Create.class, Update.class, Select.class})
 	private long createdTimestamp;
 	
+	//manageGroupMembership, view, mapRoles, impersonate, manage
 	@JsonProperty(value= "access", access = Access.READ_ONLY)
 	@JsonView({Create.class, Update.class, Select.class})
-	private com.pojo.keycloak.Access access;
+	private Map<String, Boolean> access;
 	
 	@JsonProperty(value= "notBefore", access = Access.READ_ONLY)
 	@JsonView({Create.class, Update.class, Select.class})

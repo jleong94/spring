@@ -67,7 +67,7 @@ spring: #DB Config(Git will auto build using the details config in repository se
       enabled: false
   cache:
     cache-names:
-      - keycloak-admin-token
+      - keycloak-token
     caffeine:
       # initialCapacity - Initial number of entries
       # maximumSize - Max total entries in cache (evicts using LRU)

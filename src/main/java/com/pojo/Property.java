@@ -2,7 +2,11 @@ package com.pojo;
 
 import java.util.List;
 
+import org.keycloak.OAuth2Constants;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import lombok.Getter;
@@ -47,4 +51,16 @@ public class Property {
 	
 	@Value("${keycloak.password}")
     private String keycloak_password;
+	
+	@Bean
+    Keycloak keycloakAdminClient() {
+        return KeycloakBuilder.builder()
+                .serverUrl(keycloak_base_url)
+                .realm("master") // This is the authentication realm (where the admin user exists)
+                .clientId(keycloak_client_id)
+                .username(keycloak_username)
+                .password(keycloak_password)
+                .grantType(OAuth2Constants.PASSWORD)
+                .build();
+    }
 }
