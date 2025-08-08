@@ -110,10 +110,9 @@ public class User {
 	@JsonView({Create.class, Update.class, Select.class})
 	private long createdTimestamp;
 	
-	//manageGroupMembership, view, mapRoles, impersonate, manage
 	@JsonProperty(value= "access", access = Access.READ_ONLY)
 	@JsonView({Create.class, Update.class, Select.class})
-	private Map<String, Boolean> access;
+	private com.pojo.keycloak.Access access;
 	
 	@JsonProperty(value= "notBefore", access = Access.READ_ONLY)
 	@JsonView({Create.class, Update.class, Select.class})

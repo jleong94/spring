@@ -260,4 +260,34 @@ public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 				.datetime(tool.getTodayDateTimeInString())
 				.build());
 	}
+
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<ApiResponse> userNotFoundException(UserNotFoundException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.ERROR.getResponse_code())
+				.resp_msg(e.getMessage())
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
+	}
+
+	@ExceptionHandler(DuplicatedUsernameException.class)
+	public ResponseEntity<ApiResponse> duplicatedUsernameException(DuplicatedUsernameException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.ERROR.getResponse_code())
+				.resp_msg(e.getMessage())
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
+	}
+
+	@ExceptionHandler(DuplicatedEmailException.class)
+	public ResponseEntity<ApiResponse> duplicatedEmailException(DuplicatedEmailException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse
+				.builder()
+				.resp_code(ResponseCode.ERROR.getResponse_code())
+				.resp_msg(e.getMessage())
+				.datetime(tool.getTodayDateTimeInString())
+				.build());
+	}
 }
