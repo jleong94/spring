@@ -3,7 +3,12 @@ package com.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.github.benmanes.caffeine.jcache.configuration.CaffeineConfiguration;
+
 import io.github.bucket4j.Bucket;
+
+import java.util.OptionalLong;
+import java.util.concurrent.TimeUnit;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -18,7 +23,7 @@ import javax.cache.spi.CachingProvider;
  * Uses JSR-107 (JCache) to store buckets (token buckets for rate limiting).
  */
 @Configuration
-public class RateLimitConfig {
+public class CacheConfig {
 
 	/**
      * Provides the default JCache CacheManager.
@@ -26,11 +31,23 @@ public class RateLimitConfig {
      *
      * @return a JSR-107 compatible CacheManager
      */
-	@Bean(name = "rateLimitCacheManager")
+	@Bean
 	CacheManager cacheManager() {
 		// Get the default caching provider (e.g., Ehcache, Hazelcast, etc.)
 		CachingProvider provider = Caching.getCachingProvider();
-        return provider.getCacheManager();
+		CacheManager cacheManager = provider.getCacheManager();
+		
+		CaffeineConfiguration<Object, Object> keycloakAccessTokenCacheConfig = new CaffeineConfiguration<>();
+		keycloakAccessTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.SECONDS.toNanos(55)));
+        keycloakAccessTokenCacheConfig.setMaximumSize(OptionalLong.of(100L));
+        cacheManager.createCache("keycloak-access-token", keycloakAccessTokenCacheConfig);
+        
+        CaffeineConfiguration<Object, Object> keycloakRefreshTokenCacheConfig = new CaffeineConfiguration<>();
+        keycloakRefreshTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.DAYS.toNanos(365)));
+        keycloakRefreshTokenCacheConfig.setMaximumSize(OptionalLong.of(100L));
+        cacheManager.createCache("keycloak-refresh-token", keycloakRefreshTokenCacheConfig);
+		
+        return cacheManager;
 	}
 
 	/**

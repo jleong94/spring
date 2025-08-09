@@ -56,7 +56,7 @@ public class Property {
     Keycloak keycloakAdminClient() {
         return KeycloakBuilder.builder()
                 .serverUrl(keycloak_base_url)
-                .realm("master") // This is the authentication realm (where the admin user exists)
+                .realm(keycloak_realm) // This is the authentication realm (where the admin user exists)
                 .clientId(keycloak_client_id)
                 .username(keycloak_username)
                 .password(keycloak_password)

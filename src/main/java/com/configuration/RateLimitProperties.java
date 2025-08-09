@@ -27,14 +27,22 @@ public class RateLimitProperties {
      * Additional endpoints can be added here with their own rate limit rules.
      */
 	public RateLimitProperties() {
-		limits.put("/v1/email/send", Bandwidth.builder()
+		limits.put("/v1/auth/create", Bandwidth.builder()
 				.capacity(50)//maximum number of tokens (or requests) allowed in the bucket
 				.refillGreedy(5, Duration.ofSeconds(5))//Every nth seconds, instantly add nth tokens back
 				.build());   
-		limits.put("/v1/email/check", Bandwidth.builder()
+		limits.put("/v1/auth/maintenance", Bandwidth.builder()
 				.capacity(100)//maximum number of tokens (or requests) allowed in the bucket
-				.refillGreedy(5, Duration.ofSeconds(3))//Every nth seconds, instantly add nth tokens back
-				.build());  
+				.refillGreedy(5, Duration.ofSeconds(5))//Every nth seconds, instantly add nth tokens back
+				.build());   
+		limits.put("/v1/auth/check", Bandwidth.builder()
+				.capacity(100)//maximum number of tokens (or requests) allowed in the bucket
+				.refillGreedy(5, Duration.ofSeconds(5))//Every nth seconds, instantly add nth tokens back
+				.build());   
+		limits.put("/v1/request-jwt", Bandwidth.builder()
+				.capacity(9999999)//maximum number of tokens (or requests) allowed in the bucket
+				.refillGreedy(100, Duration.ofSeconds(5))//Every nth seconds, instantly add nth tokens back
+				.build());    
 	}
 
 	/**

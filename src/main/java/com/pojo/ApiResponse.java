@@ -33,4 +33,8 @@ public class ApiResponse {
 	@JsonProperty(value= "user", access = Access.READ_ONLY)
 	@JsonView({Create.class, Update.class, Select.class})
 	private User user;
+
+	@JsonProperty(value= "jwt", access = Access.READ_ONLY)
+	@JsonView({})
+	private Jwt jwt;
 }

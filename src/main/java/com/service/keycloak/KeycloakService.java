@@ -1,5 +1,7 @@
 package com.service.keycloak;
 
+import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,7 +10,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.FederatedIdentityRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -20,12 +35,16 @@ import jakarta.ws.rs.core.Response;
 import com.exception.DuplicatedEmailException;
 import com.exception.DuplicatedUsernameException;
 import com.exception.UserNotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.pojo.Jwt;
 import com.pojo.Property;
 import com.pojo.keycloak.Access;
 import com.pojo.keycloak.Credential;
 import com.pojo.keycloak.FederatedIdentitie;
 import com.pojo.keycloak.User;
-
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.MultivaluedMap;
 import lombok.Cleanup;
@@ -42,11 +61,31 @@ public class KeycloakService {
         this.keycloak = keycloak;
     }
 	
-	@Cacheable("keycloak-token")
-	private String requestAdminToken(Logger log, String logFolder) throws Exception {
-		String result = "";
+	@Cacheable("keycloak-access-token")
+	public Jwt requestAccessTokenViaPassword(Logger log, String logFolder, Jwt jwt) throws Exception {
+		AccessTokenResponse result = new AccessTokenResponse();
 		try {
-			
+			Keycloak keycloak = KeycloakBuilder.builder()
+		            .serverUrl(property.getKeycloak_base_url())
+		            .realm(property.getKeycloak_realm())
+		            .clientId(property.getKeycloak_client_id())
+		            .username(jwt.getUsername())
+		            .password(jwt.getPassword())
+		            .grantType(OAuth2Constants.PASSWORD)
+		            .build();
+			result = keycloak.tokenManager().getAccessToken();
+			if(result.getErrorDescription() != null && !result.getErrorDescription().isBlank()) {
+				throw new RuntimeException(result.getErrorDescription());
+			} if(result.getError() != null && !result.getError().isBlank()) {
+				throw new RuntimeException(result.getError());
+			} else {
+				jwt.toBuilder()
+				.access_token(result.getToken())
+				.access_token_expire_in(result.getExpiresIn())
+				.refresh_token(result.getRefreshToken())
+				.refresh_token_expire_in(result.getRefreshExpiresIn())
+				.build();
+			}
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -68,7 +107,113 @@ public class KeycloakService {
 				
 			}catch(Exception e) {}
 		}
-		return result;
+		return jwt;
+	}
+	
+	@Cacheable("keycloak-refresh-token")
+	public Jwt requestAccessTokenViaRefreshToken(Logger log, String logFolder, Jwt jwt) throws Exception {
+		String URL = "";
+		ObjectMapper objectMapper = new ObjectMapper()
+				.registerModule(new JavaTimeModule());
+		try {
+			URL = property.getKeycloak_base_url().concat("/realms/").concat(property.getKeycloak_realm()).concat("/protocol/openid-connect/token");
+			log.info("URL: " + URL);
+			//log.info("Request: " + objectMapper.writeValueAsString(object));
+			if(URL != null && !URL.isBlank()){
+				List<NameValuePair> params = new ArrayList<>();
+				params.add(new BasicNameValuePair("client_id", property.getKeycloak_client_id()));
+				params.add(new BasicNameValuePair("grant_type", jwt.getGrant_type()));
+				params.add(new BasicNameValuePair("refresh_token", jwt.getRefresh_token()));
+				RequestConfig requestConfig = RequestConfig.custom()
+		                .setConnectTimeout(5 * 1000)//in miliseconds
+		                .setSocketTimeout(5 * 1000)//in miliseconds
+		                .setConnectionRequestTimeout(5 * 1000)//in miliseconds
+		                .build();
+				@Cleanup CloseableHttpClient httpClient = HttpClients.custom()
+		                .setDefaultRequestConfig(requestConfig)
+		                .build();
+				HttpPost httpRequest = new HttpPost(URL);
+				/*HttpGet httpRequest = new HttpGet(URL);*/
+				URI uri = new URIBuilder(httpRequest.getURI())
+						.addParameters(params)
+						.build();
+				httpRequest.setURI(uri);
+				//HttpPut httpRequest = new HttpPut(URL);
+				//HttpDelete httpRequest = new HttpDelete(URL);
+				//httpRequest.setEntity(new StringEntity(objectMapper.writeValueAsString(object)));
+				httpRequest.setHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+				for(Header header : httpRequest.getAllHeaders()) {
+					log.info(header.getName() + "(Request): " + header.getValue());
+				}
+				@Cleanup CloseableHttpResponse httpResponse = httpClient.execute(httpRequest);
+				for(Header header : httpResponse.getAllHeaders()) {
+					log.info(header.getName() + "(Response): " + header.getValue());
+				}
+				HttpEntity entity = httpResponse.getEntity();
+				log.info("HTTP Response code: " + httpResponse.getStatusLine().getStatusCode());
+				try {
+					if(entity != null) {
+						String responseString = EntityUtils.toString(entity);
+						log.info("Response: " + responseString);
+//						Read & update the response JSON parameter value into Object
+						jwt = objectMapper.readValue(responseString, Jwt.class);
+					}
+				} catch(Exception e) {
+					// Get the current stack trace element
+					StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+					// Find matching stack trace element from exception
+					for (StackTraceElement element : e.getStackTrace()) {
+						if (currentElement.getClassName().equals(element.getClassName())
+								&& currentElement.getMethodName().equals(element.getMethodName())) {
+							log.error("Error in {} at line {}: {} - {}",
+									element.getClassName(),
+									element.getLineNumber(),
+									e.getClass().getName(),
+									e.getMessage());
+							break;
+						}
+					}
+					throw e;
+				}
+			}
+		} catch(SocketTimeoutException | ConnectTimeoutException e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} catch(Exception e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} finally {
+			try {
+				
+			}catch(Exception e) {}
+		}
+		return jwt;
 	}
 
 	public User userCreation(Logger log, String logFolder, User user) throws Exception {
@@ -93,6 +238,7 @@ public class KeycloakService {
 			} if(user.getAttributes() != null && user.getAttributes().size() > 0) {
 				userRepresentation.setAttributes(user.getAttributes());
 			} if (user.getCredentials() != null && user.getCredentials().size() > 0) {
+				// Set password
 				List<CredentialRepresentation> creds = user.getCredentials().stream()
 						.map(c -> {
 							CredentialRepresentation cr = new CredentialRepresentation();
@@ -213,6 +359,7 @@ public class KeycloakService {
 			} if(user.getAttributes() != null && user.getAttributes().size() > 0) {
 				userRepresentation.setAttributes(user.getAttributes());
 			} if (user.getCredentials() != null && user.getCredentials().size() > 0) {
+				// Set password
 				List<CredentialRepresentation> creds = user.getCredentials().stream()
 						.map(c -> {
 							CredentialRepresentation cr = new CredentialRepresentation();

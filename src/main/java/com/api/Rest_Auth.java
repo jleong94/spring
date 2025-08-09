@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pojo.ApiResponse;
+import com.pojo.Jwt;
 import com.pojo.keycloak.User;
 import com.service.keycloak.KeycloakService;
 import com.utilities.Tool;
@@ -200,6 +201,52 @@ public class Rest_Auth {
 			throw e;
 		} finally {
 			log.info("-Get user detail end-");
+			MDC.clear();
+		}
+	}
+	
+	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
+	@PostMapping(value = "v1/request-jwt", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
+	@JsonView({})//Which getter parameter should return within json
+	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
+	public ResponseEntity<ApiResponse> requestJwt(HttpServletRequest request, @RequestBody @Validated({}) Jwt jwt) throws Exception{
+		ObjectMapper objectMapper = new ObjectMapper()
+				.registerModule(new JavaTimeModule());
+		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		log.info("-Request jwt start-");
+		try {
+			log.info("Request: " + objectMapper.writeValueAsString(jwt));
+			logHttpRequest(request, log);
+			if ("password".equalsIgnoreCase(jwt.getGrant_type())) {
+				jwt = keycloakService.requestAccessTokenViaPassword(log, null, jwt);
+			} else if("refresh_token".equalsIgnoreCase(jwt.getGrant_type())) {
+				jwt = keycloakService.requestAccessTokenViaRefreshToken(log, null, jwt);
+			}
+			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
+					.builder()
+					.resp_code(ResponseCode.SUCCESS.getResponse_code())
+					.resp_msg(ResponseCode.SUCCESS.getResponse_desc())
+					.datetime(tool.getTodayDateTimeInString())
+					.jwt(jwt)
+					.build());
+		} catch(Exception e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} finally {
+			log.info("-Request jwt end-");
 			MDC.clear();
 		}
 	}
