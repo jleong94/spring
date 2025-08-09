@@ -31,7 +31,7 @@ public class CacheConfig {
      *
      * @return a JSR-107 compatible CacheManager
      */
-	@Bean
+	@Bean(name = "customCacheManager")
 	CacheManager cacheManager() {
 		// Get the default caching provider (e.g., Ehcache, Hazelcast, etc.)
 		CachingProvider provider = Caching.getCachingProvider();
