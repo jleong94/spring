@@ -96,7 +96,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.addFilterBefore(customOncePerRequestFilter, BasicAuthenticationFilter.class)
 				// Secure endpoint access rules
 				.authorizeHttpRequests((requests) -> requests
-						//.requestMatchers("/v1/test/**").authenticated()
+						//.requestMatchers(HttpMethod.GET, "/v1/test/**").authenticated()
 						.anyRequest().permitAll() // All other endpoints are publicly accessible
 						)
 				// Configure OAuth2 resource server to validate JWT tokens
@@ -157,7 +157,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 		// Build decoder that uses public keys from Keycloak
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
 		// Validate the token issuer (Keycloak realm)
-		OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(property.getKeycloak_base_url().concat(property.getKeycloak_realm()));
+		OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(property.getKeycloak_base_url().concat("/realms/").concat(property.getKeycloak_realm()));
 		jwtDecoder.setJwtValidator(withIssuer);
 		return jwtDecoder;
 	}
