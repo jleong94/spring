@@ -74,7 +74,7 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 			// This allows you to programmatically modify request headers (e.g., inject MDC ID)
 			MutableHttpServletRequest mutableHttpServletRequest = tool.setRequestHeaderMdcId(log, contentCachingRequestWrapper);
 			MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
-			log.info("-Security filter start-");
+			log.info("-Custom once per request filter start-");
 			logHttpRequest(request, log);
 
 			chain.doFilter(mutableHttpServletRequest, response);
@@ -95,7 +95,7 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 			}
 			throw e;
 		} finally {
-			log.info("-Security filter end-");
+			log.info("-Custom once per request filter end-");
 			MDC.clear();
 		}
 	}

@@ -38,12 +38,12 @@ public class CacheConfig {
 		CacheManager cacheManager = provider.getCacheManager();
 		
 		CaffeineConfiguration<Object, Object> keycloakAccessTokenCacheConfig = new CaffeineConfiguration<>();
-		keycloakAccessTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.SECONDS.toNanos(55)));
+		keycloakAccessTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.SECONDS.toNanos(10)));
         keycloakAccessTokenCacheConfig.setMaximumSize(OptionalLong.of(100L));
         cacheManager.createCache("keycloak-access-token", keycloakAccessTokenCacheConfig);
         
         CaffeineConfiguration<Object, Object> keycloakRefreshTokenCacheConfig = new CaffeineConfiguration<>();
-        keycloakRefreshTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.DAYS.toNanos(365)));
+        keycloakRefreshTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.DAYS.toNanos(1)));
         keycloakRefreshTokenCacheConfig.setMaximumSize(OptionalLong.of(100L));
         cacheManager.createCache("keycloak-refresh-token", keycloakRefreshTokenCacheConfig);
 		

@@ -1,5 +1,6 @@
 package com.pojo;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -30,14 +31,18 @@ public class Jwt {
 	private String password;
 
 	@JsonProperty(value= "access_token", access = Access.READ_ONLY)
+	@JsonAlias({"user_name", "user"})
 	private String access_token;
 
-	@JsonProperty(value= "access_token_expire_in", access = Access.READ_ONLY)
-	private long access_token_expire_in;
+	@JsonProperty(value= "expires_in", access = Access.READ_ONLY)
+	private long expires_in;
 
 	@JsonProperty(value= "refresh_token", access = Access.READ_WRITE)
 	private String refresh_token;
 
-	@JsonProperty(value= "refresh_token_expire_in", access = Access.READ_ONLY)
-	private long refresh_token_expire_in;
+	@JsonProperty(value= "refresh_expires_in", access = Access.READ_ONLY)
+	private long refresh_expires_in;
+
+	@JsonProperty(value= "scope", access = Access.READ_ONLY)
+	private String scope;
 }

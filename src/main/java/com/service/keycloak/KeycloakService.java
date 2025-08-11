@@ -81,9 +81,9 @@ public class KeycloakService {
 			} else {
 				jwt.toBuilder()
 				.access_token(result.getToken())
-				.access_token_expire_in(result.getExpiresIn())
+				.expires_in(result.getExpiresIn())
 				.refresh_token(result.getRefreshToken())
-				.refresh_token_expire_in(result.getRefreshExpiresIn())
+				.refresh_expires_in(result.getRefreshExpiresIn())
 				.build();
 			}
 		} catch(Exception e) {
