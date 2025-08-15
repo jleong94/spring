@@ -134,11 +134,11 @@ public class KeycloakService {
 		        int port = uri.getPort() == -1 ? 443 : uri.getPort();
 		        boolean mtls = mTlsCertificationDetectionService.isMTLSActive(host, port);
 		        Map<String, X509Certificate[]> certChains = mTlsCertificationDetectionService.loadClientCertChains(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password());
-		        SSLContext sslContext = SSLContext.getDefault();
+		        SSLContext sslContext = SSLContext.getInstance("TLS");//TLS is general name, which version to pickup is depend on JVM setting
 		        if (mtls && certChains.size() > 1) {
 		            log.info("mTLS active and multiple certs found — enabling smart selection");
-		            sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password());
-		        }
+		            sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_trust_store(), property.getServer_ssl_trust_store_password(), false);
+		        } else {sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_trust_store(), property.getServer_ssl_trust_store_password(), true);}
 				List<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("client_id", property.getKeycloak_client_id()));
 				params.add(new BasicNameValuePair("grant_type", jwt.getGrant_type()));

@@ -19,6 +19,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
 
 import org.slf4j.Logger;
@@ -132,10 +133,20 @@ public class MTLSCertificationDetectionService {
 	}
 
 	// ====== Create SSLContext with smart cert selection ======
-	public SSLContext createSSLContext(Logger log, String keystorePath, String keystorePassword) throws Exception {
-		SSLContext sslContext = SSLContext.getDefault();
+	public SSLContext createSSLContext(Logger log, String keystorePath, String keystorePassword, String truststorePath, String truststorePassword, boolean onlyTrustManager) {
+		SSLContext sslContext = null;
 		try {
-			KeyStore ks = KeyStore.getInstance("JKS");
+			sslContext = SSLContext.getInstance("TLS");//TLS is general name, which version to pickup is depend on JVM setting
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+	        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+	        var is = KeyStore.getDefaultType().getClass().getResourceAsStream(truststorePath);
+	        ks.load(is, truststorePassword.toCharArray());
+	        tmf.init(ks);
+			if(onlyTrustManager) {
+		        sslContext.init(null, tmf.getTrustManagers(), null);
+				return sslContext;
+			}
+			ks = KeyStore.getInstance("JKS");
 			try (FileInputStream fis = new FileInputStream(keystorePath)) {
 				ks.load(fis, keystorePassword.toCharArray());
 			}
@@ -157,8 +168,7 @@ public class MTLSCertificationDetectionService {
 			Map<String, X509Certificate[]> certChains = loadClientCertChains(log, keystorePath, keystorePassword);
 			CustomX509ExtendedKeyManager smartKm = new CustomX509ExtendedKeyManager(defaultKm, certChains);
 
-			sslContext = SSLContext.getInstance("TLS");
-			sslContext.init(new KeyManager[]{smartKm}, null, null);
+			sslContext.init(new KeyManager[]{smartKm}, tmf.getTrustManagers(), null);
 			return sslContext;
 		} catch(Exception e) {
 			// Get the current stack trace element

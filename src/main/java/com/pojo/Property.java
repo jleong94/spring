@@ -70,5 +70,11 @@ public class Property {
 
 	@Value("${server.ssl.key-store-password}")
     private String server_ssl_key_store_password;
+
+	@Value("${server.ssl.trust-store}")
+    private String server_ssl_trust_store;
+
+	@Value("${server.ssl.trust-store-password}")
+    private String server_ssl_trust_store_password;
 	
 }
