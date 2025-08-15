@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -27,6 +28,7 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 import com.exception.UnauthenticatedAccessException;
 import com.pojo.Property;
 
+import jakarta.ws.rs.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 
 /*
@@ -96,7 +98,8 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.addFilterBefore(customOncePerRequestFilter, BasicAuthenticationFilter.class)
 				// Secure endpoint access rules
 				.authorizeHttpRequests((requests) -> requests
-						//.requestMatchers(HttpMethod.GET, "/v1/test/**").authenticated()
+						.requestMatchers(HttpMethod.POST, "/v1/auth/maintenance").hasAnyAuthority("SCOPE_user_user_maintenance_write", "SCOPE_admin_user_maintenance_write")
+						.requestMatchers(HttpMethod.GET, "/v1/auth/check/**").hasAnyAuthority("SCOPE_user_query_user_read", "SCOPE_admin_user_maintenance_write")
 						.anyRequest().permitAll() // All other endpoints are publicly accessible
 						)
 				// Configure OAuth2 resource server to validate JWT tokens
@@ -112,8 +115,12 @@ public class SecurityConfig implements WebMvcConfigurer {
      */
 	@Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
+		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+		jwtGrantedAuthoritiesConverter.setAuthorityPrefix("SCOPE_"); // Needed for hasAuthority("SCOPE_xxx")
+		jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("scope");
+		
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new CustomConverter());
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
     }
 

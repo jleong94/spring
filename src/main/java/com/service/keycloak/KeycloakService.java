@@ -4,6 +4,7 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.FederatedIdentityRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -238,6 +240,9 @@ public class KeycloakService {
 
 	public User userCreation(Logger log, String logFolder, User user) throws Exception {
 		try {
+			int totalUsers = keycloak.realm(property.getKeycloak_realm())
+				    .users()
+				    .count();
 			if(checkIfUsernameExisted(log, logFolder, user)) {
 				throw new DuplicatedUsernameException("Duplicated username found.");
 			} if(checkIfEmailExisted(log, logFolder, user)) {
@@ -317,6 +322,7 @@ public class KeycloakService {
 			if(response.getStatus() == 201) {
 				String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
 				user.setId(userId);
+				userRoleMaintenance(log, logFolder, user, totalUsers);
 			} else {
 				throw new RuntimeException("Error, ".concat(response.readEntity(String.class)).concat(" while creating user."));
 			}
@@ -466,6 +472,85 @@ public class KeycloakService {
 			}catch(Exception e) {}
 		}
 		return user;
+	}
+
+	public boolean userRoleMaintenance(Logger log, String logFolder, User user, int totalUsers) throws Exception {
+		List<UserRepresentation> userRepresentations = new ArrayList<>();
+		UserRepresentation userRepresentation = new UserRepresentation();
+		try {
+			if(user.getId() == null || user.getId().isBlank()) {
+				userRepresentations = keycloak.realm(property.getKeycloak_realm())
+						.users()
+						.search(user.getUsername(), true);
+				userRepresentation = userRepresentations.get(0);
+			} else {userRepresentation = keycloak.realm(property.getKeycloak_realm()).users().get(user.getId()).toRepresentation();}
+			List<String> permissions = Arrays.asList("read", "write");
+			List<String> actions = Arrays.asList("user_maintenance", "query_user");
+			List<RoleRepresentation> roleRepresentations = new ArrayList<>();
+			for(String action : actions) {
+				for(String permission : permissions) {
+					try {
+						roleRepresentations.add(keycloak.realm(property.getKeycloak_realm()).clients()
+								.get(property.getKeycloak_client_id())
+								.roles().get((totalUsers <= 0 ? "admin" : "user").concat("_").concat(action).concat("_").concat(permission))
+								.toRepresentation());
+					} catch(Exception e) {
+						// Get the current stack trace element
+						StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+						// Find matching stack trace element from exception
+						for (StackTraceElement element : e.getStackTrace()) {
+							if (currentElement.getClassName().equals(element.getClassName())
+									&& currentElement.getMethodName().equals(element.getMethodName())) {
+								log.error("Error in {} at line {}: {} - {}",
+										element.getClassName(),
+										element.getLineNumber(),
+										e.getClass().getName(),
+										e.getMessage());
+								break;
+							}
+						}
+					}
+				}
+			}
+			keycloak.realm(property.getKeycloak_realm()).users().get(userRepresentation.getId()).roles().clientLevel(property.getKeycloak_client_id()).add(roleRepresentations);
+			return true;
+		} catch (NotFoundException e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw new UserNotFoundException("User info not found.");
+		} catch(Exception e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} finally {
+			try {
+				
+			}catch(Exception e) {}
+		}
 	}
 
 	public User getUserDetailByUsernameOrId(Logger log, String logFolder, User user) throws Exception {
