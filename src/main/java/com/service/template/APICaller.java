@@ -5,8 +5,13 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.security.cert.X509Certificate;
 import java.time.Duration;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -23,6 +28,7 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -32,6 +38,8 @@ import org.springframework.web.reactive.function.client.WebClient.RequestHeaders
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.pojo.Property;
+import com.service.MTLSCertificationDetectionService;
 import com.solab.iso8583.IsoMessage;
 import com.solab.iso8583.IsoType;
 import com.solab.iso8583.MessageFactory;
@@ -41,6 +49,12 @@ import lombok.Cleanup;
 
 @Service
 public class APICaller {
+	
+	@Autowired
+	MTLSCertificationDetectionService mTlsCertificationDetectionService;
+	
+	@Autowired
+	Property property;
 
 	protected String httpClientApi(Logger log, String logFolder) {
 		String result = "";
@@ -52,7 +66,17 @@ public class APICaller {
 			log.info("URL: " + URL);
 			log.info("Request: " + objectMapper.writeValueAsString(object));
 			if(URL != null && !URL.isBlank()){
-				/*List<NameValuePair> params = new ArrayList<>();
+				URI uri = URI.create(URL);
+				String host = uri.getHost();
+		        int port = uri.getPort() == -1 ? 443 : uri.getPort();
+		        boolean mtls = mTlsCertificationDetectionService.isMTLSActive(host, port);
+		        Map<String, X509Certificate[]> certChains = mTlsCertificationDetectionService.loadClientCertChains(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password());
+		        SSLContext sslContext = SSLContext.getDefault();
+		        if (mtls && certChains.size() > 1) {
+		            log.info("mTLS active and multiple certs found — enabling smart selection");
+		            sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password());
+		        }
+		        /*List<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("", ));*/
 				RequestConfig requestConfig = RequestConfig.custom()
 		                .setConnectTimeout(5 * 1000)//in miliseconds
@@ -60,6 +84,7 @@ public class APICaller {
 		                .setConnectionRequestTimeout(5 * 1000)//in miliseconds
 		                .build();
 				@Cleanup CloseableHttpClient httpClient = HttpClients.custom()
+						.setSSLContext(sslContext)
 		                .setDefaultRequestConfig(requestConfig)
 		                .build();
 				HttpPost httpRequest = new HttpPost(URL);
@@ -154,6 +179,16 @@ public class APICaller {
 			log.info("URL: " + URL);
 			log.info("Request: " + objectMapper.writeValueAsString(object));
 			if(URL != null && !URL.isBlank()){
+				URI uri = URI.create(URL);
+				String host = uri.getHost();
+		        int port = uri.getPort() == -1 ? 443 : uri.getPort();
+		        boolean mtls = mTlsCertificationDetectionService.isMTLSActive(host, port);
+		        Map<String, X509Certificate[]> certChains = mTlsCertificationDetectionService.loadClientCertChains(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password());
+		        SSLContext sslContext = SSLContext.getDefault();
+		        if (mtls && certChains.size() > 1) {
+		            log.info("mTLS active and multiple certs found — enabling smart selection");
+		            sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password());
+		        }
 				/*List<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("", ));*/
 				RequestConfig requestConfig = RequestConfig.custom()
@@ -162,6 +197,7 @@ public class APICaller {
 		                .setConnectionRequestTimeout(5 * 1000)//in miliseconds
 		                .build();
 				@Cleanup CloseableHttpAsyncClient httpClient = HttpAsyncClients.custom()
+						.setSSLContext(sslContext)
 		                .setDefaultRequestConfig(requestConfig)
 		                .build();
                 httpClient.start();

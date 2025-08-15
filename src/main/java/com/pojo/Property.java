@@ -63,4 +63,12 @@ public class Property {
                 .grantType(OAuth2Constants.PASSWORD)
                 .build();
     }
+	
+	//Server
+	@Value("${server.ssl.key-store}")
+    private String server_ssl_key_store;
+
+	@Value("${server.ssl.key-store-password}")
+    private String server_ssl_key_store_password;
+	
 }

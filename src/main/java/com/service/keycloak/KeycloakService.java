@@ -2,6 +2,7 @@ package com.service.keycloak;
 
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.net.ssl.SSLContext;
+
 import org.springframework.cache.annotation.Cacheable;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -43,6 +47,8 @@ import com.pojo.keycloak.Access;
 import com.pojo.keycloak.Credential;
 import com.pojo.keycloak.FederatedIdentitie;
 import com.pojo.keycloak.User;
+import com.service.MTLSCertificationDetectionService;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import jakarta.ws.rs.NotFoundException;
@@ -54,6 +60,9 @@ public class KeycloakService {
 	
 	@Autowired
 	Property property;
+	
+	@Autowired
+	MTLSCertificationDetectionService mTlsCertificationDetectionService;
 	
 	private final Keycloak keycloak;
 	
@@ -120,6 +129,16 @@ public class KeycloakService {
 			log.info("URL: " + URL);
 			//log.info("Request: " + objectMapper.writeValueAsString(object));
 			if(URL != null && !URL.isBlank()){
+				URI uri = URI.create(URL);
+				String host = uri.getHost();
+		        int port = uri.getPort() == -1 ? 443 : uri.getPort();
+		        boolean mtls = mTlsCertificationDetectionService.isMTLSActive(host, port);
+		        Map<String, X509Certificate[]> certChains = mTlsCertificationDetectionService.loadClientCertChains(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password());
+		        SSLContext sslContext = SSLContext.getDefault();
+		        if (mtls && certChains.size() > 1) {
+		            log.info("mTLS active and multiple certs found — enabling smart selection");
+		            sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password());
+		        }
 				List<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("client_id", property.getKeycloak_client_id()));
 				params.add(new BasicNameValuePair("grant_type", jwt.getGrant_type()));
@@ -130,11 +149,12 @@ public class KeycloakService {
 		                .setConnectionRequestTimeout(5 * 1000)//in miliseconds
 		                .build();
 				@Cleanup CloseableHttpClient httpClient = HttpClients.custom()
+						.setSSLContext(sslContext)
 		                .setDefaultRequestConfig(requestConfig)
 		                .build();
 				HttpPost httpRequest = new HttpPost(URL);
 				/*HttpGet httpRequest = new HttpGet(URL);*/
-				URI uri = new URIBuilder(httpRequest.getURI())
+				uri = new URIBuilder(httpRequest.getURI())
 						.addParameters(params)
 						.build();
 				httpRequest.setURI(uri);
