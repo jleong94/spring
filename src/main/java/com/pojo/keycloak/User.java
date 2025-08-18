@@ -68,7 +68,7 @@ public class User {
 	@JsonView({Create.class, Update.class, Select.class})
 	private Map<String, List<String>> attributes;
 	
-	@JsonProperty(value= "credentials", access = Access.READ_ONLY)
+	@JsonProperty(value= "credentials", access = Access.READ_WRITE)
 	@JsonView({Create.class, Update.class, Select.class})
 	private List<Credential> credentials;
 	

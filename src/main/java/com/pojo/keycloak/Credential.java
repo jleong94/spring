@@ -2,6 +2,9 @@ package com.pojo.keycloak;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+
+import jakarta.validation.constraints.NotBlank;
+
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import lombok.AllArgsConstructor;
@@ -15,15 +18,17 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 public class Credential {
 
-	@JsonProperty(value= "type", access = Access.READ_ONLY)
+	@NotBlank(message = "Credential type is blank.")
+	@JsonProperty(value= "type", access = Access.READ_WRITE)
 	@JsonView({User.Create.class, User.Update.class, User.Select.class})
 	private String type; //fixed value, password
 	
-	@JsonProperty(value= "value", access = Access.READ_ONLY)
+	@NotBlank(message = "Credential is blank.")
+	@JsonProperty(value= "value", access = Access.READ_WRITE)
 	@JsonView({User.Create.class, User.Update.class, User.Select.class})
 	private String value;
 	
-	@JsonProperty(value= "temporary", access = Access.READ_ONLY)
+	@JsonProperty(value= "temporary", access = Access.READ_WRITE)
 	@JsonView({User.Create.class, User.Update.class, User.Select.class})
 	private boolean temporary;
 }
