@@ -87,7 +87,8 @@ public class Rest_Auth {
 	@PostMapping(value = "v1/auth/create", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({User.Create.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
-	public ResponseEntity<ApiResponse> userCreation(HttpServletRequest request, @RequestBody @Validated({User.Create.class}) User user) throws Exception{
+	@Validated({User.Create.class})
+	public ResponseEntity<ApiResponse> userCreation(HttpServletRequest request, @RequestBody User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
 		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
@@ -130,7 +131,8 @@ public class Rest_Auth {
 	@PostMapping(value = "v1/auth/maintenance", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({User.Update.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
-	public ResponseEntity<ApiResponse> userMaintenance(HttpServletRequest request, @RequestBody @Validated({User.Update.class}) User user) throws Exception{
+	@Validated({User.Update.class}) 
+	public ResponseEntity<ApiResponse> userMaintenance(HttpServletRequest request, @RequestBody User user) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
 		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
@@ -174,6 +176,7 @@ public class Rest_Auth {
 	@RateLimit(headerName = "", pathVariable = "username", requestBodyField = "")
 	@GetMapping(value = "v1/auth/check/{username}", produces = "application/json; charset=UTF-8")
 	@JsonView({User.Select.class})//Which getter parameter should return within json
+	@Validated({}) 
 	public ResponseEntity<ApiResponse> getUserDetailByUsername(HttpServletRequest request, @PathVariable @NotBlank String username) throws Exception{
 		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-Get user detail start-");
@@ -217,7 +220,8 @@ public class Rest_Auth {
 	@PostMapping(value = "v1/request-jwt", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
-	public ResponseEntity<ApiResponse> requestJwt(HttpServletRequest request, @RequestBody @Validated({}) Jwt jwt) throws Exception{
+	@Validated({}) 
+	public ResponseEntity<ApiResponse> requestJwt(HttpServletRequest request, @RequestBody Jwt jwt) throws Exception{
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
 		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
@@ -263,6 +267,7 @@ public class Rest_Auth {
 	@PostMapping(value = "v1/rate-limits/update", consumes = {"application/x-www-form-urlencoded; charset=UTF-8", "multipart/form-data; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
+	@Validated({}) 
 	public ResponseEntity<ApiResponse> updRateLimit(HttpServletRequest request, @RequestParam String key, @RequestParam @NotBlank(message = "Path is blank.") String path, @RequestParam @Min(1) long capacity, @RequestParam @Min(1) long refillTokens, @RequestParam @Min(1) long refillSeconds) throws Exception{
 		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-Rate limit update start-");
