@@ -486,6 +486,7 @@ public class KeycloakService {
 			} else {userRepresentation = keycloak.realm(property.getKeycloak_realm()).users().get(user.getId()).toRepresentation();}
 			List<String> permissions = Arrays.asList("read", "write");
 			List<String> actions = Arrays.asList("user_maintenance", "query_user");
+			if(totalUsers <= 0) {actions.add("rate_limit");}
 			List<RoleRepresentation> roleRepresentations = new ArrayList<>();
 			for(String action : actions) {
 				for(String permission : permissions) {

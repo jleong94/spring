@@ -9,10 +9,10 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.exception.RateLimitExceededException;
+import com.pojo.bucket4j.CustomBucket;
 import com.service.RateLimitService;
 import com.validation.RateLimit;
 
-import io.github.bucket4j.Bucket;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +66,7 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 				resolvedKey = resolvedKey.concat(resolvedRequestBodyFieldKey);
 			}
 			// Try to consume a token
-			Bucket bucket = rateLimitService.resolveBucket(resolvedKey, request.getRequestURI());
+			CustomBucket bucket = rateLimitService.resolveBucket(resolvedKey, request.getRequestURI());
 			boolean allowed = bucket.tryConsume(1);
 
 			if (!allowed) {

@@ -98,6 +98,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.addFilterBefore(customOncePerRequestFilter, BasicAuthenticationFilter.class)
 				// Secure endpoint access rules
 				.authorizeHttpRequests((requests) -> requests
+						.requestMatchers(HttpMethod.POST, "/v1/rate-limits/update").hasAnyAuthority("SCOPE_admin_rate_limit_write")
 						.requestMatchers(HttpMethod.POST, "/v1/auth/maintenance").hasAnyAuthority("SCOPE_user_user_maintenance_write", "SCOPE_admin_user_maintenance_write")
 						.requestMatchers(HttpMethod.GET, "/v1/auth/check/**").hasAnyAuthority("SCOPE_user_query_user_read", "SCOPE_admin_user_maintenance_write")
 						.anyRequest().permitAll() // All other endpoints are publicly accessible

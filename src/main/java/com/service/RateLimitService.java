@@ -3,9 +3,9 @@ package com.service;
 import com.configuration.RateLimitProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pojo.bucket4j.CustomBucket;
 
 import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.Bucket;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 
@@ -27,7 +27,7 @@ public class RateLimitService {
 	@Autowired
 	private ObjectMapper objectMapper;
 
-	private final Cache<String, Bucket> cache;
+	private final Cache<String, CustomBucket> cache;
 	
 	@Autowired
     private RateLimitProperties rateLimitProperties;
@@ -38,7 +38,7 @@ public class RateLimitService {
      * @param cacheManager Spring's CacheManager used to retrieve a named cache.
      */
 	public RateLimitService(CacheManager cacheManager) {
-		this.cache = cacheManager.getCache("buckets", String.class, Bucket.class);
+		this.cache = cacheManager.getCache("buckets", String.class, CustomBucket.class);
 	}
 	
 	/**
@@ -50,14 +50,12 @@ public class RateLimitService {
      * @param path The API endpoint being accessed, used to determine the limit.
      * @return The Bucket associated with the given key.
      */
-	public Bucket resolveBucket(String key, String path) {
-		Bucket bucket = cache.get(key);// Try to fetch the rate limit bucket from the cache
+	public CustomBucket resolveBucket(String key, String path) {
+		CustomBucket bucket = cache.get(key);// Try to fetch the rate limit bucket from the cache
 		if (bucket == null) {
 			Bandwidth bandwidth = rateLimitProperties.getLimitForPath(path);
 			// Build a new token bucket with the defined bandwidth limit
-			bucket = Bucket.builder()
-					.addLimit(bandwidth)
-					.build();
+			bucket = new CustomBucket(bandwidth);
 			// Store the newly created bucket in the cache for future use
 			cache.put(key, bucket);
 		}
@@ -163,4 +161,17 @@ public class RateLimitService {
 	    // Return the value as text if found, otherwise null
 	    return currentNode != null ? currentNode.asText() : null;
 	}
+	
+	public boolean updateBucketLimit(String key, String path, Bandwidth bandwidth) {
+        CustomBucket bucket = cache.get(key);
+        if (bucket != null) {
+            bucket.updateBandwidth(bandwidth); 
+            return true;
+        } else {
+            // create if not exist
+            bucket = new CustomBucket(bandwidth);
+            cache.put(key, bucket);
+            return true;
+        }
+    }
 }
