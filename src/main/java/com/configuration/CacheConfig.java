@@ -4,13 +4,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.github.benmanes.caffeine.jcache.configuration.CaffeineConfiguration;
-
-import io.github.bucket4j.Bucket;
+import com.pojo.bucket4j.CustomBucket;
 
 import java.util.OptionalLong;
 import java.util.concurrent.TimeUnit;
 
-import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
@@ -18,10 +16,6 @@ import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.spi.CachingProvider;
 
-/**
- * Configuration class for setting up rate limiting with a caching mechanism.
- * Uses JSR-107 (JCache) to store buckets (token buckets for rate limiting).
- */
 @Configuration
 public class CacheConfig {
 
@@ -36,6 +30,12 @@ public class CacheConfig {
 		// Get the default caching provider (e.g., Ehcache, Hazelcast, etc.)
 		CachingProvider provider = Caching.getCachingProvider();
 		CacheManager cacheManager = provider.getCacheManager();
+        
+        MutableConfiguration<String, CustomBucket> customBucketConfig = new MutableConfiguration<String, CustomBucket>()
+                .setStoreByValue(false)// Store references instead of copying the Bucket object
+                .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))// TTL per entry
+                .setStatisticsEnabled(true);// Enable cache hit/miss statistics
+        cacheManager.createCache("buckets", customBucketConfig);
 		
 		CaffeineConfiguration<Object, Object> keycloakAccessTokenCacheConfig = new CaffeineConfiguration<>();
 		keycloakAccessTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.SECONDS.toNanos(10)));
@@ -49,22 +49,6 @@ public class CacheConfig {
 		
         return cacheManager;
 	}
-
-	/**
-     * Configures and creates a cache named "buckets" to store rate limit buckets.
-     * This cache uses a TTL (time-to-live) of 1 minute for each entry.
-     *
-     * @param cacheManager the CacheManager used to create caches
-     * @return a cache storing token buckets keyed by a String identifier (e.g., user ID or IP)
-     */
-	@Bean
-    Cache<String, Bucket> bucketCache(CacheManager cacheManager) {
-        MutableConfiguration<String, Bucket> config = new MutableConfiguration<String, Bucket>()
-                .setStoreByValue(false)// Store references instead of copying the Bucket object
-                .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))// TTL per entry
-                .setStatisticsEnabled(true);// Enable cache hit/miss statistics
-        return cacheManager.createCache("buckets", config);
-    }
 	
 	/**
      * Binds custom rate-limiting configuration properties.
