@@ -84,7 +84,7 @@ public class Rest_Auth {
 	}
 	
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
-	@PostMapping(value = "v1/auth/create", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
+	@PostMapping(value = "v1/auth/signup", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({User.Create.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
 	@Validated({User.Create.class})
