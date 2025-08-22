@@ -97,7 +97,7 @@ public class Rest_Auth {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
 			logHttpRequest(request, log);
 			
-			user = keycloakService.userCreation(log, null, user);
+			user = keycloakService.userCreation(log, user);
 			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 					.builder()
 					.resp_code(ResponseCode.SUCCESS.getResponse_code())
@@ -141,7 +141,7 @@ public class Rest_Auth {
 			log.info("Request: " + objectMapper.writeValueAsString(user));
 			logHttpRequest(request, log);
 			
-			user = keycloakService.userMaintenance(log, null, user);
+			user = keycloakService.userMaintenance(log, user);
 			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 					.builder()
 					.resp_code(ResponseCode.SUCCESS.getResponse_code())
@@ -186,7 +186,7 @@ public class Rest_Auth {
 			User user = User.builder()
 					.username(username)
 					.build();
-			user = keycloakService.getUserDetailByUsernameOrId(log, null, user);
+			user = keycloakService.getUserDetailByUsernameOrId(log, user);
 			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 					.builder()
 					.resp_code(ResponseCode.SUCCESS.getResponse_code())
@@ -230,9 +230,9 @@ public class Rest_Auth {
 			log.info("Request: " + objectMapper.writeValueAsString(jwt));
 			logHttpRequest(request, log);
 			if ("password".equalsIgnoreCase(jwt.getGrant_type())) {
-				jwt = keycloakService.requestAccessTokenViaPassword(log, null, jwt);
+				jwt = keycloakService.requestAccessTokenViaPassword(log, jwt);
 			} else if("refresh_token".equalsIgnoreCase(jwt.getGrant_type())) {
-				jwt = keycloakService.requestAccessTokenViaRefreshToken(log, null, jwt);
+				jwt = keycloakService.requestAccessTokenViaRefreshToken(log, jwt);
 			}
 			return ResponseEntity.status(HttpStatus.OK).body(ApiResponse
 					.builder()

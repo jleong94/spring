@@ -56,7 +56,7 @@ public class APICaller {
 	@Autowired
 	Property property;
 
-	protected String httpClientApi(Logger log, String logFolder) {
+	protected String httpClientApi(Logger log) {
 		String result = "";
 		String URL = "";
 		Object object = new Object();
@@ -168,7 +168,7 @@ public class APICaller {
 		return result;
 	}
 
-	protected String httpClientApiAsync(Logger log, String logFolder) {
+	protected String httpClientApiAsync(Logger log) {
 		String result = "";
 		String URL = "";
 		Object object = new Object();
@@ -320,7 +320,7 @@ public class APICaller {
 		return result;
 	}
 	
-	public String iso8583Api(Logger log, String logFolder) {
+	public String iso8583Api(Logger log) {
 		String result = "";
 		String ip = "";
 		int port = 0;
@@ -407,7 +407,7 @@ public class APICaller {
 	}
 	
 	//Async api call using webflux client
-	protected String webClient(Logger log, String logFolder) {
+	protected String webClient(Logger log) {
 		String result = "";
 		String URL = "";
 		Object object = new Object();

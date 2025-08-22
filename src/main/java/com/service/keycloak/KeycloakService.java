@@ -73,7 +73,7 @@ public class KeycloakService {
     }
 	
 	@Cacheable("keycloak-access-token")
-	public Jwt requestAccessTokenViaPassword(Logger log, String logFolder, Jwt jwt) throws Exception {
+	public Jwt requestAccessTokenViaPassword(Logger log, Jwt jwt) throws Exception {
 		AccessTokenResponse result = new AccessTokenResponse();
 		try {
 			Keycloak keycloak = KeycloakBuilder.builder()
@@ -122,7 +122,7 @@ public class KeycloakService {
 	}
 	
 	@Cacheable("keycloak-refresh-token")
-	public Jwt requestAccessTokenViaRefreshToken(Logger log, String logFolder, Jwt jwt) throws Exception {
+	public Jwt requestAccessTokenViaRefreshToken(Logger log, Jwt jwt) throws Exception {
 		String URL = "";
 		ObjectMapper objectMapper = new ObjectMapper()
 				.registerModule(new JavaTimeModule());
@@ -238,14 +238,14 @@ public class KeycloakService {
 		return jwt;
 	}
 
-	public User userCreation(Logger log, String logFolder, User user) throws Exception {
+	public User userCreation(Logger log, User user) throws Exception {
 		try {
 			int totalUsers = keycloak.realm(property.getKeycloak_realm())
 				    .users()
 				    .count();
-			if(checkIfUsernameExisted(log, logFolder, user)) {
+			if(checkIfUsernameExisted(log, user)) {
 				throw new DuplicatedUsernameException("Duplicated username found.");
-			} if(checkIfEmailExisted(log, logFolder, user)) {
+			} if(checkIfEmailExisted(log, user)) {
 				throw new DuplicatedEmailException("Duplicated email found.");
 			}
 			UserRepresentation userRepresentation = new UserRepresentation();
@@ -322,7 +322,7 @@ public class KeycloakService {
 			if(response.getStatus() == 201) {
 				String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
 				user.setId(userId);
-				userRoleMaintenance(log, logFolder, user, totalUsers);
+				if(totalUsers <= 0) {userRoleMaintenance(log, user);}
 			} else {
 				throw new RuntimeException("Error, ".concat(response.readEntity(String.class)).concat(" while creating user."));
 			}
@@ -350,7 +350,7 @@ public class KeycloakService {
 		return user;
 	}
 
-	public User userMaintenance(Logger log, String logFolder, User user) throws Exception {
+	public User userMaintenance(Logger log, User user) throws Exception {
 		List<UserRepresentation> userRepresentations = new ArrayList<>();
 		UserRepresentation userRepresentation = new UserRepresentation();
 		try {
@@ -363,7 +363,7 @@ public class KeycloakService {
 			
 			if(user.getUsername() != null && !user.getUsername().isBlank()) {
 				if(!user.getUsername().equals(userRepresentation.getUsername())) {
-					if(checkIfUsernameExisted(log, logFolder, user)) {
+					if(checkIfUsernameExisted(log, user)) {
 						throw new DuplicatedUsernameException("Duplicated username found.");
 					}
 				}
@@ -373,7 +373,7 @@ public class KeycloakService {
 			userRepresentation.setEmailVerified(user.isEmailVerified());
 			if(user.getEmail() != null && !user.getEmail().isBlank()) {
 				if(!user.getEmail().equals(userRepresentation.getEmail())) {
-					if(checkIfEmailExisted(log, logFolder, user)) {
+					if(checkIfEmailExisted(log, user)) {
 						throw new DuplicatedEmailException("Duplicated email found.");
 					}
 				}
@@ -474,7 +474,7 @@ public class KeycloakService {
 		return user;
 	}
 
-	public boolean userRoleMaintenance(Logger log, String logFolder, User user, int totalUsers) throws Exception {
+	public boolean userRoleMaintenance(Logger log, User user) throws Exception {
 		List<UserRepresentation> userRepresentations = new ArrayList<>();
 		UserRepresentation userRepresentation = new UserRepresentation();
 		try {
@@ -484,31 +484,27 @@ public class KeycloakService {
 						.search(user.getUsername(), true);
 				userRepresentation = userRepresentations.get(0);
 			} else {userRepresentation = keycloak.realm(property.getKeycloak_realm()).users().get(user.getId()).toRepresentation();}
-			List<String> permissions = Arrays.asList("read", "write");
-			List<String> actions = Arrays.asList("user_maintenance", "query_user");
-			if(totalUsers <= 0) {actions.add("rate_limit");}
+			List<String> actions = Arrays.asList("rate_limit_write", "user_maintenance_write", "query_user_read");
 			List<RoleRepresentation> roleRepresentations = new ArrayList<>();
 			for(String action : actions) {
-				for(String permission : permissions) {
-					try {
-						roleRepresentations.add(keycloak.realm(property.getKeycloak_realm()).clients()
-								.get(property.getKeycloak_client_id())
-								.roles().get((totalUsers <= 0 ? "admin" : "user").concat("_").concat(action).concat("_").concat(permission))
-								.toRepresentation());
-					} catch(Exception e) {
-						// Get the current stack trace element
-						StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-						// Find matching stack trace element from exception
-						for (StackTraceElement element : e.getStackTrace()) {
-							if (currentElement.getClassName().equals(element.getClassName())
-									&& currentElement.getMethodName().equals(element.getMethodName())) {
-								log.error("Error in {} at line {}: {} - {}",
-										element.getClassName(),
-										element.getLineNumber(),
-										e.getClass().getName(),
-										e.getMessage());
-								break;
-							}
+				try {
+					roleRepresentations.add(keycloak.realm(property.getKeycloak_realm()).clients()
+							.get(property.getKeycloak_client_id())
+							.roles().get("superadmin".concat("_").concat(action))
+							.toRepresentation());
+				} catch(Exception e) {
+					// Get the current stack trace element
+					StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+					// Find matching stack trace element from exception
+					for (StackTraceElement element : e.getStackTrace()) {
+						if (currentElement.getClassName().equals(element.getClassName())
+								&& currentElement.getMethodName().equals(element.getMethodName())) {
+							log.error("Error in {} at line {}: {} - {}",
+									element.getClassName(),
+									element.getLineNumber(),
+									e.getClass().getName(),
+									e.getMessage());
+							break;
 						}
 					}
 				}
@@ -549,12 +545,12 @@ public class KeycloakService {
 			throw e;
 		} finally {
 			try {
-				
+
 			}catch(Exception e) {}
 		}
 	}
 
-	public User getUserDetailByUsernameOrId(Logger log, String logFolder, User user) throws Exception {
+	public User getUserDetailByUsernameOrId(Logger log, User user) throws Exception {
 		List<UserRepresentation> userRepresentations = new ArrayList<>();
 		UserRepresentation userRepresentation = new UserRepresentation();
 		try {
@@ -656,7 +652,7 @@ public class KeycloakService {
 		return user;
 	}
 	
-	private boolean checkIfUsernameExisted(Logger log, String logFolder, User user) {
+	private boolean checkIfUsernameExisted(Logger log, User user) {
 		try {
 			List<UserRepresentation> userRepresentations = keycloak.realm(property.getKeycloak_realm())
 					.users()
@@ -683,7 +679,7 @@ public class KeycloakService {
 		}
 	}
 	
-	private boolean checkIfEmailExisted(Logger log, String logFolder, User user) {
+	private boolean checkIfEmailExisted(Logger log, User user) {
 		try {
 			List<UserRepresentation> userRepresentations = keycloak.realm(property.getKeycloak_realm())
 					.users()
