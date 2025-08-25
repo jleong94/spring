@@ -35,19 +35,22 @@ public class EMailService {
 	@Transactional
 	public EMail sendEMail(Logger log, EMail email) throws Exception {
 		try {
+			email = email.toBuilder().sender(property.getSpring_mail_username()).build();
 			email.setSender(property.getSpring_mail_username());
 			MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 			mimeMessageHelper.setFrom(email.getSender()); // must match sender
 			mimeMessageHelper.setTo(email.getReceiver() == null ? "" : email.getReceiver());
-			mimeMessageHelper.setCc(email.getCc() == null ? "" : email.getCc());
-			mimeMessageHelper.setBcc(email.getBcc() == null ? "" : email.getBcc());
+			if(email.getCc() != null && !email.getCc().isBlank()) {mimeMessageHelper.setCc(email.getCc());}
+			if(email.getBcc() != null && !email.getBcc().isBlank()) {mimeMessageHelper.setBcc(email.getBcc());}
 			mimeMessageHelper.setSubject(email.getSubject());
 			mimeMessageHelper.setText(email.getBody(), email.isHTML()); // ✅ `true` for HTML
-			for(EMailAttachment emailAttachment : email.getAttachments()) {
-				Path path = Paths.get(emailAttachment.getFile_path());
-				if(Files.exists(path) && Files.isRegularFile(path)) {
-					mimeMessageHelper.addAttachment(path.getFileName().toString(), path.toFile());
+			if(email.getAttachments() != null && email.getAttachments().size() > 0) {
+				for(EMailAttachment emailAttachment : email.getAttachments()) {
+					Path path = Paths.get(emailAttachment.getFile_path());
+					if(Files.exists(path) && Files.isRegularFile(path)) {
+						mimeMessageHelper.addAttachment(path.getFileName().toString(), path.toFile());
+					}
 				}
 			}
 			javaMailSender.send(mimeMessage);
@@ -69,8 +72,8 @@ public class EMailService {
 			}
 			throw e;
 		} finally {
-        	emailRepo.save(email);
-        }
-        return email;
-    }
+			emailRepo.save(email);
+		}
+		return email;
+	}
 }
