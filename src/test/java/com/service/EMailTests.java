@@ -14,6 +14,7 @@ import com.modal.EMail;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,7 +47,8 @@ public class EMailTests {
 					.body("Hello world.")
 					.isHTML(false)
 					.build();
-			eMailService.sendEMail(log, email);
+			// ✅ Assert: result should be true
+	        assertTrue(eMailService.sendEMail(log, email).isSend(), "sendEMail should return true when email is sent successfully");
 			
 			// Widely used validation: check send() was called once
 			verify(mailSender, times(1)).send(any(MimeMessage.class));
