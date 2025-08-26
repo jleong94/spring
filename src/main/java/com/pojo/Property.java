@@ -29,8 +29,8 @@ public class Property {
     private int rate_limit_period;
 
 	//Email SMTP
-	@Value("${spring.mail.username}")
-    private String spring_mail_username;
+	@Value("${spring.mail.host}")
+    private String spring_mail_host;
 	
 	//CORS
 	@Value("#{'${allowed.origins}'.split(',')}")

@@ -35,8 +35,8 @@ public class EMailService {
 	@Transactional
 	public EMail sendEMail(Logger log, EMail email) throws Exception {
 		try {
-			email = email.toBuilder().sender(property.getSpring_mail_username()).build();
-			email.setSender(property.getSpring_mail_username());
+			email = email.toBuilder().sender(property.getSpring_mail_host()).build();
+			email.setSender(email.getSender());
 			MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 			mimeMessageHelper.setFrom(email.getSender()); // must match sender

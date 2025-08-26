@@ -23,24 +23,6 @@ jobs:
         distribution: 'temurin'        # Uses Eclipse Temurin JDK
         java-version: '21'             # Set your desired Java version here
 
-    - name: Start Keycloak on port 8888
-      run: |
-        docker run -d \
-          -p 8888:8080 \
-          -e KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN }} \
-          -e KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }} \
-          --name keycloak \
-          quay.io/keycloak/keycloak:24.0 \
-          start-dev --http-port=8080 --hostname-strict=false
-
-    - name: Wait for Keycloak to be ready
-      run: |
-        echo "Waiting for Keycloak..."
-        until curl -s http://localhost:8888/realms/spring; do
-          sleep 2
-        done
-        echo "Keycloak is up!"
-
     - name: Set UAT Environment Variables # Get secret stored in github repo & set into application yml
       run: |
         echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> $GITHUB_ENV
