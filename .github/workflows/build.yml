@@ -74,3 +74,21 @@ jobs:
 
     - name: Install GitHub CLI
       run: sudo apt-get install gh -y # Installs GitHub CLI to interact with GitHub programmatically
+  deploy:
+    needs: build               # 👉 This ensures 'deploy' only runs AFTER the 'build' job finishes successfully
+    runs-on: ubuntu-latest     # 👉 GitHub provides a fresh Ubuntu VM for this job
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # 👉 Pulls the repository into the runner so flyctl can see Dockerfile + fly.toml
+
+      - name: Set up Fly.io
+        uses: superfly/flyctl-actions/setup-flyctl@master
+        # 👉 Installs the Fly.io CLI (flyctl) into the runner
+        #    Needed to run 'flyctl deploy' command
+
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

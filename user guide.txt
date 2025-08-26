@@ -32,3 +32,14 @@ Github CI/CD:
 Command to import public cert into cacerts:
 1. Open cmd as admin & cd the path to <Java installation path>>\bin
 2. keytool -importcert -trustcacerts -alias <alias name for source file> -file <source file path> -keystore <cacerts path>
+
+Deploy app to fly.io:
+# Install Flyctl
+powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
+# Verify installation
+flyctl version
+# Authenticate with your Fly.io account
+flyctl auth login
+# Create a new app (replace name & region as needed)
+flyctl launch --name springboot-app --region sin --no-deploy
+#It will generate fly.toml config in repo root. Then, commit to git.

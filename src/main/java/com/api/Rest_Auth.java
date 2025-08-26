@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -128,7 +129,7 @@ public class Rest_Auth {
 	}
 	
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
-	@PostMapping(value = "v1/auth/maintenance", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
+	@PutMapping(value = "v1/auth/maintenance", consumes = {"application/json; charset=UTF-8"}, produces = "application/json; charset=UTF-8")
 	@JsonView({User.Update.class})//Which getter parameter should return within json
 	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
 	@Validated({User.Update.class}) 

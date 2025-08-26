@@ -44,7 +44,7 @@ public class RateLimitProperties {
 				.refillGreedy(5, Duration.ofSeconds(5))//Every nth seconds, instantly add nth tokens back
 				.build());   
 		limits.put("/v1/request-jwt", Bandwidth.builder()
-				.capacity(9999999)//maximum number of tokens (or requests) allowed in the bucket
+				.capacity(999)//maximum number of tokens (or requests) allowed in the bucket
 				.refillGreedy(100, Duration.ofSeconds(5))//Every nth seconds, instantly add nth tokens back
 				.build());    
 	}
