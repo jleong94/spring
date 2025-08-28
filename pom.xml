@@ -222,6 +222,14 @@
 		</dependency>
 		<!-- Mail -->
 		
+		<!-- Firebase Admin -->
+		<dependency>
+		    <groupId>com.google.firebase</groupId>
+		    <artifactId>firebase-admin</artifactId>
+		    <version>9.5.0</version>
+		</dependency>
+		<!-- Firebase Admin -->
+		
 		<!-- SSHJ(SSH2 & SFTP operation) -->
 		<dependency>
 		    <groupId>com.hierynomus</groupId>
