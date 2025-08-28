@@ -110,3 +110,5 @@ management: #Spring actuator
   health:
     mail:
       enabled: false
+fcm:
+  credentialsClasspathPath: "security/firebase/firebase-service-account.json"

@@ -35,6 +35,7 @@ jobs:
         echo "KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }}" >> $GITHUB_ENV
         echo "KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN }}" >> $GITHUB_ENV
         echo "KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" >> $GITHUB_ENV
+        echo "${{ secrets.FIREBASE_CREDENTIALS_JSON }}" > src/main/resources/security/firebase/firebase-service-account.json
 
     - name: Build with Maven
       run: mvn clean package  # Builds the JAR file
