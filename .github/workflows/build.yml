@@ -79,6 +79,7 @@ jobs:
     - name: Install GitHub CLI
       run: sudo apt-get install gh -y # Installs GitHub CLI to interact with GitHub programmatically
   deploy:
+    if: github.ref_name == 'main' || github.ref_name == 'master' # Only run this job if the branch is main or master
     needs: build               # 👉 This ensures 'deploy' only runs AFTER the 'build' job finishes successfully
     runs-on: ubuntu-latest     # 👉 GitHub provides a fresh Ubuntu VM for this job
 
