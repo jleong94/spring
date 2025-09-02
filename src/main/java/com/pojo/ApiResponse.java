@@ -37,4 +37,8 @@ public class ApiResponse {
 	@JsonProperty(value= "jwt", access = Access.READ_ONLY)
 	@JsonView({})
 	private Jwt jwt;
+	
+	@JsonProperty(value= "fcm", access = Access.READ_ONLY)
+	@JsonView({})
+	private com.pojo.firebase.fcm.Message message;
 }
