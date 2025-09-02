@@ -17,17 +17,33 @@ import com.utilities.Tool;
 
 @Service
 public class FirebaseService {
-	
+
 	@Autowired
 	Tool tool;
-	
+
+	/**
+	 * Builds an APNs configuration object for iOS notifications.
+	 *
+	 * <p>This config enables "rich media" notifications on iOS by setting
+	 * `mutable-content: 1`, which allows the client-side app extension
+	 * to process and render additional content such as images.</p>
+	 *
+	 * @param imageUrl Optional URL pointing to an image to be included
+	 *                 in the notification payload (handled by iOS client).
+	 * @return A fully built {@link ApnsConfig} instance.
+	 */
 	private ApnsConfig buildApnsConfig(String imageUrl) {
-		// For rich media on iOS you typically set "mutable-content":1 and provide image in payload (client renders)
+		// Base APS payload for iOS
+		// - "sound: default" => plays default iOS notification sound
+		// - "mutable-content: 1" => allows notification service extension to intercept/modify payload
 		Aps aps = Aps.builder()
 				.setSound("default")
 				.setMutableContent(true)
 				.build();
 
+		// Create APNs configuration builder with standard headers:
+		// - apns-priority: 10 => send immediately (use 5 for background updates)
+		// - apns-push-type: alert => required header for alert notifications
 		ApnsConfig.Builder builder = ApnsConfig.builder()
 				.setAps(aps)
 				.putHeader("apns-priority", "10")
@@ -41,26 +57,52 @@ public class FirebaseService {
 		}
 		return builder.build();
 	}
-	
+
+	/**
+	 * Builds an Android-specific FCM notification configuration.
+	 *
+	 * <p>This config allows you to customize how notifications behave on Android devices,
+	 * including rich media (images) and deep link navigation when the notification is tapped.</p>
+	 *
+	 * @param imageUrl     Optional image URL to display in the notification
+	 *                     (supported on Android 8.0+ with NotificationCompat or system UI).
+	 * @param clickAction  Optional action string that maps to an Activity intent filter
+	 *                     or deep link (used when the user taps the notification).
+	 * @return A fully built {@link AndroidConfig} instance with high-priority delivery.
+	 */
 	private AndroidConfig buildAndroidConfig(String imageUrl, String clickAction) {
+		// Create a builder for the Android notification payload.
+		// This is separate from the "data" payload; it controls how
+		// the system UI renders the notification.
 		AndroidNotification.Builder androidNotif = AndroidNotification.builder();
+		// If an image URL is provided, attach it to the notification.
+		// The Android system UI will render it as a large picture (if supported).
 		if (imageUrl != null && !imageUrl.isBlank()) {
 			androidNotif.setImage(imageUrl);
 		}
+		// If a click action is provided, set it on the notification.
+		// - This should match an intent filter in your AndroidManifest.xml,
+		//   or a deep link URI that your app can handle.
+		// - When the user taps the notification, Android launches the activity
+		//   associated with this action.
 		if (clickAction != null && !clickAction.isBlank()) {
 			androidNotif.setClickAction(clickAction); // e.g. activity intent action or deep link
 		}
+		// Build the AndroidConfig object:
+		// - Priority.HIGH ensures the notification is delivered immediately
+		//   (may wake up the device; useful for time-sensitive alerts).
+		// - Attach the customized AndroidNotification payload.
 		return AndroidConfig.builder()
 				.setPriority(AndroidConfig.Priority.HIGH)
 				.setNotification(androidNotif.build())
 				.build();
 	}
-	
-	private Map<String, String> safeData(Map<String, String> data) {
-        return data == null ? Map.of() : data;
-    }
 
-	public ApiResponse send(Logger log, com.pojo.firebase.fcm.Message message) throws Exception {
+	private Map<String, String> safeData(Map<String, String> data) {
+		return data == null ? Map.of() : data;
+	}
+
+	public ApiResponse sendTokenBasedPushNotification(Logger log, com.pojo.firebase.fcm.Message message) throws Exception {
 		try {
 			MulticastMessage.Builder builder = MulticastMessage.builder().addAllTokens(message.getToken());
 
@@ -79,13 +121,17 @@ public class FirebaseService {
 
 			BatchResponse batchResponse = FirebaseMessaging.getInstance().sendEachForMulticast(builder.build());
 			List<Map<String, Object>> resp_data = Collections.synchronizedList(new ArrayList<>());
-			for (SendResponse sendResponse : batchResponse.getResponses()) {
-				resp_data.add(Map.of(
-						"resp_code", sendResponse.isSuccessful() ? ResponseCode.SUCCESS.getResponse_code() : ResponseCode.FAILED.getResponse_code(),
-								"resp_msg", sendResponse.isSuccessful() ? ResponseCode.SUCCESS.getResponse_desc() : sendResponse.getException().getMessage(),
-										"messageId", sendResponse.getMessageId()
-						));
-			}
+			batchResponse.getResponses().forEach(sendResponse -> 
+			resp_data.add(Map.of(
+					"resp_code", sendResponse.isSuccessful() 
+					? ResponseCode.SUCCESS.getResponse_code() 
+							: ResponseCode.FAILED.getResponse_code(),
+							"resp_msg", sendResponse.isSuccessful() 
+							? ResponseCode.SUCCESS.getResponse_desc() 
+									: sendResponse.getException().getMessage(),
+									"messageId", sendResponse.getMessageId()
+					))
+					);
 			message = message.toBuilder().resp_data(resp_data)
 					.success_count(batchResponse.getSuccessCount())
 					.fail_count(batchResponse.getFailureCount())

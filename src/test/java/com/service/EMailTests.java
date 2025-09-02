@@ -20,6 +20,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.UUID;
+
+import org.jboss.logging.MDC;
+
 import lombok.extern.slf4j.Slf4j;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -37,6 +41,8 @@ public class EMailTests {
 	@Test
 	@Order(1)
 	void testSendEmail() throws Exception {
+		MDC.put("mdcId", UUID.randomUUID());
+		log.info("-Test send email start-");
 		try {
 			// stub createMimeMessage to return a usable object
 		    when(mailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
@@ -68,6 +74,9 @@ public class EMailTests {
 				}
 			}
 			throw e;
+		} finally {
+			log.info("-Test send email end-");
+			MDC.clear();
 		}
 	}
 }

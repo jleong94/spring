@@ -484,7 +484,7 @@ public class KeycloakService {
 						.search(user.getUsername(), true);
 				userRepresentation = userRepresentations.get(0);
 			} else {userRepresentation = keycloak.realm(property.getKeycloak_realm()).users().get(user.getId()).toRepresentation();}
-			List<String> actions = Arrays.asList("rate_limit_write", "user_maintenance_write", "query_user_read");
+			List<String> actions = Arrays.asList("rate_limit_write", "user_maintenance_write", "query_user_read", "fcm_write");
 			List<RoleRepresentation> roleRepresentations = new ArrayList<>();
 			for(String action : actions) {
 				try {

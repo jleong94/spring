@@ -101,6 +101,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 						.requestMatchers(HttpMethod.POST, "/v1/rate-limits/update").hasAnyAuthority("SCOPE_superadmin_rate_limit_write")
 						.requestMatchers(HttpMethod.PUT, "/v1/auth/maintenance").hasAnyAuthority("SCOPE_superadmin_user_maintenance_write", "SCOPE_user_user_maintenance_write")
 						.requestMatchers(HttpMethod.GET, "/v1/auth/check/**").hasAnyAuthority("SCOPE_superadmin_query_user_read", "SCOPE_user_query_user_read")
+						.requestMatchers(HttpMethod.POST, "/v1/send/token-based/notification").hasAnyAuthority("SCOPE_superadmin_fcm_write", "SCOPE_user_fcm_write")
 						.anyRequest().permitAll() // All other endpoints are publicly accessible
 						)
 				// Configure OAuth2 resource server to validate JWT tokens
