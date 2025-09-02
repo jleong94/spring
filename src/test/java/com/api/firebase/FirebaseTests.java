@@ -51,9 +51,9 @@ public class FirebaseTests {
 					.build();
 			// 🔹 Perform POST request and assert 200 OK
 			mockMvc.perform(post("/v1/send/token-based/notification")
-					.with(jwt().authorities(
-							new SimpleGrantedAuthority("SCOPE_superadmin_fcm_write")
-							)) // ✅ injects mock JWT with the right authority
+					.with(jwt().jwt(jwt -> jwt
+							.claim("scope", "superadmin_fcm_write") // simulate Keycloak "scope"
+							).authorities(new SimpleGrantedAuthority("SCOPE_superadmin_fcm_write"))) // ✅ injects mock JWT with the right authority
 					.header("mdcId", "test-mdc-123")
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(message)))

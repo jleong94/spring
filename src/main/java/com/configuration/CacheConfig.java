@@ -30,27 +30,33 @@ public class CacheConfig {
 		// Get the default caching provider (e.g., Ehcache, Hazelcast, etc.)
 		CachingProvider provider = Caching.getCachingProvider();
 		CacheManager cacheManager = provider.getCacheManager();
-        
-        MutableConfiguration<String, CustomBucket> customBucketConfig = new MutableConfiguration<String, CustomBucket>()
-        		.setTypes(String.class, CustomBucket.class) // enforce proper types
-                .setStoreByValue(false)// Store references instead of copying the Bucket object
-                .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))// TTL per entry
-                .setStatisticsEnabled(true);// Enable cache hit/miss statistics
-        cacheManager.createCache("buckets", customBucketConfig);
-		
+
+		MutableConfiguration<String, CustomBucket> customBucketConfig = new MutableConfiguration<String, CustomBucket>()
+				.setTypes(String.class, CustomBucket.class) // enforce proper types
+				.setStoreByValue(false)// Store references instead of copying the Bucket object
+				.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))// TTL per entry
+				.setStatisticsEnabled(true);// Enable cache hit/miss statistics
+		if (cacheManager.getCache("buckets") == null) {
+			cacheManager.createCache("buckets", customBucketConfig);
+		}
+
 		CaffeineConfiguration<Object, Object> keycloakAccessTokenCacheConfig = new CaffeineConfiguration<>();
 		keycloakAccessTokenCacheConfig.setTypes(Object.class, Object.class);
 		keycloakAccessTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.SECONDS.toNanos(10)));
-        keycloakAccessTokenCacheConfig.setMaximumSize(OptionalLong.of(100L));
-        cacheManager.createCache("keycloak-access-token", keycloakAccessTokenCacheConfig);
-        
-        CaffeineConfiguration<Object, Object> keycloakRefreshTokenCacheConfig = new CaffeineConfiguration<>();
-        keycloakRefreshTokenCacheConfig.setTypes(Object.class, Object.class);
-        keycloakRefreshTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.DAYS.toNanos(1)));
-        keycloakRefreshTokenCacheConfig.setMaximumSize(OptionalLong.of(100L));
-        cacheManager.createCache("keycloak-refresh-token", keycloakRefreshTokenCacheConfig);
-		
-        return cacheManager;
+		keycloakAccessTokenCacheConfig.setMaximumSize(OptionalLong.of(100L));
+		if (cacheManager.getCache("keycloak-access-token") == null) {
+			cacheManager.createCache("keycloak-access-token", keycloakAccessTokenCacheConfig);
+		}
+
+		CaffeineConfiguration<Object, Object> keycloakRefreshTokenCacheConfig = new CaffeineConfiguration<>();
+		keycloakRefreshTokenCacheConfig.setTypes(Object.class, Object.class);
+		keycloakRefreshTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.DAYS.toNanos(1)));
+		keycloakRefreshTokenCacheConfig.setMaximumSize(OptionalLong.of(100L));
+		if (cacheManager.getCache("keycloak-refresh-token") == null) {
+			cacheManager.createCache("keycloak-refresh-token", keycloakRefreshTokenCacheConfig);
+		}
+
+		return cacheManager;
 	}
 	
 	/**
