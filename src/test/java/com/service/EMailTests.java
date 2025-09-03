@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mock;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.MethodOrderer;
@@ -30,10 +30,10 @@ import lombok.extern.slf4j.Slf4j;
 @ExtendWith(MockitoExtension.class)
 public class EMailTests {
 	
-	@Autowired
+	@InjectMocks
 	EMailService eMailService;
 	
-	@InjectMocks
+	@Mock
 	private JavaMailSender mailSender;
 
 	@Test
