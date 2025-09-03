@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import com.modal.EMail;
 import com.pojo.Property;
@@ -44,6 +45,11 @@ public class EMailTests {
 	
 	@Mock
 	private JavaMailSender mailSender;
+	
+	@BeforeEach
+	void setup() {
+	    when(property.getSpring_mail_host()).thenReturn(null);
+	}
 
 	@Test
 	@Transactional
