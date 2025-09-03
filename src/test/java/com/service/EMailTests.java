@@ -10,6 +10,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.MethodOrderer;
 import com.modal.EMail;
+import com.repo.EMailRepo;
+
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,6 +34,9 @@ public class EMailTests {
 	
 	@InjectMocks
 	EMailService eMailService;
+	
+	@Mock
+    private EMailRepo emailRepo;
 	
 	@Mock
 	private JavaMailSender mailSender;
