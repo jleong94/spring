@@ -18,7 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.retry.annotation.Backoff;
 
-import com.pojo.template.SampleRecord;
+import com.pojo.template.Pojo;
 import com.service.template.SampleThreadService;
 import com.utilities.Tool;
 
@@ -101,7 +101,7 @@ public class Scheduler {
         MDC.put("mdcId", mdcId);
         log.info("Sample task 2 start.");
 		try {
-			Deque<SampleRecord> deque = sampleThreadService.addDummyRecord(1000);
+			Deque<Pojo> deque = sampleThreadService.addDummyRecord(1000);
 			for(int i = 0; i < 2; i++) {
 				sampleThreadService.processRecords(mdcId, (i + 1), deque);
 			}

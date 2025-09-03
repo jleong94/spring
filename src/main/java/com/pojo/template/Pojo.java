@@ -1,11 +1,12 @@
 package com.pojo.template;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -27,6 +28,11 @@ public class Pojo {
 	public class PojoPut {}
 	public class PojoDelete {}
 	
+	@NotBlank(groups = {PojoPut.class}, message = "ID is blank.")
+	@JsonProperty(value= "id", access = Access.READ_WRITE)
+	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
+	private int id;
+	
 	@NotBlank(groups = {PojoPost.class}, message = "Name is blank.")
 	@JsonProperty(value= "name", access = Access.READ_WRITE)
 	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
@@ -41,7 +47,12 @@ public class Pojo {
 	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
 	private String dateOfBirth;
 	
-	@JsonProperty(value= "dateOfBirth", access = Access.READ_WRITE)
+	@JsonProperty(value= "password", access = Access.READ_WRITE)
 	@JsonView({Pojo.PojoGet.class})
 	private String password;
+	
+	@DecimalMin(groups = {PojoPost.class, PojoPut.class}, value = "0.00", inclusive = true, message = "Account balance must be larger or equal to 0.00")
+	@JsonProperty(value= "account_balance", access = Access.READ_WRITE)
+	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
+	private BigDecimal account_balance;
 }

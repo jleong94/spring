@@ -1,7 +1,6 @@
 package com.service.template;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Deque;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -10,7 +9,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.jboss.logging.MDC;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import com.pojo.template.SampleRecord;
+
+import com.github.javafaker.Faker;
+import com.pojo.template.Pojo;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,16 +19,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SampleThreadService {
 	
+	private static final Faker faker = new Faker();
+	
 	@Async
-	public void processRecords(UUID mdcId, int thread_nno, Deque<SampleRecord> deque) {
+	public void processRecords(UUID mdcId, int thread_nno, Deque<Pojo> deque) {
 		MDC.put("mdcId", mdcId);
 		log.info("Process dummy record at thread no. " + thread_nno + " start.");
 		try {
-			SampleRecord sampleRecord;
-			while ((sampleRecord = deque.pollLast()) != null) {
-				log.info("Row no: " + sampleRecord.getRow_no());
-				log.info("Txn id: " + sampleRecord.getTxn_id());
-				log.info("Txn amount: " + sampleRecord.getTxn_amount());
+			Pojo pojo;
+			while ((pojo = deque.pollLast()) != null) {
+				log.info("ID: " + pojo.getId());
+				log.info("name: " + pojo.getName());
+				log.info("Acc balance: " + pojo.getAccount_balance());
 				
 			}
 		} catch(Exception e) {
@@ -50,14 +53,13 @@ public class SampleThreadService {
 		}
 	}
 	
-	public Deque<SampleRecord> addDummyRecord(int count) {
-		Deque<SampleRecord> result = new ConcurrentLinkedDeque<>();
-		double randomDouble = ThreadLocalRandom.current().nextDouble(0.00, 9999999.99);
+	public Deque<Pojo> addDummyRecord(int count) {
+		Deque<Pojo> result = new ConcurrentLinkedDeque<>();
         for (int i = 1; i <= count; i++) {
-        	result.addLast(SampleRecord.builder()
-            		.row_no(i)
-            		.txn_id(UUID.randomUUID().toString())
-            		.txn_amount(new BigDecimal(randomDouble).setScale(2, RoundingMode.HALF_UP))
+        	result.addLast(Pojo.builder()
+            		.id(i)
+            		.name(faker.name().fullName())
+            		.account_balance(BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble(0, 999)))
             		.build());
         }
         return result;
