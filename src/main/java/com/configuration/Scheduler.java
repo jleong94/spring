@@ -16,7 +16,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.retry.annotation.Backoff;
 
 import com.pojo.template.SampleRecord;
@@ -55,7 +54,6 @@ public class Scheduler {
         )
 	@Scheduled(cron = "*/5 * * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler
-	@Transactional
 	public void sampleTask() throws Exception {
         MDC.put("mdcId", UUID.randomUUID());
 		try {
@@ -98,7 +96,6 @@ public class Scheduler {
         )
 	@Scheduled(cron = "*/10 * * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler
-	@Transactional
 	public void sampleTask2() throws Exception {
 		UUID mdcId = UUID.randomUUID();
         MDC.put("mdcId", mdcId);
