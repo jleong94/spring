@@ -1,4 +1,4 @@
-/*
+
 package com.api.firebase;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
-@SpringBootTest
+@WebMvcTest(Rest_Firebase.class)   // ✅ only loads this controller + MVC infra
 @AutoConfigureMockMvc
 public class FirebaseTests {
 
@@ -80,4 +80,3 @@ public class FirebaseTests {
 		}
 	}
 }
-*/
