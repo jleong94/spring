@@ -3,11 +3,8 @@ package com.pojo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.pojo.template.Pojo;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.pojo.keycloak.User;
-import com.pojo.keycloak.User.Create;
-import com.pojo.keycloak.User.Select;
-import com.pojo.keycloak.User.Update;
 
 import lombok.*;
 
@@ -19,26 +16,18 @@ import lombok.*;
 public class ApiResponse {
 
 	@JsonProperty(value= "resp_code", access = Access.READ_ONLY)
-	@JsonView({Create.class, Update.class, Select.class})
+	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class, Pojo.PojoDelete.class})
 	private int resp_code;
 
 	@JsonProperty(value= "resp_msg", access = Access.READ_ONLY)
-	@JsonView({Create.class, Update.class, Select.class})
+	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class, Pojo.PojoDelete.class})
 	private String resp_msg;
 
 	@JsonProperty(value= "datetime", access = Access.READ_ONLY)
-	@JsonView({Create.class, Update.class, Select.class})
+	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class, Pojo.PojoDelete.class})
 	private String datetime;
-
-	@JsonProperty(value= "user", access = Access.READ_ONLY)
-	@JsonView({Create.class, Update.class, Select.class})
-	private User user;
-
-	@JsonProperty(value= "jwt", access = Access.READ_ONLY)
-	@JsonView({})
-	private Jwt jwt;
 	
-	@JsonProperty(value= "fcm", access = Access.READ_ONLY)
-	@JsonView({})
-	private com.pojo.firebase.fcm.Message message;
+	@JsonProperty(value= "pojo", access = Access.READ_ONLY)
+	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class, Pojo.PojoDelete.class})
+	private Pojo pojo;
 }

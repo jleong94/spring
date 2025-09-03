@@ -88,12 +88,6 @@ rate:
     period: 60
 allowed:
   origins: localhost:8080
-keycloak:
-  base_url: http://localhost:65535
-  realm: spring
-  client-id: ${KEYCLOAK_CLIENT_ID}
-  username: ${KEYCLOAK_ADMIN}
-  password: ${KEYCLOAK_ADMIN_PASSWORD}
 management: #Spring actuator
   endpoints:
     web:

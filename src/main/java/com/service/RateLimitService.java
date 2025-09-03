@@ -199,27 +199,4 @@ public class RateLimitService {
 			throw e;
 		}
 	}
-	
-	/**
-	 * Updates the rate limit bucket for a given key. 
-	 * If a bucket already exists, its bandwidth configuration is updated. 
-	 * If not, a new bucket is created and added to the cache.
-	 *
-	 * @param key       Unique identifier for the bucket (e.g., userId, IP address).
-	 * @param path      API path or resource identifier (not used in this implementation).
-	 * @param bandwidth The new bandwidth/limit configuration to apply.
-	 * @return true if the operation succeeds (always returns true as bucket is updated or created).
-	 */
-	public boolean updateBucketLimit(String key, String path, Bandwidth bandwidth) {
-        CustomBucket bucket = cache.get(key);
-        if (bucket != null) {
-            bucket.updateBandwidth(bandwidth); 
-            return true;
-        } else {
-            // create if not exist
-            bucket = new CustomBucket(bandwidth);
-            cache.put(key, bucket);
-            return true;
-        }
-    }
 }

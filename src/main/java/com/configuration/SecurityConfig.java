@@ -9,13 +9,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtValidators;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -27,8 +20,6 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 
 import com.exception.UnauthenticatedAccessException;
 import com.pojo.Property;
-
-import jakarta.ws.rs.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 
 /*
@@ -98,35 +89,11 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.addFilterBefore(customOncePerRequestFilter, BasicAuthenticationFilter.class)
 				// Secure endpoint access rules
 				.authorizeHttpRequests((requests) -> requests
-						.requestMatchers(HttpMethod.POST, "/v1/rate-limits/update").hasAnyAuthority("SCOPE_superadmin_rate_limit_write")
-						.requestMatchers(HttpMethod.PUT, "/v1/auth/maintenance").hasAnyAuthority("SCOPE_superadmin_user_maintenance_write", "SCOPE_user_user_maintenance_write")
-						.requestMatchers(HttpMethod.GET, "/v1/auth/check/**").hasAnyAuthority("SCOPE_superadmin_query_user_read", "SCOPE_user_query_user_read")
-						.requestMatchers(HttpMethod.POST, "/v1/send/token-based/notification").hasAnyAuthority("SCOPE_superadmin_fcm_write", "SCOPE_user_fcm_write")
+						//.requestMatchers(HttpMethod.POST, "<endpoint - example, /v1/test>").hasAnyAuthority("SCOPE_<user type>_<action>_<permission: read/write>")
 						.anyRequest().permitAll() // All other endpoints are publicly accessible
 						)
-				// Configure OAuth2 resource server to validate JWT tokens
-				.oauth2ResourceServer(oauth -> oauth.jwt(jwt -> 
-				jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()) // Customize authentication conversion
-						))
 				.build();// Return the built filter chain
 	}
-	
-	/**
-	 * Configures a custom JwtAuthenticationConverter bean for Spring Security.
-	 *
-	 * This converter is responsible for translating JWT claims into Spring Security
-	 * GrantedAuthorities, which are later used for authorization decisions.
-	 */
-	@Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter() {
-		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-		jwtGrantedAuthoritiesConverter.setAuthorityPrefix("SCOPE_"); // Needed for hasAuthority("SCOPE_xxx")
-		jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("scope");
-		
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
-    }
 
 	/**
      * Defines global CORS configuration.
@@ -155,21 +122,4 @@ public class SecurityConfig implements WebMvcConfigurer {
         registry.addInterceptor(customHandlerInterceptor)
                 .addPathPatterns("/**"); // Customize your target paths
     }
-	
-	/**
-     * Configures the JWT decoder with a JWK Set URI and issuer validation.
-     * - Retrieves public keys from Keycloak to verify tokens.
-     * - Validates that the token was issued by the expected realm.
-     */
-	@Bean
-	JwtDecoder jwtDecoder() {
-		// Construct the JWK set URI: <base-url>/realms/<realm>/protocol/openid-connect/certs
-		String jwkSetUri = property.getKeycloak_base_url().concat("/realms/").concat(property.getKeycloak_realm()).concat("/protocol/openid-connect/certs");
-		// Build decoder that uses public keys from Keycloak
-		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
-		// Validate the token issuer (Keycloak realm)
-		OAuth2TokenValidator<Jwt> withIssuer = JwtValidators.createDefaultWithIssuer(property.getKeycloak_base_url().concat("/realms/").concat(property.getKeycloak_realm()));
-		jwtDecoder.setJwtValidator(withIssuer);
-		return jwtDecoder;
-	}
 }

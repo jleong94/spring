@@ -6,7 +6,8 @@ import java.util.List;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class CustomTypeValidator implements ConstraintValidator<CustomType, String> {
+// Second param can put primitive or object
+public class CustomTypeValidator implements ConstraintValidator<CustomType, Object> {
 
 	private final List<String> customTypes = Arrays.asList("test 1", "test 2");
 	
@@ -16,9 +17,10 @@ public class CustomTypeValidator implements ConstraintValidator<CustomType, Stri
     }
 	
 	@Override
-	public boolean isValid(String value, ConstraintValidatorContext context) {
+	// First param can put primitive or object
+	public boolean isValid(Object value, ConstraintValidatorContext context) {
 		// TODO Auto-generated method stub
-		return value == null || value.isBlank() || customTypes.contains(value);
+		return value == null || value.toString().isBlank() || customTypes.contains(value);
 	}
 
 }

@@ -2,13 +2,7 @@ package com.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.github.benmanes.caffeine.jcache.configuration.CaffeineConfiguration;
 import com.pojo.bucket4j.CustomBucket;
-
-import java.util.OptionalLong;
-import java.util.concurrent.TimeUnit;
-
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
@@ -38,22 +32,6 @@ public class CacheConfig {
 				.setStatisticsEnabled(true);// Enable cache hit/miss statistics
 		if (cacheManager.getCache("buckets") == null) {
 			cacheManager.createCache("buckets", customBucketConfig);
-		}
-
-		CaffeineConfiguration<Object, Object> keycloakAccessTokenCacheConfig = new CaffeineConfiguration<>();
-		keycloakAccessTokenCacheConfig.setTypes(Object.class, Object.class);
-		keycloakAccessTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.SECONDS.toNanos(10)));
-		keycloakAccessTokenCacheConfig.setMaximumSize(OptionalLong.of(100L));
-		if (cacheManager.getCache("keycloak-access-token") == null) {
-			cacheManager.createCache("keycloak-access-token", keycloakAccessTokenCacheConfig);
-		}
-
-		CaffeineConfiguration<Object, Object> keycloakRefreshTokenCacheConfig = new CaffeineConfiguration<>();
-		keycloakRefreshTokenCacheConfig.setTypes(Object.class, Object.class);
-		keycloakRefreshTokenCacheConfig.setExpireAfterWrite(OptionalLong.of(TimeUnit.DAYS.toNanos(1)));
-		keycloakRefreshTokenCacheConfig.setMaximumSize(OptionalLong.of(100L));
-		if (cacheManager.getCache("keycloak-refresh-token") == null) {
-			cacheManager.createCache("keycloak-refresh-token", keycloakRefreshTokenCacheConfig);
 		}
 
 		return cacheManager;

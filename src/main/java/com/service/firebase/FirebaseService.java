@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import com.enums.ResponseCode;
 import com.google.firebase.messaging.*;
-import com.pojo.ApiResponse;
 import com.utilities.Tool;
 
 @Service
@@ -102,7 +101,7 @@ public class FirebaseService {
 		return data == null ? Map.of() : data;
 	}
 
-	public ApiResponse sendTokenBasedPushNotification(Logger log, com.pojo.firebase.fcm.Message message) throws Exception {
+	public com.pojo.firebase.fcm.Message sendTokenBasedPushNotification(Logger log, com.pojo.firebase.fcm.Message message) throws Exception {
 		try {
 			MulticastMessage.Builder builder = MulticastMessage.builder().addAllTokens(message.getToken());
 
@@ -132,16 +131,9 @@ public class FirebaseService {
 									"messageId", sendResponse.getMessageId()
 					))
 					);
-			message = message.toBuilder().resp_data(resp_data)
+			return message.toBuilder().resp_data(resp_data)
 					.success_count(batchResponse.getSuccessCount())
 					.fail_count(batchResponse.getFailureCount())
-					.build();
-			return ApiResponse
-					.builder()
-					.resp_code(ResponseCode.SUCCESS.getResponse_code())
-					.resp_msg(ResponseCode.SUCCESS.getResponse_desc())
-					.datetime(tool.getTodayDateTimeInString())
-					.message(message)
 					.build();
 		} catch (Exception e) {
 			// Get the current stack trace element

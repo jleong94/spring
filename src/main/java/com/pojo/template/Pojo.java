@@ -1,0 +1,47 @@
+package com.pojo.template;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import jakarta.validation.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
+@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
+@NoArgsConstructor//Generates a constructor with no parameters
+@Builder(toBuilder = true)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public class Pojo {
+
+	public class PojoPost {}
+	public class PojoGet {}
+	public class PojoPut {}
+	public class PojoDelete {}
+	
+	@NotBlank(groups = {PojoPost.class}, message = "Name is blank.")
+	@JsonProperty(value= "name", access = Access.READ_WRITE)
+	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
+	private String name;
+	
+	@NotBlank(groups = {PojoPost.class, PojoPut.class}, message = "IC is blank.")
+	@JsonProperty(value= "ic", access = Access.READ_WRITE)
+	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
+	private String ic;
+	
+	@JsonProperty(value= "dateOfBirth", access = Access.READ_WRITE)
+	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
+	private String dateOfBirth;
+	
+	@JsonProperty(value= "dateOfBirth", access = Access.READ_WRITE)
+	@JsonView({Pojo.PojoGet.class})
+	private String password;
+}

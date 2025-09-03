@@ -25,31 +25,6 @@
     "description": "A description for 'allowed.origins'"
   },
   {
-    "name": "keycloak.base_url",
-    "type": "java.lang.String",
-    "description": "A description for 'keycloak.base_url'"
-  },
-  {
-    "name": "keycloak.realm",
-    "type": "java.lang.String",
-    "description": "A description for 'keycloak.realm'"
-  },
-  {
-    "name": "keycloak.client-id",
-    "type": "java.lang.String",
-    "description": "A description for 'keycloak.client-id'"
-  },
-  {
-    "name": "keycloak.username",
-    "type": "java.lang.String",
-    "description": "A description for 'keycloak.username'"
-  },
-  {
-    "name": "keycloak.password",
-    "type": "java.lang.String",
-    "description": "A description for 'keycloak.password'"
-  },
-  {
     "name": "fcm.credentials-classpath-path",
     "type": "java.lang.String",
     "description": "A description for 'fcm.credentials-classpath-path'"
