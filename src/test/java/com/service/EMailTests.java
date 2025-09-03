@@ -10,6 +10,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.MethodOrderer;
 import com.modal.EMail;
+import com.pojo.Property;
 import com.repo.EMailRepo;
 
 import jakarta.mail.Session;
@@ -37,6 +38,9 @@ public class EMailTests {
 	
 	@Mock
     private EMailRepo emailRepo;
+	
+	@Mock
+    private Property property;
 	
 	@Mock
 	private JavaMailSender mailSender;
