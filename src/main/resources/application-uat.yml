@@ -62,7 +62,7 @@ spring: #DB Config(Git will auto build using the details config in repository se
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
     show-sql: true
-  batch: #Disable spring batch on startup
+  batch: #Batch job enablement config
     job:
       enabled: false
   mail:

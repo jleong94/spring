@@ -3,16 +3,16 @@ package com.service;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.MethodOrderer;
 import com.modal.EMail;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
-
+import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -27,13 +27,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class EMailTests {
 	
 	@Autowired
 	EMailService eMailService;
 	
-	@MockitoBean
+	@InjectMocks
 	private JavaMailSender mailSender;
 
 	@Test
