@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
-@Transactional
 @SpringBootTest
 public class EMailTests {
 	
@@ -39,6 +38,7 @@ public class EMailTests {
 	private JavaMailSender mailSender;
 
 	@Test
+	@Transactional
 	@Order(1)
 	void testSendEmail() throws Exception {
 		MDC.put("mdcId", UUID.randomUUID());

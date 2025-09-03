@@ -16,6 +16,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.retry.annotation.Backoff;
 
 import com.pojo.template.SampleRecord;
@@ -53,8 +54,9 @@ public class Scheduler {
             backoff = @Backoff(delay = 1000, multiplier = 2)
         )
 	@Scheduled(cron = "*/5 * * * * *", zone = "Asia/Kuala_Lumpur")
-	@Async//Run on separate thread, non-blocking the scheduler 
-	public void sampleTask() {
+	@Async//Run on separate thread, non-blocking the scheduler
+	@Transactional
+	public void sampleTask() throws Exception {
         MDC.put("mdcId", UUID.randomUUID());
 		try {
         	JobParameters parameters = new JobParametersBuilder()
@@ -75,6 +77,7 @@ public class Scheduler {
 					break;
 				}
 			}
+			throw e;
         } finally{
         	MDC.clear();
         }
@@ -94,8 +97,9 @@ public class Scheduler {
             backoff = @Backoff(delay = 1000, multiplier = 2)
         )
 	@Scheduled(cron = "*/10 * * * * *", zone = "Asia/Kuala_Lumpur")
-	@Async//Run on separate thread, non-blocking the scheduler  
-	public void sampleTask2() {
+	@Async//Run on separate thread, non-blocking the scheduler
+	@Transactional
+	public void sampleTask2() throws Exception {
 		UUID mdcId = UUID.randomUUID();
         MDC.put("mdcId", mdcId);
         log.info("Sample task 2 start.");
@@ -119,6 +123,7 @@ public class Scheduler {
 					break;
 				}
 			}
+			throw e;
         } finally{
             log.info("Sample task 2 end.");
         	MDC.clear();
