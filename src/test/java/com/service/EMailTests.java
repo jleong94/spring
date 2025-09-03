@@ -4,15 +4,14 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import com.modal.EMail;
 import com.pojo.Property;
-import com.repo.EMailRepo;
 
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
@@ -32,24 +31,14 @@ import lombok.extern.slf4j.Slf4j;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
 @ExtendWith(MockitoExtension.class)
+@ContextConfiguration(classes = {EMailService.class, Property.class})
 public class EMailTests {
 	
-	@InjectMocks
+	@Autowired
 	EMailService eMailService;
 	
-	@Mock
-    private EMailRepo emailRepo;
-	
-	@Mock
-    private Property property;
-	
-	@Mock
+	@MockitoBean
 	private JavaMailSender mailSender;
-	
-	@BeforeEach
-	void setup() {
-	    when(property.getSpring_mail_host()).thenReturn(null);
-	}
 
 	@Test
 	@Transactional
