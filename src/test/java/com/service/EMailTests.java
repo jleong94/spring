@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.MethodOrderer;
 import com.modal.EMail;
 import com.pojo.Property;
+import com.repo.EMailRepo;
 
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
@@ -28,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
-@SpringBootTest(classes = {EMailService.class, Property.class})
+@SpringBootTest(classes = {EMailService.class, EMailRepo.class, Property.class})
 public class EMailTests {
 	
 	@Autowired
