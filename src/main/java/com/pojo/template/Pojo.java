@@ -23,36 +23,36 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Pojo {
 
-	public class PojoPost {}
-	public class PojoGet {}
-	public class PojoPut {}
-	public class PojoDelete {}
+	public class Post {}
+	public class Get {}
+	public class Put {}
+	public class Delete {}
 	
-	@NotBlank(groups = {PojoPut.class}, message = "ID is blank.")
+	@NotBlank(groups = {Put.class}, message = "ID is blank.")
 	@JsonProperty(value= "id", access = Access.READ_WRITE)
-	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
+	@JsonView({Post.class, Get.class, Put.class})
 	private int id;
 	
-	@NotBlank(groups = {PojoPost.class}, message = "Name is blank.")
+	@NotBlank(groups = {Post.class, Put.class}, message = "Name is blank.")
 	@JsonProperty(value= "name", access = Access.READ_WRITE)
-	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
+	@JsonView({Post.class, Get.class, Put.class})
 	private String name;
 	
-	@NotBlank(groups = {PojoPost.class, PojoPut.class}, message = "IC is blank.")
+	@NotBlank(groups = {Post.class, Put.class}, message = "IC is blank.")
 	@JsonProperty(value= "ic", access = Access.READ_WRITE)
-	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
+	@JsonView({Post.class, Get.class, Put.class})
 	private String ic;
 	
 	@JsonProperty(value= "dateOfBirth", access = Access.READ_WRITE)
-	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
+	@JsonView({Post.class, Get.class, Put.class})
 	private String dateOfBirth;
 	
 	@JsonProperty(value= "password", access = Access.READ_WRITE)
-	@JsonView({Pojo.PojoGet.class})
+	@JsonView({Get.class})
 	private String password;
 	
-	@DecimalMin(groups = {PojoPost.class, PojoPut.class}, value = "0.00", inclusive = true, message = "Account balance must be larger or equal to 0.00")
+	@DecimalMin(groups = {Post.class, Put.class}, value = "0.00", inclusive = true, message = "Account balance must be larger or equal to 0.00")
 	@JsonProperty(value= "account_balance", access = Access.READ_WRITE)
-	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class})
+	@JsonView({Post.class, Get.class, Put.class})
 	private BigDecimal account_balance;
 }

@@ -16,18 +16,18 @@ import lombok.*;
 public class ApiResponse {
 
 	@JsonProperty(value= "resp_code", access = Access.READ_ONLY)
-	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class, Pojo.PojoDelete.class})
+	@JsonView({Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
 	private int resp_code;
 
 	@JsonProperty(value= "resp_msg", access = Access.READ_ONLY)
-	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class, Pojo.PojoDelete.class})
+	@JsonView({Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
 	private String resp_msg;
 
 	@JsonProperty(value= "datetime", access = Access.READ_ONLY)
-	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class, Pojo.PojoDelete.class})
+	@JsonView({Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
 	private String datetime;
 	
 	@JsonProperty(value= "pojo", access = Access.READ_ONLY)
-	@JsonView({Pojo.PojoPost.class, Pojo.PojoGet.class, Pojo.PojoPut.class, Pojo.PojoDelete.class})
+	@JsonView({Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
 	private Pojo pojo;
 }
