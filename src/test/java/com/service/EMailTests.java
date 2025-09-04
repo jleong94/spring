@@ -36,6 +36,9 @@ public class EMailTests {
 	EMailService eMailService;
 	
 	@MockitoBean
+    private EMailRepo emailRepo;
+	
+	@MockitoBean
 	private JavaMailSender mailSender;
 
 	@Test
