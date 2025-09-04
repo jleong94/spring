@@ -1,0 +1,111 @@
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  port: 941122 #Server port config 
+  ssl: #SSL TLS, Trust store, Key store
+    enabled: true
+    enabled-protocols: TLSv1.2,TLSv1.3
+    protocol: TLSv1.2
+    ciphers: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    trust-store: file:./src/main/resources/security/cacerts # Holds trusted public certificates
+    trust-store-password:
+    trust-store-type: JKS
+    key-store: file:./src/main/resources/security/keystore.p12 # Holds your own identity: your server's private key + certificate
+    key-store-password: changeit
+    key-store-type: PKCS12
+    keyAlias: tomcat  
+  http2:
+    enabled: true
+spring: #DB Config(Git will auto build using the details config in repository secrets)
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 30 # Defines how many connections can be open concurrently
+      minimum-idle: 10 # Minimum idle connections in the pool(in count)
+      idle-timeout: 600000  # Helps recycle connections and free up resources(in milliseconds). idle-timeout must be less than max-lifetime
+      max-lifetime: 1800000  # Helps recycle connections and free up resources(in milliseconds). idle-timeout must be less than max-lifetime
+      connection-timeout: 30000  # Maximum time to wait for a connection from the pool before throwing an exception(in milliseconds)
+      leak-detection-threshold: 20000  # Helps identify if connections are not closed properly(in milliseconds)
+      pool-name: HikariCP
+      data-source-properties:
+        # JDBC driver optimizations that reduce parsing overhead and improve latency
+        cachePrepStmts: true # Enable caching of prepared statements
+        prepStmtCacheSize: 250 # Sets the number of prepared statements that the driver will cache per connection(in count)
+        prepStmtCacheSqlLimit: 2048 # Sets the maximum length of SQL statements that will be cached
+        useServerPrepStmts: true # Uses server-side prepared statements (MySQL feature); helps reduce client-side parsing
+        useSSL: true
+        requireSSL: true
+        allowPublicKeyRetrieval: false
+        # List of ssl mode:
+        # DISABLED - SSL is not used
+        # PREFERRED - SSL is used if available on the server
+        # REQUIRED - SSL is required, but no certificate verification is done.
+        # VERIFY_CA - SSL is required, and server cert must be signed by a trusted CA.
+        # VERIFY_IDENTITY - Like VERIFY_CA, plus it validates hostname matches certificate CN/SAN.
+        sslMode: VERIFY_IDENTITY
+        trustCertificateKeyStoreUrl: file:./src/main/resources/security/cacerts
+        trustCertificateKeyStorePassword:
+        trustCertificateKeyStoreType: JKS
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+      naming: #To maintain the exact same table & column name defined in JPA class
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    show-sql: true
+  batch: #Batch job enablement config
+    job:
+      enabled: false
+  task: #Schduler enablement config
+    scheduling:
+      enabled: false
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    protocol: smtp
+    default-encoding: UTF-8
+project:
+  log:
+    name: ./logs #dot refer to current path
+rate:
+  limit:
+    capacity: 10 #max number of tokens the bucket can hold 
+    tokens: 10 #new tokens add per period
+    period: 60
+allowed:
+  origins: localhost:8080
+management: #Spring actuator
+  endpoints:
+    web:
+      exposure:
+      #endpoint: /actuator Description: Shows list of available endpoints
+      #endpoint: /actuator/health Description: Health check info
+      #endpoint: /actuator/info Description: App metadata
+      #endpoint: /actuator/metrics Description: System and app metrics
+      #endpoint: /actuator/env Description: Environment properties
+        include: health,info #health,info,metrics,env
+  endpoint:
+    health:
+      show-details: always
+  health:
+    mail:
+      enabled: true
+fcm:
+  credentialsClasspathPath: "security/firebase/firebase-service-account.json"

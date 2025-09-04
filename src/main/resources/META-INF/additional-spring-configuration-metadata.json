@@ -28,5 +28,10 @@
     "name": "fcm.credentials-classpath-path",
     "type": "java.lang.String",
     "description": "A description for 'fcm.credentials-classpath-path'"
+  },
+  {
+    "name": "spring.task.scheduling.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.task.scheduling.enabled'"
   }
 ]}

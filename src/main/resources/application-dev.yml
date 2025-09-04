@@ -65,6 +65,9 @@ spring: #DB Config(Git will auto build using the details config in repository se
   batch: #Batch job enablement config
     job:
       enabled: false
+  task: #Schduler enablement config
+    scheduling:
+      enabled: true	
   mail:
     host: smtp.gmail.com
     port: 587

@@ -6,12 +6,11 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.MethodOrderer;
 import com.modal.EMail;
-import com.pojo.Property;
-import com.repo.EMailRepo;
 
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
@@ -29,14 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
-@SpringBootTest(classes = {EMailService.class, EMailRepo.class, Property.class})
+@SpringBootTest
+@ActiveProfiles("test")
 public class EMailTests {
 	
 	@Autowired
 	EMailService eMailService;
-	
-	@MockitoBean
-    private EMailRepo emailRepo;
 	
 	@MockitoBean
 	private JavaMailSender mailSender;
