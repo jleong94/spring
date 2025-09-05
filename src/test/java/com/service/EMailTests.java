@@ -42,7 +42,7 @@ public class EMailTests {
 	@Transactional
 	@Order(1)
 	void testSendEmail() throws Throwable {
-		MDC.put("mdcId", UUID.randomUUID());
+		MDC.put("X-Request-ID", UUID.randomUUID());
 		log.info("-Test send email start-");
 		try {
 			// stub createMimeMessage to return a usable object

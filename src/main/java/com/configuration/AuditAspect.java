@@ -40,7 +40,7 @@ public class AuditAspect {
 			String username = (auth != null) ? auth.getName() : "SYSTEM";
 			String ip = request.getRemoteAddr();
 			String userAgent = request.getHeader("User-Agent");
-			String mdcId = MDC.get("mdcId");
+			String xRequestId = MDC.get("X-Request-ID");
 			String details = Arrays.toString(joinPoint.getArgs());
 
 			// Persist to DB
@@ -49,7 +49,7 @@ public class AuditAspect {
 					.username(username)
 					.ip(ip)
 					.user_agent(userAgent)
-					.mdcId(mdcId)
+					.xRequestId(xRequestId)
 					.details(details)
 					.build();
 			auditLogRepo.save(auditLog);

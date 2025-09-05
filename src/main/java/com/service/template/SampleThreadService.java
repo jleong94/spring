@@ -22,8 +22,8 @@ public class SampleThreadService {
 	private static final Faker faker = new Faker();
 	
 	@Async
-	public void processRecords(UUID mdcId, int thread_nno, Deque<Pojo> deque) {
-		MDC.put("mdcId", mdcId);
+	public void processRecords(UUID xRequestId, int thread_nno, Deque<Pojo> deque) {
+		MDC.put("X-Request-ID", xRequestId);
 		log.info("Process dummy record at thread no. " + thread_nno + " start.");
 		try {
 			Pojo pojo;

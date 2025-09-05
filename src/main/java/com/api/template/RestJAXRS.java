@@ -84,7 +84,7 @@ public class RestJAXRS {
 			@PathParam("x3") @DefaultValue("") String x3,// /token/{x3}			
 			@FormParam("x4") @DefaultValue("") String x4,//Values from form submission
 			String x) {
-		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-start-".concat(x));
 		Status httpStatus = Status.OK;
 		JSONObject requestJson = null, responseJson = null;

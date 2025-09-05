@@ -23,7 +23,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor//Generates a constructor with no parameters
 @Builder(toBuilder = true)
 @Entity(name = "email_attachment")
-@Table(name = "email_attachment", schema = "appdb")
+@Table(name = "email_attachment",//Table name 
+catalog = "appdb",//DB name 
+schema = ""//Only for MSSQL, dbo
+		)
 @Audited//log changes into another table automatically
 public class EMailAttachment {
 

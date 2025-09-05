@@ -62,7 +62,7 @@ public class Scheduler {
 	@Scheduled(cron = "*/5 * * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler
 	public void sampleTask() throws Throwable {
-        MDC.put("mdcId", UUID.randomUUID());
+        MDC.put("X-Request-ID", UUID.randomUUID());
 		try {
         	JobParameters parameters = new JobParametersBuilder()
         			.toJobParameters();
@@ -104,13 +104,13 @@ public class Scheduler {
 	@Scheduled(cron = "*/10 * * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler
 	public void sampleTask2() throws Throwable {
-		UUID mdcId = UUID.randomUUID();
-        MDC.put("mdcId", mdcId);
+		UUID xRequestId = UUID.randomUUID();
+        MDC.put("X-Request-ID", xRequestId);
         log.info("Sample task 2 start.");
 		try {
 			Deque<Pojo> deque = sampleThreadService.addDummyRecord(1000);
 			for(int i = 0; i < 2; i++) {
-				sampleThreadService.processRecords(mdcId, (i + 1), deque);
+				sampleThreadService.processRecords(xRequestId, (i + 1), deque);
 			}
         } catch(Throwable e) {
         	// Get the current stack trace element
@@ -136,7 +136,7 @@ public class Scheduler {
 	
 	@Recover //Fallback when all attempts fail
     public void recover(RuntimeException e, UUID uuid) {
-		MDC.put("mdcId", uuid); // Restore MDC manually
+		MDC.put("X-Request-ID", uuid); // Restore MDC manually
         log.error("Recovering from task failure: " + e.getMessage());
         MDC.clear();
     }

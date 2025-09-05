@@ -97,7 +97,7 @@ public class RestSpringController {
 	@Validated({Pojo.Post.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
 	@Transactional
 	public ResponseEntity<ApiResponse> postTemplate(HttpServletRequest request, @RequestBody Pojo pojo) throws Throwable{
-		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Post template start-");
 		try {
 			logHttpRequest(request, log);
@@ -146,7 +146,7 @@ public class RestSpringController {
 	@Validated({Pojo.Get.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
 	@Transactional
 	public ResponseEntity<ApiResponse> getTemplate(HttpServletRequest request, @PathVariable @NotBlank String ic) throws Throwable{
-		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Get template start-");
 		try {
 			logHttpRequest(request, log);
@@ -194,7 +194,7 @@ public class RestSpringController {
 	@Validated({Pojo.Put.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
 	@Transactional
 	public ResponseEntity<ApiResponse> putTemplate(HttpServletRequest request, @PathVariable @NotBlank int id, @PathVariable @NotBlank String ic, @RequestBody Pojo pojo) throws Throwable{
-		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Put template start-");
 		try {
 			logHttpRequest(request, log);
@@ -230,7 +230,7 @@ public class RestSpringController {
 	@Validated({Pojo.Delete.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
 	@Transactional
 	public ResponseEntity<ApiResponse> putTemplate(HttpServletRequest request, @RequestParam int ic) throws Throwable{
-		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Delete template start-");
 		try {
 			logHttpRequest(request, log);

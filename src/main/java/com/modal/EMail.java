@@ -29,7 +29,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor//Generates a constructor with no parameters
 @Builder(toBuilder = true)
 @Entity(name = "email")
-@Table(name = "email", schema = "appdb")
+@Table(name = "email",//Table name 
+catalog = "appdb",//DB name 
+schema = ""//Only for MSSQL, dbo
+		)
 @Audited//log changes into another table automatically
 public class EMail {
 	

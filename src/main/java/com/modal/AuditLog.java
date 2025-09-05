@@ -24,7 +24,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor//Generates a constructor with no parameters
 @Builder(toBuilder = true)
 @Entity(name = "auditlog")
-@Table(name = "auditlog", schema = "appdb",
+@Table(name = "auditlog",//Table name 
+catalog = "appdb",//DB name 
+schema = "",//Only for MSSQL, dbo
 indexes = {
 		@Index(name = "idx_auditlog_action", columnList = "action"),
 		@Index(name = "idx_auditlog_username", columnList = "username"),
@@ -56,10 +58,10 @@ public class AuditLog {
 	@Column(name = "user_agent", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 1024)
 	private String user_agent;
 
-	@Column(name = "mdc_id", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 255)
-	private String mdcId;
+	@Column(name = "x_request_id", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 255)
+	private String xRequestId;
 
-	@Column(name = "details", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 999)
+	@Column(name = "details", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 768)
 	private String details;
 
 	@CreationTimestamp

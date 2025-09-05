@@ -26,7 +26,7 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 	
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Handler interceptor start-");
 		try {
 			// Check if the handler is a HandlerMethod (i.e., a controller method).

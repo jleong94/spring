@@ -1,22 +1,23 @@
 package com.configuration;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.jboss.logging.MDC;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.lang.NonNull;
-import com.utilities.Tool;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,9 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class CustomOncePerRequestFilter extends OncePerRequestFilter {
-	
-	@Autowired
-    private Tool tool;
 	
 	private void logHttpRequest(HttpServletRequest request, Logger log) {
 		try {
@@ -67,17 +65,38 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws IOException, ServletException{		
 		try {
-			// Wrap the original HttpServletRequest in a ContentCachingRequestWrapper
-			// This enables multiple reads of the request body (e.g., for logging, auditing, etc.)
-			ContentCachingRequestWrapper contentCachingRequestWrapper = new ContentCachingRequestWrapper((HttpServletRequest) request);
-			// Wrap the caching request with your custom MutableHttpServletRequest
-			// This allows you to programmatically modify request headers (e.g., inject MDC ID)
-			MutableHttpServletRequest mutableHttpServletRequest = tool.setRequestHeaderMdcId(log, contentCachingRequestWrapper);
-			MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
+			UUID xRequestId = UUID.randomUUID();
+			
+			// Wrap request to add custom header
+	        HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request) {
+	            @Override
+	            public String getHeader(String name) {
+	                if ("X-Request-ID".equals(name)) {
+	                    return xRequestId.toString();
+	                }
+	                return super.getHeader(name);
+	            }
+	            
+	            @Override
+	            public Enumeration<String> getHeaderNames() {
+	                Set<String> headerNames = new HashSet<>();
+	                Enumeration<String> originalHeaders = super.getHeaderNames();
+	                while (originalHeaders.hasMoreElements()) {
+	                    headerNames.add(originalHeaders.nextElement());
+	                }
+	                headerNames.add("X-Request-ID");
+	                return Collections.enumeration(headerNames);
+	            }
+	        };
+	        
+	        // Also add to response for client tracking
+	        response.setHeader("X-Request-ID", xRequestId.toString());
+	        
+			MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 			log.info("-Custom once per request filter start-");
 			logHttpRequest(request, log);
 
-			chain.doFilter(mutableHttpServletRequest, response);
+			chain.doFilter(wrappedRequest, response);
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
