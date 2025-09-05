@@ -41,7 +41,7 @@ public class EMailTests {
 	@Test
 	@Transactional
 	@Order(1)
-	void testSendEmail() throws Exception {
+	void testSendEmail() throws Throwable {
 		MDC.put("mdcId", UUID.randomUUID());
 		log.info("-Test send email start-");
 		try {
@@ -59,7 +59,7 @@ public class EMailTests {
 			
 			// Widely used validation: check send() was called once
 			verify(mailSender, times(1)).send(any(MimeMessage.class));
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

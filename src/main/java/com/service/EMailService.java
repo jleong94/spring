@@ -33,7 +33,7 @@ public class EMailService {
 	 * @param email
 	 * */
 	@Transactional
-	public EMail sendEMail(Logger log, EMail email) throws Exception {
+	public EMail sendEMail(Logger log, EMail email) throws Throwable {
 		try {
 			email = email.toBuilder().sender(property.getSpring_mail_host()).build();
 			MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -54,7 +54,7 @@ public class EMailService {
 			}
 			javaMailSender.send(mimeMessage);
 			email.setSend(true);
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

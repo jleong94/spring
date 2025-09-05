@@ -50,7 +50,7 @@ public class Scheduler {
 	Job job;
 
 	@Retryable(//Retry the method on exception
-            value = { Exception.class },
+            value = { Throwable.class },
             maxAttempts = 5,//Retry up to nth times
             /*
              * backoff = Delay before each retry
@@ -61,13 +61,13 @@ public class Scheduler {
         )
 	@Scheduled(cron = "*/5 * * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler
-	public void sampleTask() throws Exception {
+	public void sampleTask() throws Throwable {
         MDC.put("mdcId", UUID.randomUUID());
 		try {
         	JobParameters parameters = new JobParametersBuilder()
         			.toJobParameters();
         	jobLauncher.run(job, parameters);
-        } catch(Exception e) {
+        } catch(Throwable e) {
         	// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -92,7 +92,7 @@ public class Scheduler {
     private SampleThreadService sampleThreadService;
 	
 	@Retryable(//Retry the method on exception
-            value = { Exception.class },
+            value = { Throwable.class },
             maxAttempts = 5,//Retry up to nth times
             /*
              * backoff = Delay before each retry
@@ -103,7 +103,7 @@ public class Scheduler {
         )
 	@Scheduled(cron = "*/10 * * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler
-	public void sampleTask2() throws Exception {
+	public void sampleTask2() throws Throwable {
 		UUID mdcId = UUID.randomUUID();
         MDC.put("mdcId", mdcId);
         log.info("Sample task 2 start.");
@@ -112,7 +112,7 @@ public class Scheduler {
 			for(int i = 0; i < 2; i++) {
 				sampleThreadService.processRecords(mdcId, (i + 1), deque);
 			}
-        } catch(Exception e) {
+        } catch(Throwable e) {
         	// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

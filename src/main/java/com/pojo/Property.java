@@ -94,7 +94,7 @@ public class Property {
     private String fcm_credentialsClasspathPath;
 	
 	@PostConstruct
-    public void initFirebase() throws Exception {
+    public void initFirebase() throws Throwable {
         try {
             if (!FirebaseApp.getApps().isEmpty()) {
                 log.info("Firebase already initialized");
@@ -113,7 +113,7 @@ public class Property {
             } else {
             	log.info("Couldn't find {} on classpath.", this.fcm_credentialsClasspathPath);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
         	// Get the current stack trace element
         	StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
         	// Find matching stack trace element from exception

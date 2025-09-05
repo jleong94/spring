@@ -44,7 +44,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 	CustomHandlerInterceptor customHandlerInterceptor;
 
 	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Throwable {
 		return http
 				.headers(headers -> {
 					// Force HTTPS communication and prevent protocol downgrade attacks.

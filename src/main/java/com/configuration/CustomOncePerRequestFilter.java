@@ -46,7 +46,7 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 					log.info(parameterName + ": " + StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
 				}
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -78,7 +78,7 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 			logHttpRequest(request, log);
 
 			chain.doFilter(mutableHttpServletRequest, response);
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

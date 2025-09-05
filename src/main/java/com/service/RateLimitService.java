@@ -62,7 +62,7 @@ public class RateLimitService {
 		return bucket;
 	}
 
-	public String resolveKeyFromRequest(Logger log, HttpServletRequest request, String keyType, String keyValues) throws Exception {
+	public String resolveKeyFromRequest(Logger log, HttpServletRequest request, String keyType, String keyValues) throws Throwable {
 		String result = "";
 		try {
 			for(String keyValue : keyValues.split(",")) {
@@ -92,7 +92,7 @@ public class RateLimitService {
 					result += (result.length() > 0 ? ":" : "") + keyValue + ":" + resolvedKey;
 				}
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -151,7 +151,7 @@ public class RateLimitService {
 	 * @return the value of the field as a String, or null if not found or unreadable
 	 * @throws IOException if reading the body fails
 	 */
-	private String resolveRequestBodyField(Logger log, HttpServletRequest request, String fieldPath) throws Exception {
+	private String resolveRequestBodyField(Logger log, HttpServletRequest request, String fieldPath) throws Throwable {
 		try {
 			HttpServletRequest effectiveRequest = request;
 			// Traverse wrapper chain to find ContentCachingRequestWrapper
@@ -181,7 +181,7 @@ public class RateLimitService {
 			}
 			// Return the value as text if found, otherwise null
 			return currentNode != null ? currentNode.asText() : null;
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

@@ -96,8 +96,8 @@ public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 				.build());
 	}
 
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ApiResponse> exception(Exception e) {
+	@ExceptionHandler(Throwable.class)
+	public ResponseEntity<ApiResponse> exception(Throwable e) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse
 				.builder()
 				.resp_code(ResponseCode.ERROR.getResponse_code())

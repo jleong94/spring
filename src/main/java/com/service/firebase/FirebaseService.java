@@ -101,7 +101,7 @@ public class FirebaseService {
 		return data == null ? Map.of() : data;
 	}
 
-	public com.pojo.firebase.fcm.Message sendTokenBasedPushNotification(Logger log, com.pojo.firebase.fcm.Message message) throws Exception {
+	public com.pojo.firebase.fcm.Message sendTokenBasedPushNotification(Logger log, com.pojo.firebase.fcm.Message message) throws Throwable {
 		try {
 			MulticastMessage.Builder builder = MulticastMessage.builder().addAllTokens(message.getToken());
 
@@ -135,7 +135,7 @@ public class FirebaseService {
 					.success_count(batchResponse.getSuccessCount())
 					.fail_count(batchResponse.getFailureCount())
 					.build();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

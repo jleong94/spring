@@ -33,7 +33,7 @@ public class SampleThreadService {
 				log.info("Acc balance: " + pojo.getAccount_balance());
 				
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

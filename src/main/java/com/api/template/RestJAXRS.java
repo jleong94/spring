@@ -55,7 +55,7 @@ public class RestJAXRS {
 					log.info(parameterName + ": " + StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -92,7 +92,7 @@ public class RestJAXRS {
 			logHttpRequest(request, log);
 			requestJson = new JSONObject(x);
 			
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -110,7 +110,7 @@ public class RestJAXRS {
 		} finally{
 			try {
 				log.info("-end-".concat(responseJson.toString()));
-			} catch(Exception e) {}
+			} catch(Throwable e) {}
 		}
 		return Response.status(httpStatus).entity(responseJson.toString()).build();
 	}

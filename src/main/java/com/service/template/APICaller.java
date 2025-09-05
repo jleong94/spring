@@ -113,7 +113,7 @@ public class APICaller {
 //						Read & update the response JSON parameter value into Object
 						object = objectMapper.readValue(responseString, Object.class);
 					}
-				} catch(Exception e) {
+				} catch(Throwable e) {
 					// Get the current stack trace element
 					StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 					// Find matching stack trace element from exception
@@ -145,7 +145,7 @@ public class APICaller {
 					break;
 				}
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -163,7 +163,7 @@ public class APICaller {
 		} finally {
 			try {
 				
-			}catch(Exception e) {}
+			}catch(Throwable e) {}
 		}
 		return result;
 	}
@@ -228,7 +228,7 @@ public class APICaller {
 //							Read & update the response JSON parameter value into Object
 							Object object = objectMapper.readValue(responseString, Object.class);
 	                        futureObject.complete(object);
-	                    } catch (Exception e) {
+	                    } catch (Throwable e) {
 	                    	// Get the current stack trace element
 	    					StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 	    					// Find matching stack trace element from exception
@@ -297,7 +297,7 @@ public class APICaller {
 					break;
 				}
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -315,7 +315,7 @@ public class APICaller {
 		} finally {
 			try {
 				
-			}catch(Exception e) {}
+			}catch(Throwable e) {}
 		}
 		return result;
 	}
@@ -383,7 +383,7 @@ public class APICaller {
 					break;
 				}
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -401,7 +401,7 @@ public class APICaller {
 		} finally {
 			try {
 				
-			}catch(Exception e) {}
+			}catch(Throwable e) {}
 		}
 		return result;
 	}
@@ -453,7 +453,7 @@ public class APICaller {
 				// Read & update the response JSON parameter value into Object & vice versa
 				object = objectMapper.readValue(responseString, Object.class);
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -471,7 +471,7 @@ public class APICaller {
 		} finally {
 			try {
 
-			}catch(Exception e) {}
+			}catch(Throwable e) {}
 		}
 		return result;
 	}

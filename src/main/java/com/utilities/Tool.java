@@ -46,7 +46,7 @@ public class Tool {
 				UUID mdcId = UUID.randomUUID();
 		        wrappedRequest.putHeader("mdcId", mdcId.toString());
 			}
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -65,7 +65,7 @@ public class Tool {
 		return wrappedRequest;
 	}
 
-	public boolean downloadFileFromSftp(Logger log, String host, String username, String password, String remote_path, String local_path) throws Exception {
+	public boolean downloadFileFromSftp(Logger log, String host, String username, String password, String remote_path, String local_path) throws Throwable {
 		@Cleanup SSHClient sshClient = new SSHClient();//@Cleanup - automatically clean up resources when a method exits
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -133,7 +133,7 @@ public class Tool {
 		return result;
 	}
 
-	public String saveUploadFileToPath(MultipartFile multipartFile, String upload_path) throws Exception {
+	public String saveUploadFileToPath(MultipartFile multipartFile, String upload_path) throws Throwable {
 		Path uploadDir = Paths.get(upload_path);
 		Files.createDirectories(uploadDir);
 		String filename = Optional.ofNullable(multipartFile.getOriginalFilename())
@@ -150,7 +150,7 @@ public class Tool {
 			JsonNode root = objectMapper.readTree(inputJson);
 			maskNode(jsonKey, root);
 			result = objectMapper.writeValueAsString(root);
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
