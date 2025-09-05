@@ -1,5 +1,7 @@
 package com.modal;
 
+import org.hibernate.envers.Audited;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,6 +24,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @Entity(name = "email_attachment")
 @Table(name = "email_attachment", schema = "appdb")
+@Audited//log changes into another table automatically
 public class EMailAttachment {
 
 	@Id

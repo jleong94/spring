@@ -32,14 +32,16 @@ import com.pojo.ApiResponse;
 import com.pojo.template.Pojo;
 import com.service.template.SampleService;
 import com.utilities.Tool;
+import com.validation.Audit;
 import com.validation.RateLimit;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.core.MediaType;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j//Only use .info/error for technical/system logs
 @RestController
 public class RestSpringController {
 
@@ -88,11 +90,12 @@ public class RestSpringController {
 		}
 	}
 
+	@Audit("POST-TEMPLATE")
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
 	@PostMapping(value = "v1/post-template", consumes = {MediaType.APPLICATION_JSON}, produces = {MediaType.APPLICATION_JSON})
 	@JsonView({Pojo.Post.class})//Which getter parameter should return within json
-	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
-	@Validated({Pojo.Post.class}) 
+	@Validated({Pojo.Post.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
+	@Transactional
 	public ResponseEntity<ApiResponse> postTemplate(HttpServletRequest request, @RequestBody Pojo pojo) throws Throwable{
 		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-Post template start-");
@@ -136,11 +139,12 @@ public class RestSpringController {
 		}
 	}
 
+	@Audit("GET-TEMPLATE")
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
 	@GetMapping(value = "v1/get-template/{ic}", produces = {MediaType.APPLICATION_JSON})
 	@JsonView({Pojo.Get.class})//Which getter parameter should return within json
-	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
-	@Validated({Pojo.Get.class}) 
+	@Validated({Pojo.Get.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
+	@Transactional
 	public ResponseEntity<ApiResponse> getTemplate(HttpServletRequest request, @PathVariable @NotBlank String ic) throws Throwable{
 		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-Get template start-");
@@ -183,11 +187,12 @@ public class RestSpringController {
 		}
 	}
 
+	@Audit("PUT-TEMPLATE")
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
 	@PutMapping(value = "v1/put-template/{id}/{ic}", consumes = {MediaType.APPLICATION_JSON}, produces = {MediaType.APPLICATION_JSON})
 	@JsonView({Pojo.Put.class})//Which getter parameter should return within json
-	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
-	@Validated({Pojo.Put.class}) 
+	@Validated({Pojo.Put.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
+	@Transactional
 	public ResponseEntity<ApiResponse> putTemplate(HttpServletRequest request, @PathVariable @NotBlank int id, @PathVariable @NotBlank String ic, @RequestBody Pojo pojo) throws Throwable{
 		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-Put template start-");
@@ -218,11 +223,12 @@ public class RestSpringController {
 		}
 	}
 
+	@Audit("DELETE-TEMPLATE")
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
 	@DeleteMapping(value = "v1/delete-template", produces = {MediaType.APPLICATION_JSON})
 	@JsonView({Pojo.Delete.class})//Which getter parameter should return within json
-	//@Validated - Triggers validation on the annotated object, optionally using specified validation groups.
-	@Validated({Pojo.Delete.class}) 
+	@Validated({Pojo.Delete.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
+	@Transactional
 	public ResponseEntity<ApiResponse> putTemplate(HttpServletRequest request, @RequestParam int ic) throws Throwable{
 		MDC.put("mdcId", request.getHeader("mdcId") != null && !request.getHeader("mdcId").isBlank() ? request.getHeader("mdcId") : UUID.randomUUID());
 		log.info("-Delete template start-");

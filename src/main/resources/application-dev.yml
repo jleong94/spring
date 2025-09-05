@@ -109,3 +109,21 @@ management: #Spring actuator
       enabled: false
 fcm:
   credentialsClasspathPath: "security/firebase/firebase-service-account.json"
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs #OpenAPI JSON spec endpoint
+  swagger-ui:
+    enabled: true
+    path: /docs #Swagger UI spec endpoint
+    operationsSorter: method #API endpoints are ordered consistently (by HTTP method or tag).
+    tagsSorter: alpha #API endpoints are ordered consistently (by HTTP method or tag).
+    display-request-duration: true #Shows how long each API call takes (helps with perf debugging).
+    tryItOutEnabled: true #Lets developers call APIs from the browser directly.
+    syntaxHighlight: #Pretty-prints JSON/XML responses.
+      activated: true
+  group-configs: #Splits OpenAPI docs into groups.
+    - group: v1
+      paths-to-match: /api/v1/**
+    - group: v2
+      paths-to-match: /api/v2/**

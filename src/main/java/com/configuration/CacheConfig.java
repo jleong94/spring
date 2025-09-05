@@ -31,6 +31,7 @@ public class CacheConfig {
 				.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))// TTL per entry
 				.setStatisticsEnabled(true);// Enable cache hit/miss statistics
 		if (cacheManager.getCache("buckets") == null) {
+			// Can use along side with @Cacheable("<cache name>" on method)
 			cacheManager.createCache("buckets", customBucketConfig);
 		}
 

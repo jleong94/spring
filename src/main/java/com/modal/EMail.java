@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.envers.Audited;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.CascadeType;
@@ -29,6 +30,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @Entity(name = "email")
 @Table(name = "email", schema = "appdb")
+@Audited//log changes into another table automatically
 public class EMail {
 	
 	public interface SendEMail {}

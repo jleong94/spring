@@ -93,6 +93,12 @@
 		    <artifactId>logstash-logback-encoder</artifactId>
 		    <version>7.4</version>
 		</dependency>
+		<!-- DB record changes audit -->
+		<dependency>
+		    <groupId>org.hibernate.orm</groupId>
+		    <artifactId>hibernate-envers</artifactId>
+		</dependency>
+		<!-- DB record changes audit -->
 		<!-- Logging -->
 		
 		<!-- Lombok -->
@@ -227,6 +233,23 @@
 		</dependency>
 		<!-- SSHJ(SSH2 & SFTP operation) -->
 		
+		<!-- OpenAPI / Swagger UI -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.8.12</version>
+		</dependency>
+		<!-- OpenAPI / Swagger UI -->
+		
+		<!-- Jackson Problem (RFC7807) -->
+		<dependency>
+			<groupId>org.zalando</groupId>
+			<artifactId>problem-spring-web-starter</artifactId>
+			<version>0.29.1</version>
+		</dependency>
+		<!-- Jackson Problem (RFC7807) -->
+		
+		<!-- Optional -->
 		<!-- ISO8583 -->
 		<dependency>
 		    <groupId>net.sf.j8583</groupId>
@@ -242,6 +265,7 @@
 		    <version>1.0.2</version>
 		</dependency>
 		<!-- Fake data -->
+		<!-- Optional -->
 	</dependencies>
 	<!-- Proj dependencies -->
 
