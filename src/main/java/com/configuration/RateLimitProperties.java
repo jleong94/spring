@@ -27,19 +27,19 @@ public class RateLimitProperties {
      * Additional endpoints can be added here with their own rate limit rules.
      */
 	public RateLimitProperties() {
-		limits.put("/v1/post-template", Bandwidth.builder()
+		limits.put("/v1/template/post", Bandwidth.builder()
 				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
 				.refillGreedy(5, Duration.ofSeconds(5 * 60))//Every nth seconds, instantly add nth tokens back
 				.build());
-		limits.put("/v1/get-template", Bandwidth.builder()
+		limits.put("/v1/template/get", Bandwidth.builder()
 				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
 				.refillGreedy(5, Duration.ofSeconds(5 * 60))//Every nth seconds, instantly add nth tokens back
 				.build());  
-		limits.put("/v1/putt-template", Bandwidth.builder()
+		limits.put("/v1/template/put", Bandwidth.builder()
 				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
 				.refillGreedy(5, Duration.ofSeconds(5 * 60))//Every nth seconds, instantly add nth tokens back
 				.build());  
-		limits.put("/v1/delete-template", Bandwidth.builder()
+		limits.put("/v1/template/delete", Bandwidth.builder()
 				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
 				.refillGreedy(5, Duration.ofSeconds(5 * 60))//Every nth seconds, instantly add nth tokens back
 				.build());    

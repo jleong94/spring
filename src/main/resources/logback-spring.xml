@@ -15,12 +15,13 @@ log.info("hello {}", "world"); in log file it print as hello world
 		        <timestamp>
 		            <fieldName>timestamp</fieldName>
 		        </timestamp>
-		        <logLevel />
-		        <loggerName />
-		        <threadName />
-		        <mdc />
-		        <message />
-		        <stackTrace />
+		        <logLevel/>
+		        <loggerName/>
+		        <context/><!-- adds Sleuth traceId, spanId automatically -->
+		        <mdc/>
+		        <threadName/>
+		        <message/>
+		        <stackTrace/>
 		    </providers>
 		</encoder>
 		<immediateFlush>true</immediateFlush>
