@@ -143,7 +143,7 @@ jobs:
       run: sudo apt-get install gh -y # Installs GitHub CLI to interact with GitHub programmatically
   deploy-uat:
     if: github.ref_name == 'uat' || github.ref_name == 'staging' # Only run this job if the branch is uat or staging
-    needs: build               # 👉 This ensures 'deploy' only runs AFTER the 'build' job finishes successfully
+    needs: build-uat           # 👉 This ensures 'deploy' only runs AFTER the 'build' job finishes successfully
     runs-on: ubuntu-latest     # 👉 GitHub provides a fresh Ubuntu VM for this job
 
     steps:
@@ -162,7 +162,7 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
   deploy-prod:
     if: github.ref_name == 'main' || github.ref_name == 'master' # Only run this job if the branch is main or master
-    needs: build               # 👉 This ensures 'deploy' only runs AFTER the 'build' job finishes successfully
+    needs: build-prod          # 👉 This ensures 'deploy' only runs AFTER the 'build' job finishes successfully
     runs-on: ubuntu-latest     # 👉 GitHub provides a fresh Ubuntu VM for this job
 
     steps:
