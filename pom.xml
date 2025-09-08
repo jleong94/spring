@@ -11,7 +11,7 @@
 	
 	<groupId>com</groupId>
 	<artifactId>spring</artifactId>
-	<version></version>
+	<version>0.0.1</version>
 	<name>spring</name>
 	<description>Spring Boot Base Project Template</description>
 	<url>https://github.com/jleong94/spring</url><!-- Homepage of project -->
