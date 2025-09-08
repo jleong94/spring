@@ -9,15 +9,41 @@
 		<relativePath/> 
 	</parent>
 	
+	<groupId>com</groupId>
+	<artifactId>spring</artifactId>
+	<version></version>
+	<name>spring</name>
+	<description>Spring Boot Base Project Template</description>
+	<url>https://github.com/jleong94/spring</url><!-- Homepage of project -->
+	<licenses><!-- Declares the license(s) under which the project is distributed. -->
+	    <license>
+	        <name>Apache License, Version 2.0</name>
+	        <url>https://github.com/jleong94/spring?tab=Apache-2.0-1-ov-file</url>
+	        <distribution>repo</distribution>
+	    </license>
+	</licenses>
+	<developers><!-- Main developers/maintainers of the project. -->
+	    <developer>
+	        <id>jleong94</id>
+	        <name>James Leong</name>
+	        <email>jleong963@gmail.com</email>
+	        <organization></organization>
+	        <organizationUrl></organizationUrl>
+	    </developer>
+	</developers>
+	<scm><!-- Information about the source code repository. -->
+	    <connection></connection><!-- Read-only connection URL (anonymous checkout). -->
+	    <developerConnection></developerConnection><!-- Developer connection (commit access). -->
+	    <tag>HEAD</tag><!-- Specific tag/branch (usually HEAD). -->
+	    <url></url><!-- Human-friendly repository page (like GitHub repo link). -->
+	</scm>
+	
 	<!-- To compile project into jar/war, please import JDK(jre tab) -->
 	<packaging>jar</packaging>
 	
 	<properties>
 		<java.version>21</java.version>
 	</properties>
-	
-	<groupId>com</groupId>
-	<artifactId>spring</artifactId>
 	
 	<!-- Proj dependencies -->
 	<dependencies>
