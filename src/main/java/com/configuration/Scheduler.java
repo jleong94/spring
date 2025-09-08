@@ -50,7 +50,7 @@ public class Scheduler {
 	Job job;
 
 	@Retryable(//Retry the method on exception
-            value = { Throwable.class },
+			retryFor = { Throwable.class },
             maxAttempts = 5,//Retry up to nth times
             /*
              * backoff = Delay before each retry
@@ -92,7 +92,7 @@ public class Scheduler {
     private SampleThreadService sampleThreadService;
 	
 	@Retryable(//Retry the method on exception
-            value = { Throwable.class },
+			retryFor = { Throwable.class },
             maxAttempts = 5,//Retry up to nth times
             /*
              * backoff = Delay before each retry
