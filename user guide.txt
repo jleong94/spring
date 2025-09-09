@@ -29,10 +29,6 @@ Github CI/CD:
 4. Click on generate token & copy the secret
 5. Add repository secret in GitHub repo ➔ settings ➔ secrets and variables ➔ actions ➔ new repository secret. Make sure the variable name must be same with the parameter, GITHUB_TOKEN found in yml file
 
-Command to import public cert into cacerts:
-1. Open cmd as admin & cd the path to <Java installation path>>\bin
-2. keytool -importcert -trustcacerts -alias <alias name for source file> -file <source file path> -keystore <cacerts path>
-
 Deploy app to fly.io:
 # Install Flyctl
 powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
