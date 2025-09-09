@@ -278,6 +278,14 @@
 		</dependency>
 		<!-- Jackson Problem (RFC7807) -->
 		
+		<!-- Resilience4j -->
+		<dependency>
+		    <groupId>io.github.resilience4j</groupId>
+		    <artifactId>resilience4j-spring-boot3</artifactId>
+		    <version>2.3.0</version>
+		</dependency>
+		<!-- Resilience4j -->
+		
 		<!-- Optional -->
 		<!-- ISO8583 -->
 		<dependency>

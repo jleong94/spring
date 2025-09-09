@@ -128,3 +128,13 @@ springdoc:
       paths-to-match: /api/v1/**
     - group: v2
       paths-to-match: /api/v2/**
+resilience4j:
+  timelimiter: #Must be in async
+    configs: #Global Default Configuration
+      default:
+        timeout-duration: 1s
+        cancel-running-future: true
+    instances:
+      getAsyncTemplate:
+        timeout-duration: 1s
+        cancel-running-future: true

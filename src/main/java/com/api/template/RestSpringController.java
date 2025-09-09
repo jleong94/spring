@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.util.Enumeration;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -34,6 +35,7 @@ import com.utilities.Tool;
 import com.validation.Audit;
 import com.validation.RateLimit;
 
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -199,6 +201,65 @@ public class RestSpringController {
 			throw e;
 		} finally {
 			log.info("-Get template end-");
+			MDC.clear();
+		}
+	}
+
+	@Operation(
+            summary = "Get async template API",
+            description = "To accept request with path variable via HTTP method, GET."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Success response")
+    })
+	@Audit("GET-ASYNC-TEMPLATE")
+	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
+	@TimeLimiter(name = "getAsyncTemplate")//To control timeout of endpoint
+	@GetMapping(value = "v1/template/get-async/{sleepMs}", produces = {MediaType.APPLICATION_JSON})
+	@JsonView({Pojo.Get.class})//Which getter parameter should return within json
+	@Validated({Pojo.Get.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
+	@Transactional
+	public CompletableFuture<ResponseEntity<com.pojo.ApiResponse>> getAsyncTemplate(HttpServletRequest request, @PathVariable long sleepMs) throws Throwable{
+		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
+		log.info("-Get async template start-");
+		try {
+			logHttpRequest(request, log);
+			Thread.sleep(sleepMs);
+			return CompletableFuture.supplyAsync(() ->
+			
+			ResponseEntity.status(HttpStatus.FOUND).body(com.pojo.ApiResponse
+					.builder()
+					.resp_code(ResponseCode.SUCCESS.getResponse_code())
+					.resp_msg(ResponseCode.SUCCESS.getResponse_desc())
+					.datetime(tool.getTodayDateTimeInString())
+					.pojo(Pojo.builder()
+							.id(faker.number().randomDigit())
+							.name(faker.name().fullName())
+							.ic(sampleService.generateRandomIc())
+							.dateOfBirth(faker.date().birthday().toString())
+							.password(sampleService.generatePassword(5))
+							.account_balance(BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble(0, 999)))
+							.build())
+					.build())
+					);
+		} catch(Throwable e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} finally {
+			log.info("-Get async template end-");
 			MDC.clear();
 		}
 	}
