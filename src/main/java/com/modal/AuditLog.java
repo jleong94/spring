@@ -47,12 +47,12 @@ public class AuditLog {
 	@Column(name = "username", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 50)
 	private String username;
 
-	@Size(max = 15, message = "IP exceeded max length(15) allowed.") // max length for IPv4 string
+	@Size(max = 45, message = "IP exceeded max length(45) allowed.") // max length for IPv4 string
 	@Pattern(
-			regexp = "^((25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(\\.|$)){4}$",
+			regexp = "^(?:(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}|(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}|::1|::)$",
 			message = "Invalid IP address"
 			)
-	@Column(name = "ip", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 15)
+	@Column(name = "ip", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 45)
 	private String ip;
 
 	@Column(name = "user_agent", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 1024)
