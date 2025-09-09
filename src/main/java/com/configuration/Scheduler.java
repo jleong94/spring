@@ -3,6 +3,9 @@ package com.configuration;
 import java.util.Deque;
 import java.util.UUID;
 
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+
 import org.jboss.logging.MDC;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
@@ -43,11 +46,55 @@ public class Scheduler {
 	Tool tool;
 	
 	@Autowired
+	CacheManager cacheManager;
+	
+	@Autowired
 	JobLauncher jobLauncher;
 
 	@Autowired
 	@Qualifier("sampleJob")//To match with bean name for created job in BatchJobConfig
 	Job job;
+	
+	@Retryable(//Retry the method on exception
+			retryFor = { Throwable.class },
+            maxAttempts = 5,//Retry up to nth times
+            /*
+             * backoff = Delay before each retry
+             * delay = Start with nth seconds
+             * multiplier = Exponential backoff (2s, 4s, 8s...)
+             * */
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+        )
+	@Scheduled(fixedRate = 300_000, zone = "Asia/Kuala_Lumpur")
+	@Async//Run on separate thread, non-blocking the scheduler
+	public void clearBucketsCache() throws Throwable {
+        MDC.put("X-Request-ID", UUID.randomUUID());
+		try {
+			Cache<String, ?> cache = cacheManager.getCache("buckets");
+			if (cache != null) {
+	            cache.removeAll();
+	            log.info("Cleared 'buckets' cache globally!");
+	        }
+        } catch(Throwable e) {
+        	// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+        } finally{
+        	MDC.clear();
+        }
+    } 
 
 	@Retryable(//Retry the method on exception
 			retryFor = { Throwable.class },
@@ -138,13 +185,21 @@ public class Scheduler {
 	// 1st param = exception type to recover from
 	// Remaining params = must match the original @Retryable method’s args
 	// Acts as the final fallback (not retried again if it fails)
+	// Not necessary is void return type
 	@Recover
 	public void recover(Throwable throwable) throws Throwable {
 		UUID xRequestId = UUID.randomUUID();
 		MDC.put("X-Request-ID", xRequestId);
 		log.info("Recover on throwable start.");
 		try {
-
+			//Send to a dead-letter queue (DLQ) or Kafka topic
+			
+			//Trigger compensation or rollback
+			
+			//Alert Ops / Monitoring
+			
+			//Return a safe fallback value 
+			return;
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
