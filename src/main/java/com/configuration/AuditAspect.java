@@ -40,7 +40,8 @@ public class AuditAspect {
 			String username = (auth != null) ? auth.getName() : "SYSTEM";
 			String ip = request.getRemoteAddr();
 			String userAgent = request.getHeader("User-Agent");
-			String xRequestId = MDC.get("X-Request-ID");
+			String xRequestId = request.getHeader("X-Request-ID");
+			MDC.put("X-Request-ID", xRequestId);
 			String details = Arrays.toString(joinPoint.getArgs());
 
 			// Persist to DB
@@ -69,6 +70,8 @@ public class AuditAspect {
 				}
 			}
 			throw e;
+		} finally {
+			MDC.clear();
 		}
 	}
 }
