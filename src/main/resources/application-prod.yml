@@ -4,9 +4,9 @@ server:
       charset: UTF-8
       enabled: true
       force: true
-  port: 8080 #Server port config. Valid range: 0 → 65535 
+  port: 1122 #Server port config. Valid range: 0 → 65535 
   ssl: #SSL TLS, Trust store, Key store
-    enabled: false
+    enabled: true
     enabled-protocols: TLSv1.2,TLSv1.3
     protocol: TLSv1.2
     ciphers: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
@@ -40,16 +40,16 @@ spring: #DB Config(Git will auto build using the details config in repository se
         prepStmtCacheSize: 250 # Sets the number of prepared statements that the driver will cache per connection(in count)
         prepStmtCacheSqlLimit: 2048 # Sets the maximum length of SQL statements that will be cached
         useServerPrepStmts: true # Uses server-side prepared statements (MySQL feature); helps reduce client-side parsing
-        useSSL: false
-        requireSSL: false
-        allowPublicKeyRetrieval: true
+        useSSL: true
+        requireSSL: true
+        allowPublicKeyRetrieval: false
         # List of ssl mode:
         # DISABLED - SSL is not used
         # PREFERRED - SSL is used if available on the server
         # REQUIRED - SSL is required, but no certificate verification is done.
         # VERIFY_CA - SSL is required, and server cert must be signed by a trusted CA.
         # VERIFY_IDENTITY - Like VERIFY_CA, plus it validates hostname matches certificate CN/SAN.
-        sslMode: DISABLED
+        sslMode: VERIFY_IDENTITY
         trustCertificateKeyStoreUrl: file:./src/main/resources/security/keystore.p12
         trustCertificateKeyStorePassword: changeit
         trustCertificateKeyStoreType: PKCS12
@@ -68,7 +68,7 @@ spring: #DB Config(Git will auto build using the details config in repository se
       enabled: false
   task: #Schduler enablement config
     scheduling:
-      enabled: false
+      enabled: true
   mail:
     host: ${SMTP_HOST}
     port: ${SMTP_PORT}
