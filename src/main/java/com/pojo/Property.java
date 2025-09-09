@@ -77,17 +77,29 @@ public class Property {
     private List<String> allowed_origins;
 	
 	//Server
+	@Value("${server.ssl.enabled-protocols}")
+	private String[] server_ssl_enabled_protocols;
+	
+	@Value("${server.ssl.protocol}")
+	private String server_ssl_protocol;
+	
 	@Value("${server.ssl.key-store}")
     private String server_ssl_key_store;
 
 	@Value("${server.ssl.key-store-password}")
     private String server_ssl_key_store_password;
 
+	@Value("${server.ssl.key-store-type}")
+    private String server_ssl_key_store_type;
+
 	@Value("${server.ssl.trust-store}")
     private String server_ssl_trust_store;
 
 	@Value("${server.ssl.trust-store-password}")
     private String server_ssl_trust_store_password;
+
+	@Value("${server.ssl.trust-store-type}")
+    private String server_ssl_trust_store_type;
 	
 	// Firebase
 	@Value("${fcm.credentialsClasspathPath}")

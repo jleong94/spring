@@ -7,7 +7,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.security.cert.X509Certificate;
-import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -21,6 +20,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -29,12 +29,7 @@ import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -70,12 +65,19 @@ public class APICaller {
 				String host = uri.getHost();
 		        int port = uri.getPort() == -1 ? 443 : uri.getPort();
 		        boolean mtls = mTlsCertificationDetectionService.isMTLSActive(host, port);
-		        Map<String, X509Certificate[]> certChains = mTlsCertificationDetectionService.loadClientCertChains(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password());
-		        SSLContext sslContext = SSLContext.getInstance("TLS");//TLS is general name, which version to pickup is depend on JVM setting
+		        Map<String, X509Certificate[]> certChains = mTlsCertificationDetectionService.loadClientCertChains(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_key_store_type());
+		        SSLContext sslContext = SSLContext.getInstance(property.getServer_ssl_protocol());//TLS is general name, which version to pickup is depend on JVM setting
 		        if (mtls && certChains.size() > 1) {
 		            log.info("mTLS active and multiple certs found — enabling smart selection");
-		            sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_trust_store(), property.getServer_ssl_trust_store_password(), false);
-		        } else {sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_trust_store(), property.getServer_ssl_trust_store_password(), true);}
+		            sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_protocol(), property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_key_store_type(), property.getServer_ssl_trust_store(), property.getServer_ssl_trust_store_password(), property.getServer_ssl_trust_store_type(), false, null);
+		        } else {sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_protocol(), property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_key_store_type(), property.getServer_ssl_trust_store(), property.getServer_ssl_trust_store_password(), property.getServer_ssl_trust_store_type(), true, null);}
+		        // Enforce TLS versions + hostname verification
+	            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
+	                    sslContext,
+	                    property.getServer_ssl_enabled_protocols(),
+	                    null,
+	                    SSLConnectionSocketFactory.getDefaultHostnameVerifier()
+	            );
 		        /*List<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("", ));*/
 				RequestConfig requestConfig = RequestConfig.custom()
@@ -84,8 +86,10 @@ public class APICaller {
 		                .setConnectionRequestTimeout(5 * 1000)//in miliseconds
 		                .build();
 				@Cleanup CloseableHttpClient httpClient = HttpClients.custom()
+						.setSSLSocketFactory(sslConnectionSocketFactory)
 						.setSSLContext(sslContext)
 		                .setDefaultRequestConfig(requestConfig)
+		                //.setConnectionManager()
 		                .build();
 				HttpPost httpRequest = new HttpPost(URL);
 				/*HttpGet httpRequest = new HttpGet(URL);
@@ -183,12 +187,12 @@ public class APICaller {
 				String host = uri.getHost();
 		        int port = uri.getPort() == -1 ? 443 : uri.getPort();
 		        boolean mtls = mTlsCertificationDetectionService.isMTLSActive(host, port);
-		        Map<String, X509Certificate[]> certChains = mTlsCertificationDetectionService.loadClientCertChains(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password());
-		        SSLContext sslContext = SSLContext.getInstance("TLS");//TLS is general name, which version to pickup is depend on JVM setting
+		        Map<String, X509Certificate[]> certChains = mTlsCertificationDetectionService.loadClientCertChains(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_key_store_type());
+		        SSLContext sslContext = SSLContext.getInstance(property.getServer_ssl_protocol());//TLS is general name, which version to pickup is depend on JVM setting
 		        if (mtls && certChains.size() > 1) {
 		            log.info("mTLS active and multiple certs found — enabling smart selection");
-		            sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_trust_store(), property.getServer_ssl_trust_store_password(), false);
-		        } else {sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_trust_store(), property.getServer_ssl_trust_store_password(), true);}
+		            sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_protocol(), property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_key_store_type(), property.getServer_ssl_trust_store(), property.getServer_ssl_trust_store_password(), property.getServer_ssl_trust_store_type(), false, null);
+		        } else {sslContext = mTlsCertificationDetectionService.createSSLContext(log, property.getServer_ssl_protocol(), property.getServer_ssl_key_store(), property.getServer_ssl_key_store_password(), property.getServer_ssl_key_store_type(), property.getServer_ssl_trust_store(), property.getServer_ssl_trust_store_password(), property.getServer_ssl_trust_store_type(), true, null);}
 				/*List<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("", ));*/
 				RequestConfig requestConfig = RequestConfig.custom()
@@ -401,76 +405,6 @@ public class APICaller {
 		} finally {
 			try {
 				
-			}catch(Throwable e) {}
-		}
-		return result;
-	}
-	
-	//Async api call using webflux client
-	protected String webClient(Logger log) {
-		String result = "";
-		String URL = "";
-		Object object = new Object();
-		ObjectMapper objectMapper = new ObjectMapper()
-				.registerModule(new JavaTimeModule());
-		try {
-			log.info("URL: " + URL);
-			log.info("Request: " + objectMapper.writeValueAsString(object));
-			if(URL != null && !URL.isBlank()){
-				WebClient webClient = WebClient.builder()
-						// Optional: Define base URL
-						// .baseUrl("https://your-api-base-url.com")
-						.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-						.build();
-				RequestHeadersSpec<?> requestHeadersSpec = webClient
-						.post() // ⬅️ Change HTTP verb here
-						// .get()
-						// .put()
-						// .delete()
-						.uri(uriBuilder -> uriBuilder
-								.path(URL)
-								// .queryParam("paramName", "paramValue") // <-- Uncomment for query params
-								.build()
-								)
-						.contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaType.APPLICATION_JSON)
-						.bodyValue(objectMapper.writeValueAsString(object));
-				// Optional: Add custom headers
-				// requestHeadersSpec = requestHeadersSpec.header("X-Custom-Header", "value");
-				String responseString = requestHeadersSpec //Change data type from String to Mono<String> if async & vice versa
-						.retrieve()
-						.onStatus(HttpStatusCode::isError, clientResponse ->
-						clientResponse.bodyToMono(String.class)
-						.map(errorBody -> {
-							log.error("HTTP Error: {}", errorBody);
-							return new RuntimeException("Error Response: " + errorBody);
-						})
-								)
-						.bodyToMono(String.class)
-						.timeout(Duration.ofSeconds(5))
-						.doOnSuccess(body -> log.info("Response: {}", body))
-						.block();// Remove .block() if want to be aysnc
-				// Read & update the response JSON parameter value into Object & vice versa
-				object = objectMapper.readValue(responseString, Object.class);
-			}
-		} catch(Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-		} finally {
-			try {
-
 			}catch(Throwable e) {}
 		}
 		return result;
