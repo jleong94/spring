@@ -3,6 +3,9 @@ package com.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.pojo.bucket4j.CustomBucket;
+
+import java.util.concurrent.TimeUnit;
+
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
@@ -28,7 +31,7 @@ public class CacheConfig {
 		MutableConfiguration<String, CustomBucket> customBucketConfig = new MutableConfiguration<String, CustomBucket>()
 				.setTypes(String.class, CustomBucket.class) // enforce proper types
 				.setStoreByValue(false)// Store references instead of copying the Bucket object
-				.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE))// TTL per entry
+				.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, 1 * 60)))// Expiration of bucket per minute & will auto create a new one from incoming request
 				.setStatisticsEnabled(true);// Enable cache hit/miss statistics
 		if (cacheManager.getCache("buckets") == null) {
 			// Can use along side with @Cacheable("<cache name>" on method)

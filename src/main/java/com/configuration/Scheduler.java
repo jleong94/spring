@@ -31,11 +31,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @EnableScheduling//To allow scheduled tasks
-@ConditionalOnProperty(
+@ConditionalOnProperty(//Only create this bean if a specific property has a specific value.
 		prefix = "spring.task.scheduling",
 		name = "enabled",
 		havingValue = "true",
-		matchIfMissing = true
+		matchIfMissing = false
 		)
 public class Scheduler {
 	
@@ -134,10 +134,36 @@ public class Scheduler {
         }
     }
 	
-	@Recover //Fallback when all attempts fail
-    public void recover(RuntimeException e, UUID uuid) {
-		MDC.put("X-Request-ID", uuid); // Restore MDC manually
-        log.error("Recovering from task failure: " + e.getMessage());
-        MDC.clear();
-    }
+	// @Recover is called when a @Retryable method exhausts all retries.
+	// 1st param = exception type to recover from
+	// Remaining params = must match the original @Retryable method’s args
+	// Acts as the final fallback (not retried again if it fails)
+	@Recover
+	public void recover(Throwable throwable) throws Throwable {
+		UUID xRequestId = UUID.randomUUID();
+		MDC.put("X-Request-ID", xRequestId);
+		log.info("Recover on throwable start.");
+		try {
+
+		} catch(Throwable e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} finally{
+			log.info("Recover on throwable end.");
+			MDC.clear();
+		}
+	}
 }

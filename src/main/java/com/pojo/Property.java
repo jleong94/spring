@@ -23,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Getter//Auto generate getter method
 @Configuration
 @Slf4j
+//Maps properties starting with "cache.buckets" from application.properties/yml into this class
+//@ConfigurationProperties(prefix = "cache.buckets")
 public class Property {
 
 	//Rate limit
