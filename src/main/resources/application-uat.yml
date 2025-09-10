@@ -58,7 +58,12 @@ spring: #DB Config(Git will auto build using the details config in repository se
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: update
+      # none - No action. Hibernate will not touch the schema at all. Use this if you manage the schema manually
+      # validate - Hibernate only validates that the schema matches the entity mappings. If something is missing (like a column or table), the app will fail to start. Useful for ensuring correctness without changing schema.
+      # update - Hibernate will automatically update the schema to match entity mappings (create missing tables/columns, but not drop). Data is usually preserved, but this can be risky. Useful for dev, not for prod.
+      # create - Hibernate will drop and recreate the schema at startup. All existing data is lost. Great for quick testing, but not safe otherwise.
+      # create-drop - Same as create, but Hibernate will also drop the schema when the SessionFactory is closed (e.g., when the app shuts down). Useful for integration tests.
+      ddl-auto: validate
       naming: #To maintain the exact same table & column name defined in JPA class
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
