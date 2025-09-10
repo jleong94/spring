@@ -23,19 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter//Auto generate getter method
 @Configuration
 @Slf4j
-//Maps properties starting with "cache.buckets" from application.properties/yml into this class
-//@ConfigurationProperties(prefix = "cache.buckets")
 public class Property {
-
-	//Rate limit
-	@Value("${rate.limit.capacity}")
-    private int rate_limit_capacity;
-
-	@Value("${rate.limit.tokens}")
-    private int rate_limit_tokens;
-	
-	@Value("${rate.limit.period}")
-    private int rate_limit_period;
 
 	//Email SMTP
 	@Value("${spring.mail.host}")

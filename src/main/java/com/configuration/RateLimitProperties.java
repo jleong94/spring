@@ -4,9 +4,15 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.osgi.service.component.annotations.Component;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 import io.github.bucket4j.Bandwidth;
+import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * A configuration component that holds rate limit settings (bandwidth rules) for different API paths.
@@ -16,34 +22,38 @@ import io.github.bucket4j.Bandwidth;
  * 
  * Uses Bucket4j's Bandwidth to implement token bucket rate limiting per endpoint.
  */
-@Component
+@Configuration
+@ConfigurationProperties(prefix = "rate.limit")
+@Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
+@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
+@NoArgsConstructor//Generates a constructor with no parameters
+@Builder(toBuilder = true)
 public class RateLimitProperties {
+	
+	private Rate defaultRate;
+	
+	@Builder.Default
+    protected Map<String, Rate> endpoints = new ConcurrentHashMap<>();
 
 	// A thread-safe map holding path-specific rate limit rules
 	private final Map<String, Bandwidth> limits = new ConcurrentHashMap<>();
 
-	/**
-     * Initializes the rate limit configuration for specific endpoints.
-     * Additional endpoints can be added here with their own rate limit rules.
-     */
-	public RateLimitProperties() {
-		limits.put("/v1/template/post", Bandwidth.builder()
-				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
-				.refillGreedy(5, Duration.ofSeconds(1 * 60))//Every nth seconds, instantly add nth tokens back
-				.build());
-		limits.put("/v1/template/get", Bandwidth.builder()
-				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
-				.refillGreedy(5, Duration.ofSeconds(1 * 60))//Every nth seconds, instantly add nth tokens back
-				.build());  
-		limits.put("/v1/template/put", Bandwidth.builder()
-				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
-				.refillGreedy(5, Duration.ofSeconds(1 * 60))//Every nth seconds, instantly add nth tokens back
-				.build());  
-		limits.put("/v1/template/delete", Bandwidth.builder()
-				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
-				.refillGreedy(5, Duration.ofSeconds(1 * 60))//Every nth seconds, instantly add nth tokens back
-				.build());    
-	}
+	@PostConstruct
+    public void init() {
+		// Default
+	    limits.put("default", Bandwidth.builder()
+	            .capacity(defaultRate.getCapacity())
+	            .refillGreedy(defaultRate.getTokens(), Duration.ofSeconds(defaultRate.getPeriod()))
+	            .build());
+
+	    // Endpoints
+        endpoints.forEach((path, rate) -> 
+            limits.put(path, Bandwidth.builder()
+                    .capacity(rate.getCapacity())
+                    .refillGreedy(rate.getTokens(), Duration.ofSeconds(rate.getPeriod()))
+                    .build())
+        );
+    }
 
 	/**
      * Retrieves the {@link Bandwidth} limit configuration for a specific API path.
@@ -53,9 +63,16 @@ public class RateLimitProperties {
      * @return the Bandwidth configuration for the given path
      */
     public Bandwidth getLimitForPath(String path) {
-        return limits.getOrDefault(path, Bandwidth.builder()
-				.capacity(10)
-				.refillGreedy(1, Duration.ofSeconds(1 * 60))
-				.build()); // default
+        return limits.getOrDefault(path, limits.get("default")); // default
+    }
+    
+    @Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
+    @AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
+    @NoArgsConstructor//Generates a constructor with no parameters
+    @Builder(toBuilder = true)
+    public static class Rate {
+        private int capacity;
+        private int tokens;
+        private int period;
     }
 }

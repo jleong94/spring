@@ -104,9 +104,27 @@ project:
     name: ./logs #dot refer to current path
 rate:
   limit:
-    capacity: 10 #max number of tokens the bucket can hold 
-    tokens: 10 #new tokens add per period
-    period: 60
+    default:
+      capacity: 10
+      tokens: 10
+      period: 60
+    endpoints:
+      /v1/template/post:
+        capacity: 10
+        tokens: 10
+        period: 60
+      /v1/template/get:
+        capacity: 10
+        tokens: 10
+        period: 60
+      /v1/template/put:
+        capacity: 10
+        tokens: 10
+        period: 60
+      /v1/template/delete:
+        capacity: 10
+        tokens: 10
+        period: 60
 allowed:
   origins: localhost:8080
 management: #Spring actuator

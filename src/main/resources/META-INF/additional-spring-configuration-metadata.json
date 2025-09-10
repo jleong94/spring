@@ -5,21 +5,6 @@
     "description": "A description for 'project.log.name'"
   },
   {
-    "name": "rate.limit.capacity",
-    "type": "java.lang.String",
-    "description": "A description for 'rate.limit.capacity'"
-  },
-  {
-    "name": "rate.limit.tokens",
-    "type": "java.lang.String",
-    "description": "A description for 'rate.limit.tokens'"
-  },
-  {
-    "name": "rate.limit.period",
-    "type": "java.lang.String",
-    "description": "A description for 'rate.limit.period'"
-  },
-  {
     "name": "allowed.origins",
     "type": "java.lang.String",
     "description": "A description for 'allowed.origins'"
@@ -33,5 +18,80 @@
     "name": "spring.task.scheduling.enabled",
     "type": "java.lang.String",
     "description": "A description for 'spring.task.scheduling.enabled'"
+  },
+  {
+    "name": "rate.limit.default.capacity",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.default.capacity'"
+  },
+  {
+    "name": "rate.limit.default.tokens",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.default.tokens'"
+  },
+  {
+    "name": "rate.limit.default.period",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.default.period'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/post.capacity",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/post.capacity'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/post.tokens",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/post.tokens'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/post.period",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/post.period'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/get.capacity",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/get.capacity'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/get.tokens",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/get.tokens'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/get.period",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/get.period'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/put.capacity",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/put.capacity'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/put.tokens",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/put.tokens'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/put.period",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/put.period'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/delete.capacity",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/delete.capacity'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/delete.tokens",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/delete.tokens'"
+  },
+  {
+    "name": "rate.limit.endpoints./v1/template/delete.period",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.endpoints./v1/template/delete.period'"
   }
 ]}
