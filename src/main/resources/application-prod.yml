@@ -104,7 +104,7 @@ project:
     name: ./logs #dot refer to current path
 rate:
   limit:
-    default:
+    defaultRate:
       capacity: 10
       tokens: 10
       period: 60

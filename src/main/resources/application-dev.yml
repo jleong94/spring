@@ -104,7 +104,7 @@ project:
     name: ./logs #dot refer to current path
 rate:
   limit:
-    default:
+    defaultRate:
       capacity: 10 #max number of tokens the bucket can hold 
       tokens: 10 #new tokens add per period
       period: 60 #Timeunit, second

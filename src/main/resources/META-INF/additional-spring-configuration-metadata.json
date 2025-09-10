@@ -20,21 +20,6 @@
     "description": "A description for 'spring.task.scheduling.enabled'"
   },
   {
-    "name": "rate.limit.default.capacity",
-    "type": "java.lang.String",
-    "description": "A description for 'rate.limit.default.capacity'"
-  },
-  {
-    "name": "rate.limit.default.tokens",
-    "type": "java.lang.String",
-    "description": "A description for 'rate.limit.default.tokens'"
-  },
-  {
-    "name": "rate.limit.default.period",
-    "type": "java.lang.String",
-    "description": "A description for 'rate.limit.default.period'"
-  },
-  {
     "name": "rate.limit.endpoints./v1/template/post.capacity",
     "type": "java.lang.String",
     "description": "A description for 'rate.limit.endpoints./v1/template/post.capacity'"
@@ -93,5 +78,20 @@
     "name": "rate.limit.endpoints./v1/template/delete.period",
     "type": "java.lang.String",
     "description": "A description for 'rate.limit.endpoints./v1/template/delete.period'"
+  },
+  {
+    "name": "rate.limit.defaultRate.capacity",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.defaultRate.capacity'"
+  },
+  {
+    "name": "rate.limit.defaultRate.tokens",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.defaultRate.tokens'"
+  },
+  {
+    "name": "rate.limit.defaultRate.period",
+    "type": "java.lang.String",
+    "description": "A description for 'rate.limit.defaultRate.period'"
   }
 ]}
