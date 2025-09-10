@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mybatis.mapper.EMailMapper">
+<mapper namespace="com.mybatis.mapper.EmailMapper">
 
-	<resultMap id="EMailResultMap" type="com.modal.EMail">
+	<resultMap id="EmailResultMap" type="com.modal.Email">
         <id property="mail_id" column="mail_id"/>
         <result property="created_datetime" column="created_datetime"/>
         <result property="modified_datetime" column="modified_datetime"/>
@@ -16,17 +16,17 @@
         <result property="isSend" column="isSend"/>
 
         <!-- Nested attachments -->
-        <collection property="attachments" ofType="com.modal.EMailAttachment"
-                    select="findEMailAttachmentByMail_id" column="mail_id"/>
+        <collection property="attachments" ofType="com.modal.EmailAttachment"
+                    select="findEmailAttachmentByMail_id" column="mail_id"/>
     </resultMap>
 
-    <select id="findEMailByMail_id" resultMap="EMailResultMap">
+    <select id="findEmailByMail_id" resultMap="EmailResultMap">
     	SELECT * FROM email WHERE mail_id = #{mail_id}
         ORDER BY created_datetime DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
     
-    <select id="findEMailAttachmentByMail_id" resultType="com.modal.EMailAttachment">
+    <select id="findEmailAttachmentByMail_id" resultType="com.modal.EmailAttachment">
         SELECT *
         FROM email_attachment
         WHERE mail_id = #{mail_id}

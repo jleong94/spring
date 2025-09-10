@@ -11,19 +11,19 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.modal.EMail;
-import com.modal.EMailAttachment;
+import com.modal.Email;
+import com.modal.EmailAttachment;
 import com.pojo.Property;
-import com.repo.EMailRepo;
+import com.repo.EmailRepo;
 import jakarta.mail.internet.MimeMessage;
 @Service
-public class EMailService {
+public class EmailService {
 	
 	@Autowired
 	JavaMailSender javaMailSender;
 	
 	@Autowired
-	EMailRepo emailRepo;
+	EmailRepo emailRepo;
 	
 	@Autowired
 	Property property;
@@ -33,7 +33,7 @@ public class EMailService {
 	 * @param email
 	 * */
 	@Transactional
-	public EMail sendEMail(Logger log, EMail email) throws Throwable {
+	public Email sendEmail(Logger log, Email email) throws Throwable {
 		try {
 			email = email.toBuilder().sender(property.getSpring_mail_host()).build();
 			MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -45,7 +45,7 @@ public class EMailService {
 			mimeMessageHelper.setSubject(email.getSubject());
 			mimeMessageHelper.setText(email.getBody(), email.isHTML()); // ✅ `true` for HTML
 			if(email.getAttachments() != null && email.getAttachments().size() > 0) {
-				for(EMailAttachment emailAttachment : email.getAttachments()) {
+				for(EmailAttachment emailAttachment : email.getAttachments()) {
 					Path path = Paths.get(emailAttachment.getFile_path());
 					if(Files.exists(path) && Files.isRegularFile(path)) {
 						mimeMessageHelper.addAttachment(path.getFileName().toString(), path.toFile());

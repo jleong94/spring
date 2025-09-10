@@ -28,7 +28,7 @@ catalog = "appdb",//DB name
 schema = ""//Only for MSSQL, dbo
 		)
 @Audited//log changes into another table automatically
-public class EMailAttachment {
+public class EmailAttachment {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
@@ -39,7 +39,7 @@ public class EMailAttachment {
 	@Column(name = "file_path", unique = false, nullable = true, insertable = true, updatable = false, table = "email_attachment", length = 255)
 	private String file_path;
 	
-	@ManyToOne(targetEntity = EMail.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
+	@ManyToOne(targetEntity = Email.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
 	@JoinColumn(name = "mail_id", referencedColumnName = "mail_id", unique = false, nullable = false)
-	private EMail email;
+	private Email email;
 }

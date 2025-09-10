@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.MethodOrderer;
-import com.modal.EMail;
+import com.modal.Email;
 
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
@@ -30,10 +30,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
-public class EMailTests {
+public class EmailTests {
 	
 	@Autowired
-	EMailService eMailService;
+	EmailService eMailService;
 	
 	@MockitoBean
 	private JavaMailSender mailSender;
@@ -48,14 +48,14 @@ public class EMailTests {
 			// stub createMimeMessage to return a usable object
 		    when(mailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
 		    
-			EMail email = EMail.builder()
+			Email email = Email.builder()
 					.receiver("james.leong@mpsb.net")
-					.subject("Test EMail")
+					.subject("Test Email")
 					.body("Hello world.")
 					.isHTML(false)
 					.build();
 			// ✅ Assert: result should be true
-	        assertTrue(eMailService.sendEMail(log, email).isSend(), "sendEMail should return true when email is sent successfully");
+	        assertTrue(eMailService.sendEmail(log, email).isSend(), "sendEmail should return true when email is sent successfully");
 			
 			// Widely used validation: check send() was called once
 			verify(mailSender, times(1)).send(any(MimeMessage.class));

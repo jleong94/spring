@@ -34,9 +34,9 @@ catalog = "appdb",//DB name
 schema = ""//Only for MSSQL, dbo
 		)
 @Audited//log changes into another table automatically
-public class EMail {
+public class Email {
 	
-	public interface SendEMail {}
+	public interface SendEmail {}
 	public interface GetEmailDetailById {}
 
 	@Id
@@ -57,30 +57,30 @@ public class EMail {
 	@Column(name = "sender", unique = false, nullable = false, insertable = true, updatable = false, table = "email", length = 255)
 	private String sender;
 	
-	@Size(groups = {SendEMail.class}, max = 255, message = "Receiver email exceed 255 characters.")
+	@Size(groups = {SendEmail.class}, max = 255, message = "Receiver email exceed 255 characters.")
 	@Column(name = "receiver", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 255)
 	private String receiver;
 	
-	@Size(groups = {SendEMail.class}, max = 255, message = "CC email exceed 255 characters.")
+	@Size(groups = {SendEmail.class}, max = 255, message = "CC email exceed 255 characters.")
 	@Column(name = "cc", unique = false, nullable = true, insertable = true, updatable = true, table = "email", length = 255)
 	private String cc;
 
-	@Size(groups = {SendEMail.class}, max = 255, message = "BCC email exceed 255 characters.")
+	@Size(groups = {SendEmail.class}, max = 255, message = "BCC email exceed 255 characters.")
 	@Column(name = "bcc", unique = false, nullable = true, insertable = true, updatable = true, table = "email", length = 255)
 	private String bcc;
 
-	@NotBlank(groups = {SendEMail.class}, message = "Email subject is blank.")
-	@Size(groups = {SendEMail.class}, max = 500, message = "Email subject exceed 500 characters.")
+	@NotBlank(groups = {SendEmail.class}, message = "Email subject is blank.")
+	@Size(groups = {SendEmail.class}, max = 500, message = "Email subject exceed 500 characters.")
 	@Column(name = "subject", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 500)
 	private String subject;
 
-	@NotBlank(groups = {SendEMail.class}, message = "Email body is blank.")
-	@Size(groups = {SendEMail.class}, max = 1000, message = "Email body exceed 1000 characters.")
+	@NotBlank(groups = {SendEmail.class}, message = "Email body is blank.")
+	@Size(groups = {SendEmail.class}, max = 1000, message = "Email body exceed 1000 characters.")
 	@Column(name = "body", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 1000)
 	private String body;
 	
-	@OneToMany(targetEntity = EMailAttachment.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER, mappedBy = "email")
-	private List<EMailAttachment> attachments;
+	@OneToMany(targetEntity = EmailAttachment.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER, mappedBy = "email")
+	private List<EmailAttachment> attachments;
 	
 	@Column(name = "isHTML", unique = false, nullable = false, insertable = true, updatable = true, table = "email")
 	private boolean isHTML;
