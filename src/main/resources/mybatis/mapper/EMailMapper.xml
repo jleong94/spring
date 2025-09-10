@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mapper namespace="com.mybatis.mapper.EMailMapper">
+
+	<resultMap id="EMailResultMap" type="com.modal.EMail">
+        <id property="mail_id" column="mail_id"/>
+        <result property="created_datetime" column="created_datetime"/>
+        <result property="modified_datetime" column="modified_datetime"/>
+        <result property="sender" column="sender"/>
+        <result property="receiver" column="receiver"/>
+        <result property="cc" column="cc"/>
+        <result property="bcc" column="bcc"/>
+        <result property="subject" column="subject"/>
+        <result property="body" column="body"/>
+        <result property="isHTML" column="isHTML"/>
+        <result property="isSend" column="isSend"/>
+
+        <!-- Nested attachments -->
+        <collection property="attachments" ofType="com.modal.EMailAttachment"
+                    select="findEMailAttachmentByMail_id" column="mail_id"/>
+    </resultMap>
+
+    <select id="findEMailByMail_id" resultMap="EMailResultMap">
+    	SELECT * FROM email WHERE mail_id = #{mail_id}
+        ORDER BY created_datetime DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    
+    <select id="findEMailAttachmentByMail_id" resultType="com.modal.EMailAttachment">
+        SELECT *
+        FROM email_attachment
+        WHERE mail_id = #{mail_id}
+    </select>
+</mapper>

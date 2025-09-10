@@ -29,19 +29,19 @@ public class RateLimitProperties {
 	public RateLimitProperties() {
 		limits.put("/v1/template/post", Bandwidth.builder()
 				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
-				.refillGreedy(5, Duration.ofSeconds(5 * 60))//Every nth seconds, instantly add nth tokens back
+				.refillGreedy(5, Duration.ofSeconds(1 * 60))//Every nth seconds, instantly add nth tokens back
 				.build());
 		limits.put("/v1/template/get", Bandwidth.builder()
 				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
-				.refillGreedy(5, Duration.ofSeconds(5 * 60))//Every nth seconds, instantly add nth tokens back
+				.refillGreedy(5, Duration.ofSeconds(1 * 60))//Every nth seconds, instantly add nth tokens back
 				.build());  
 		limits.put("/v1/template/put", Bandwidth.builder()
 				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
-				.refillGreedy(5, Duration.ofSeconds(5 * 60))//Every nth seconds, instantly add nth tokens back
+				.refillGreedy(5, Duration.ofSeconds(1 * 60))//Every nth seconds, instantly add nth tokens back
 				.build());  
 		limits.put("/v1/template/delete", Bandwidth.builder()
 				.capacity(10)//maximum number of tokens (or requests) allowed in the bucket
-				.refillGreedy(5, Duration.ofSeconds(5 * 60))//Every nth seconds, instantly add nth tokens back
+				.refillGreedy(5, Duration.ofSeconds(1 * 60))//Every nth seconds, instantly add nth tokens back
 				.build());    
 	}
 
@@ -55,7 +55,7 @@ public class RateLimitProperties {
     public Bandwidth getLimitForPath(String path) {
         return limits.getOrDefault(path, Bandwidth.builder()
 				.capacity(10)
-				.refillGreedy(1, Duration.ofSeconds(1))
+				.refillGreedy(1, Duration.ofSeconds(1 * 60))
 				.build()); // default
     }
 }
