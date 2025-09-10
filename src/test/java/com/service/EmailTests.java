@@ -52,7 +52,6 @@ public class EmailTests {
 					.receiver("james.leong@mpsb.net")
 					.subject("Test Email")
 					.body("Hello world.")
-					.isHTML(false)
 					.build();
 			// ✅ Assert: result should be true
 	        assertTrue(eMailService.sendEmail(log, email).isSend(), "sendEmail should return true when email is sent successfully");
