@@ -81,9 +81,6 @@ public class Email {
 	
 	@OneToMany(targetEntity = EmailAttachment.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER, mappedBy = "email")
 	private List<EmailAttachment> attachments;
-	
-	@Column(name = "isHTML", unique = false, nullable = false, insertable = true, updatable = true, table = "email")
-	private boolean isHTML;
 
 	@Column(name = "isSend", unique = false, nullable = false, insertable = true, updatable = true, table = "email")
 	private boolean isSend;

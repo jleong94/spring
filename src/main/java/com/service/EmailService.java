@@ -3,6 +3,7 @@ package com.service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,8 @@ public class EmailService {
 	 * */
 	@Transactional
 	public Email sendEmail(Logger log, Email email) throws Throwable {
+		// Regex: looks for any opening/closing tag like <...>
+	    Pattern TAG_PATTERN = Pattern.compile("<\\s*\\/?[a-zA-Z][^>]*>");
 		try {
 			email = email.toBuilder().sender(property.getSpring_mail_host()).build();
 			MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -43,7 +46,7 @@ public class EmailService {
 			if(email.getCc() != null && !email.getCc().isBlank()) {mimeMessageHelper.setCc(email.getCc());}
 			if(email.getBcc() != null && !email.getBcc().isBlank()) {mimeMessageHelper.setBcc(email.getBcc());}
 			mimeMessageHelper.setSubject(email.getSubject());
-			mimeMessageHelper.setText(email.getBody(), email.isHTML()); // ✅ `true` for HTML
+			mimeMessageHelper.setText(email.getBody(), TAG_PATTERN.matcher(email.getBody()).find()); // ✅ `true` for HTML
 			if(email.getAttachments() != null && email.getAttachments().size() > 0) {
 				for(EmailAttachment emailAttachment : email.getAttachments()) {
 					Path path = Paths.get(emailAttachment.getFile_path());
