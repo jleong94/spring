@@ -3,6 +3,7 @@ package com.service;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
@@ -31,14 +32,11 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles("test")
 public class EmailTests {
 	
-	private final EmailService emailService;
+	@Autowired
+	private EmailService emailService;
 	
 	@MockitoBean
 	private JavaMailSender mailSender;
-	
-	public EmailTests(EmailService emailService) {
-		this.emailService = emailService;
-	}
 
 	@Test
 	@Transactional

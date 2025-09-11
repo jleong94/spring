@@ -70,7 +70,7 @@ public class Email {
 	private String bcc;
 
 	@NotBlank(groups = {SendEmail.class}, message = "Email subject is blank.")
-	@Size(groups = {SendEmail.class}, max = 500, message = "Email subject exceed 255 characters.")
+	@Size(groups = {SendEmail.class}, max = 255, message = "Email subject exceed 255 characters.")
 	@Column(name = "subject", unique = false, nullable = false, insertable = true, updatable = true, table = "email", columnDefinition = "VARCHAR(255)")
 	private String subject;
 
