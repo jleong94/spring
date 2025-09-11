@@ -134,4 +134,7 @@ public class Property {
         }
     }
 	
+	//Slack
+	@Value("${alert.slack.webhook-url}")
+	private String alert_slack_webhook_url;
 }

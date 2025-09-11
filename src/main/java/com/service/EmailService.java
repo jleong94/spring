@@ -14,11 +14,15 @@ import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.modal.Email;
 import com.modal.EmailAttachment;
 import com.pojo.Property;
 import com.repo.EmailRepo;
+
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.mail.internet.MimeMessage;
 @Service
 public class EmailService {
@@ -31,6 +35,18 @@ public class EmailService {
 
 	@Autowired
 	Property property;
+
+	private final MeterRegistry meterRegistry;
+	private final Counter recoverCounter;
+
+	private final RestTemplate restTemplate = new RestTemplate();
+
+	public EmailService(MeterRegistry meterRegistry) {
+		this.meterRegistry = meterRegistry;
+		this.recoverCounter = Counter.builder("email_service_failures_total")
+				.description("Number of failed retries hitting @Recover")
+				.register(this.meterRegistry);
+	}
 
 	/*
 	 * Send email
@@ -101,9 +117,28 @@ public class EmailService {
 	public void recover(Throwable throwable, Logger log, Email email) throws Throwable {
 		log.info("Recover on throwable start.");
 		try {
+			// Increment Prometheus counter
+			recoverCounter.increment();
+
 			// Persist failure details
 
 			// Trigger alerts (Ops team, monitoring system)
+			if(property.getAlert_slack_webhook_url() != null && !property.getAlert_slack_webhook_url().isBlank()) {
+				String error_detail = "";
+				StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+				for (StackTraceElement element : throwable.getStackTrace()) {
+					if (currentElement.getClassName().equals(element.getClassName())
+							&& currentElement.getMethodName().equals(element.getMethodName())) {
+						error_detail = String.format("Error in %s at line %d: %s - %s",
+								element.getClassName(),
+								element.getLineNumber(),
+								throwable.getClass().getName(),
+								throwable.getMessage());
+						break;
+					}
+				}
+				restTemplate.postForEntity(property.getAlert_slack_webhook_url(), java.util.Collections.singletonMap("text", error_detail), String.class);
+			}
 
 			//Return a safe fallback value 
 			return;

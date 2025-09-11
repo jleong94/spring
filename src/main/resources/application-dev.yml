@@ -135,19 +135,31 @@ allowed:
 management: #Spring actuator
   endpoints:
     web:
-      exposure:
-      #endpoint: /actuator Description: Shows list of available endpoints
-      #endpoint: /actuator/health Description: Health check info
-      #endpoint: /actuator/info Description: App metadata
-      #endpoint: /actuator/metrics Description: System and app metrics
-      #endpoint: /actuator/env Description: Environment properties
-        include: health,info #health,info,metrics,env
+      exposure: # endpoint: /actuator
+        # health - App & subsystem health
+        # info - App metadata (version, build, commit)
+        # metrics - Prometheus or custom metrics
+        # mappings - Controller endpoints overview
+        # loggers - Dynamic log level adjustment
+        # threaddump - Thread dump for debugging
+        # heapdump - Heap dump for memory troubleshooting
+        # httptrace - Recent HTTP request traces
+        # auditevents - Audit logging
+        # shutdown - Graceful shutdown
+        include: health,info,metrics,prometheus,mappings,loggers,threaddump,heapdump,httptrace,auditevents,shutdown
   endpoint:
     health:
+      show-components: always
       show-details: always
   health:
     mail:
-      enabled: false
+      enabled: true
+  metrics:
+    tags:
+      application: spring # Optional: customize metrics tags
+alert:
+  slack:
+    webhook-url:
 fcm:
   credentialsClasspathPath: "security/firebase/firebase-service-account.json"
 springdoc:
