@@ -27,15 +27,10 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.jboss.logging.MDC;
 import org.json.JSONObject;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.utilities.Tool;
 
 @Slf4j
 @Path("/api/test")
 public class RestJAXRS {
-	
-	@Autowired
-	Tool tool;
 
 	private void logHttpRequest(HttpServletRequest request, Logger log) {
 		if (request == null || log == null) {return;}

@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -24,20 +23,20 @@ import java.util.Map;
 @Service
 public class RateLimitService {
 	
-	@Autowired
-	private ObjectMapper objectMapper;
+	private final ObjectMapper objectMapper;
 
 	private final Cache<String, CustomBucket> cache;
 	
-	@Autowired
-    private RateLimitProperties rateLimitProperties;
+	private final RateLimitProperties rateLimitProperties;
 
 	/**
      * Constructor initializes the rate limit cache using the provided CacheManager.
      *
      * @param cacheManager Spring's CacheManager used to retrieve a named cache.
      */
-	public RateLimitService(CacheManager cacheManager) {
+	public RateLimitService(ObjectMapper objectMapper, RateLimitProperties rateLimitProperties, CacheManager cacheManager) {
+		this.objectMapper = objectMapper;
+		this.rateLimitProperties = rateLimitProperties;
 		this.cache = cacheManager.getCache("buckets", String.class, CustomBucket.class);
 	}
 	
@@ -68,9 +67,6 @@ public class RateLimitService {
 			for(String keyValue : keyValues.split(",")) {
 				String resolvedKey = "";
 				switch (keyType) {
-				case "ip":
-					resolvedKey = getClientIP(request);
-					break;
 				case "header":
 					resolvedKey = request.getHeader(keyValue);
 					break;
@@ -81,14 +77,10 @@ public class RateLimitService {
 					resolvedKey = resolveRequestBodyField(log, request, keyValue);
 					break;
 				default:
-					resolvedKey = request.getRequestURI();
-				}       
-				if (resolvedKey == null || resolvedKey.isBlank()) {
-					// If key couldn't be resolved, fall back to IP to prevent null keys
 					resolvedKey = getClientIP(request);
-					log.warn("Couldn't resolve rate limit key using {}: {}. Falling back to IP: {}", 
-							keyType, keyValue, resolvedKey);
-				} else {
+					break;
+				}       
+				if (resolvedKey != null && !resolvedKey.isBlank()) {
 					result += (result.length() > 0 ? ":" : "") + keyValue + ":" + resolvedKey;
 				}
 			}

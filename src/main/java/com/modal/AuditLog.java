@@ -23,28 +23,28 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
 @NoArgsConstructor//Generates a constructor with no parameters
 @Builder(toBuilder = true)
-@Entity(name = "auditlog")
-@Table(name = "auditlog",//Table name 
+@Entity(name = "AuditLog")
+@Table(name = "AuditLog",//Table name 
 catalog = "appdb",//DB name 
 schema = "",//Only for MSSQL, dbo
 indexes = {
-		@Index(name = "idx_auditlog_action", columnList = "action"),
-		@Index(name = "idx_auditlog_username", columnList = "username"),
-		@Index(name = "idx_auditlog_details", columnList = "details"),
-		@Index(name = "idx_auditlog_timestamp", columnList = "timestamp DESC")
+		@Index(name = "idx_AuditLog_action", columnList = "action"),
+		@Index(name = "idx_AuditLog_username", columnList = "username"),
+		@Index(name = "idx_AuditLog_details", columnList = "details"),
+		@Index(name = "idx_AuditLog_timestamp", columnList = "timestamp DESC")
 })
 public class AuditLog {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
-	@Column(name = "audit_id", unique = true, nullable = false, insertable = true, updatable = false, table = "auditlog")
+	@Column(name = "audit_id", unique = true, nullable = false, insertable = true, updatable = false, table = "AuditLog", columnDefinition = "BIGINT")
 	private Long id;
 
 	@NotBlank
-	@Column(name = "action", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 255)
+	@Column(name = "action", unique = false, nullable = false, insertable = true, updatable = false, table = "AuditLog", columnDefinition = "VARCHAR(255)")
 	private String action;
 
-	@Column(name = "username", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 50)
+	@Column(name = "username", unique = false, nullable = false, insertable = true, updatable = false, table = "AuditLog", columnDefinition = "VARCHAR(50)")
 	private String username;
 
 	@Size(max = 45, message = "IP exceeded max length(45) allowed.") // max length for IPv4 string
@@ -52,20 +52,20 @@ public class AuditLog {
 			regexp = "^(?:(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}|(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}|::1|::)$",
 			message = "Invalid IP address"
 			)
-	@Column(name = "ip", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 45)
+	@Column(name = "ip", unique = false, nullable = false, insertable = true, updatable = false, table = "AuditLog", columnDefinition = "VARCHAR(45)")
 	private String ip;
 
-	@Column(name = "user_agent", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 1024)
+	@Column(name = "user_agent", unique = false, nullable = false, insertable = true, updatable = false, table = "AuditLog", columnDefinition = "VARCHAR(1024)")
 	private String user_agent;
 
-	@Column(name = "x_request_id", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 255)
+	@Column(name = "x_request_id", unique = false, nullable = false, insertable = true, updatable = false, table = "AuditLog", columnDefinition = "VARCHAR(255)")
 	private String xRequestId;
 
-	@Column(name = "details", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog", length = 768)
+	@Column(name = "details", unique = false, nullable = false, insertable = true, updatable = false, table = "AuditLog", columnDefinition = "VARCHAR(768)")
 	private String details;
 
 	@CreationTimestamp
-	@Column(name = "timestamp", unique = false, nullable = false, insertable = true, updatable = false, table = "auditlog")
+	@Column(name = "timestamp", unique = false, nullable = false, insertable = true, updatable = false, table = "AuditLog", columnDefinition = "DATETIME")
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	private LocalDateTime timestamp;
 }

@@ -20,7 +20,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jboss.logging.MDC;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -55,11 +54,14 @@ public class RestSpringController {
 	private final ObjectMapper objectMapper = new ObjectMapper()
 			.registerModule(new JavaTimeModule());
 
-	@Autowired
-	Tool tool;
+	private final Tool tool;
 
-	@Autowired
-	SampleService sampleService;
+	private final SampleService sampleService;
+	
+	public RestSpringController(Tool tool, SampleService sampleService) {
+		this.tool = tool;
+		this.sampleService = sampleService;
+	}
 
 	private void logHttpRequest(HttpServletRequest request, Logger log) {
 		try {

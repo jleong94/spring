@@ -3,7 +3,6 @@ package com.configuration;
 import java.util.UUID;
 
 import org.jboss.logging.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -21,8 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class CustomHandlerInterceptor implements HandlerInterceptor {
 
-	@Autowired
-	private RateLimitService rateLimitService;
+	private final RateLimitService rateLimitService;
+	
+	public CustomHandlerInterceptor(RateLimitService rateLimitService) {
+		this.rateLimitService = rateLimitService;
+	}
 	
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

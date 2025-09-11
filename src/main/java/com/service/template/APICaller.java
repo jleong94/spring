@@ -28,7 +28,6 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,11 +44,14 @@ import lombok.Cleanup;
 @Service
 public class APICaller {
 	
-	@Autowired
-	MTLSCertificationDetectionService mTlsCertificationDetectionService;
+	private final MTLSCertificationDetectionService mTlsCertificationDetectionService;
 	
-	@Autowired
-	Property property;
+	private final Property property;
+	
+	public APICaller(MTLSCertificationDetectionService mTlsCertificationDetectionService, Property property) {
+		this.mTlsCertificationDetectionService = mTlsCertificationDetectionService;
+		this.property = property;
+	}
 
 	protected String httpClientApi(Logger log) {
 		String result = "";

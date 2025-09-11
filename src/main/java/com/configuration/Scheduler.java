@@ -11,19 +11,15 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.retry.annotation.Backoff;
 
 import com.pojo.template.Pojo;
 import com.service.template.SampleThreadService;
-import com.utilities.Tool;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,29 +37,20 @@ import lombok.extern.slf4j.Slf4j;
 		)
 public class Scheduler {
 	
-	@Autowired
-	Tool tool;
+	private final CacheManager cacheManager;
 	
-	@Autowired
-	CacheManager cacheManager;
-	
-	@Autowired
-	JobLauncher jobLauncher;
+	private final JobLauncher jobLauncher;
 
-	@Autowired
-	@Qualifier("sampleJob")//To match with bean name for created job in BatchJobConfig
-	Job job;
+	private final Job job;
 	
-	@Retryable(//Retry the method on exception
-			retryFor = { Throwable.class },
-            maxAttempts = 5,//Retry up to nth times
-            /*
-             * backoff = Delay before each retry
-             * delay = Start with nth seconds
-             * multiplier = Exponential backoff (2s, 4s, 8s...)
-             * */
-            backoff = @Backoff(delay = 1000, multiplier = 2)
-        )
+	//@Qualifier("<bean name>") - To match with bean name for created job in BatchJobConfig
+	public Scheduler(CacheManager cacheManager, JobLauncher jobLauncher, @Qualifier("sampleJob") Job job, SampleThreadService sampleThreadService) {
+		this.cacheManager = cacheManager;
+		this.jobLauncher = jobLauncher;
+		this.job = job;
+		this.sampleThreadService = sampleThreadService;
+	}
+	
 	@Scheduled(fixedRate = 300_000, zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler
 	public void clearBucketsCache() throws Throwable {
@@ -95,16 +82,6 @@ public class Scheduler {
         }
     } 
 
-	@Retryable(//Retry the method on exception
-			retryFor = { Throwable.class },
-            maxAttempts = 5,//Retry up to nth times
-            /*
-             * backoff = Delay before each retry
-             * delay = Start with nth seconds
-             * multiplier = Exponential backoff (2s, 4s, 8s...)
-             * */
-            backoff = @Backoff(delay = 1000, multiplier = 2)
-        )
 	@Scheduled(cron = "*/5 * * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler
 	public void sampleTask() throws Throwable {
@@ -134,8 +111,7 @@ public class Scheduler {
         }
     }
 
-    @Autowired
-    private SampleThreadService sampleThreadService;
+    private final SampleThreadService sampleThreadService;
 	
 	@Scheduled(cron = "*/10 * * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler

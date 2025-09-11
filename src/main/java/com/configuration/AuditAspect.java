@@ -6,7 +6,6 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.jboss.logging.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,11 +24,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AuditAspect {
 
-	@Autowired(required = false)
-	private HttpServletRequest request;
+	private final HttpServletRequest request;
 
-	@Autowired
-	AuditLogRepo auditLogRepo;
+	private final AuditLogRepo auditLogRepo;
+	
+	public AuditAspect(HttpServletRequest request, AuditLogRepo auditLogRepo) {
+		this.request = request;
+		this.auditLogRepo = auditLogRepo;
+	}
 
 	@AfterReturning("@annotation(audit)")
 	@Transactional

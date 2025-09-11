@@ -1,7 +1,6 @@
 package com.configuration;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,14 +33,17 @@ public class SecurityConfig implements WebMvcConfigurer {
 	@Value("${server.ssl.enabled}")
 	private boolean sslEnabled;
 
-	@Autowired
-	CustomOncePerRequestFilter customOncePerRequestFilter;
+	private final CustomOncePerRequestFilter customOncePerRequestFilter;
 	
-	@Autowired
-	Property property;
+	private final Property property;
 	
-	@Autowired
-	CustomHandlerInterceptor customHandlerInterceptor;
+	private final CustomHandlerInterceptor customHandlerInterceptor;
+	
+	public SecurityConfig(CustomOncePerRequestFilter customOncePerRequestFilter, Property property, CustomHandlerInterceptor customHandlerInterceptor) {
+		this.customOncePerRequestFilter = customOncePerRequestFilter;
+		this.property = property;
+		this.customHandlerInterceptor = customHandlerInterceptor;
+	}
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Throwable {

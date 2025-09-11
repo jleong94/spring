@@ -9,7 +9,6 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -18,11 +17,14 @@ import org.springframework.transaction.PlatformTransactionManager;
 @EnableBatchProcessing//Enables batch processing
 public class BatchJobConfig {
 
-	@Autowired
-	private JobRepository jobRepository;
+	private final JobRepository jobRepository;
 	
-	@Autowired
-	private PlatformTransactionManager platformTransactionManager;
+	private final PlatformTransactionManager platformTransactionManager;
+	
+	public BatchJobConfig(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
+		this.jobRepository = jobRepository;
+		this.platformTransactionManager = platformTransactionManager;
+	}
 
 	/**
 	 * Defines a sample batch job that executes a single step

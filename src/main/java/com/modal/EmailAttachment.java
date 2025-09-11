@@ -32,11 +32,11 @@ public class EmailAttachment {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
-	@Column(name = "attachment_id", unique = true, nullable = false, insertable = true, updatable = false, table = "email_attachment")
+	@Column(name = "attachment_id", unique = true, nullable = false, insertable = true, updatable = false, table = "email_attachment", columnDefinition = "BIGINT")
 	private Long attachment_id;
 	
 	@Size(max = 255, message = "Mail attachement file path exceed 255 characters.")
-	@Column(name = "file_path", unique = false, nullable = true, insertable = true, updatable = false, table = "email_attachment", length = 255)
+	@Column(name = "file_path", unique = false, nullable = true, insertable = true, updatable = false, table = "email_attachment", columnDefinition = "VARCHAR(255)")
 	private String file_path;
 	
 	@ManyToOne(targetEntity = Email.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)

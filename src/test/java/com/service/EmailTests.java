@@ -3,7 +3,6 @@ package com.service;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
@@ -32,11 +31,14 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles("test")
 public class EmailTests {
 	
-	@Autowired
-	EmailService eMailService;
+	private final EmailService emailService;
 	
 	@MockitoBean
 	private JavaMailSender mailSender;
+	
+	public EmailTests(EmailService emailService) {
+		this.emailService = emailService;
+	}
 
 	@Test
 	@Transactional
@@ -54,7 +56,7 @@ public class EmailTests {
 					.body("Hello world.")
 					.build();
 			// ✅ Assert: result should be true
-	        assertTrue(eMailService.sendEmail(log, email).isSend(), "sendEmail should return true when email is sent successfully");
+	        assertTrue(emailService.sendEmail(log, email).isSend(), "sendEmail should return true when email is sent successfully");
 			
 			// Widely used validation: check send() was called once
 			verify(mailSender, times(1)).send(any(MimeMessage.class));

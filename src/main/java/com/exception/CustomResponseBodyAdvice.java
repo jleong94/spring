@@ -2,7 +2,6 @@ package com.exception;
 
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,8 +42,11 @@ import lombok.extern.slf4j.Slf4j;
 @ControllerAdvice
 public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
-	@Autowired
-	Tool tool;
+	private final Tool tool;
+	
+	public CustomResponseBodyAdvice(Tool tool) {
+		this.tool = tool;
+	}
 
 	@Override
 	public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -16,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
 import com.enums.ResponseCode;
 import com.google.firebase.messaging.*;
 import com.pojo.Property;
-import com.utilities.Tool;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -24,18 +22,15 @@ import io.micrometer.core.instrument.MeterRegistry;
 @Service
 public class FirebaseService {
 
-	@Autowired
-	Tool tool;
-
-	@Autowired
-	Property property;
+	private final Property property;
 
 	private final MeterRegistry meterRegistry;
 	private final Counter recoverCounter;
 
 	private final RestTemplate restTemplate = new RestTemplate();
 
-	public FirebaseService(MeterRegistry meterRegistry) {
+	public FirebaseService(Property property, MeterRegistry meterRegistry) {
+		this.property = property;
 		this.meterRegistry = meterRegistry;
 		this.recoverCounter = Counter.builder("firebase_service_failures_total")
 				.description("Number of failed retries hitting @Recover")

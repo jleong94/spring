@@ -3,7 +3,6 @@ package com.service.template;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.enums.ResponseCode;
@@ -14,8 +13,11 @@ import com.utilities.Tool;
 @Service
 public class SampleService {
 	
-	@Autowired
-	Tool tool;
+	private final Tool tool;
+	
+	public SampleService(Tool tool) {
+		this.tool = tool;
+	}
 
 	private final ThreadLocalRandom threadLocalRandom = ThreadLocalRandom.current();
 	

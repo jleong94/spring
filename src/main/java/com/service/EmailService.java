@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.retry.annotation.Backoff;
@@ -27,21 +26,21 @@ import jakarta.mail.internet.MimeMessage;
 @Service
 public class EmailService {
 
-	@Autowired
-	JavaMailSender javaMailSender;
+	private final JavaMailSender javaMailSender;
 
-	@Autowired
-	EmailRepo emailRepo;
+	private final EmailRepo emailRepo;
 
-	@Autowired
-	Property property;
+	private final Property property;
 
 	private final MeterRegistry meterRegistry;
 	private final Counter recoverCounter;
 
 	private final RestTemplate restTemplate = new RestTemplate();
 
-	public EmailService(MeterRegistry meterRegistry) {
+	public EmailService(JavaMailSender javaMailSender, EmailRepo emailRepo, Property property, MeterRegistry meterRegistry) {
+		this.javaMailSender = javaMailSender;
+		this.emailRepo = emailRepo;
+		this.property = property;
 		this.meterRegistry = meterRegistry;
 		this.recoverCounter = Counter.builder("email_service_failures_total")
 				.description("Number of failed retries hitting @Recover")

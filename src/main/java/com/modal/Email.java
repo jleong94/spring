@@ -41,47 +41,47 @@ public class Email {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Adjust strategy based on your database
-	@Column(name = "mail_id", unique = true, nullable = false, insertable = true, updatable = false, table = "email")
+	@Column(name = "mail_id", unique = true, nullable = false, insertable = true, updatable = false, table = "email", columnDefinition = "BIGINT")
 	private Long mail_id;
 	
 	@CreationTimestamp
-    @Column(name = "created_datetime", unique = false, nullable = false, insertable = true, updatable = false, table = "email")
+    @Column(name = "created_datetime", unique = false, nullable = false, insertable = true, updatable = false, table = "email", columnDefinition = "DATETIME")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	private LocalDateTime created_datetime;
 	
 	@UpdateTimestamp
-	@Column(name = "modified_datetime", unique = false, nullable = false, insertable = true, updatable = true, table = "email")
+	@Column(name = "modified_datetime", unique = false, nullable = false, insertable = true, updatable = true, table = "email", columnDefinition = "DATETIME")
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
 	private LocalDateTime modified_datetime;
 	
-	@Column(name = "sender", unique = false, nullable = false, insertable = true, updatable = false, table = "email", length = 255)
+	@Column(name = "sender", unique = false, nullable = false, insertable = true, updatable = false, table = "email", columnDefinition = "VARCHAR(255)")
 	private String sender;
 	
 	@Size(groups = {SendEmail.class}, max = 255, message = "Receiver email exceed 255 characters.")
-	@Column(name = "receiver", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 255)
+	@Column(name = "receiver", unique = false, nullable = false, insertable = true, updatable = true, table = "email", columnDefinition = "VARCHAR(255)")
 	private String receiver;
 	
 	@Size(groups = {SendEmail.class}, max = 255, message = "CC email exceed 255 characters.")
-	@Column(name = "cc", unique = false, nullable = true, insertable = true, updatable = true, table = "email", length = 255)
+	@Column(name = "cc", unique = false, nullable = true, insertable = true, updatable = true, table = "email", columnDefinition = "VARCHAR(255)")
 	private String cc;
 
 	@Size(groups = {SendEmail.class}, max = 255, message = "BCC email exceed 255 characters.")
-	@Column(name = "bcc", unique = false, nullable = true, insertable = true, updatable = true, table = "email", length = 255)
+	@Column(name = "bcc", unique = false, nullable = true, insertable = true, updatable = true, table = "email", columnDefinition = "VARCHAR(255)")
 	private String bcc;
 
 	@NotBlank(groups = {SendEmail.class}, message = "Email subject is blank.")
-	@Size(groups = {SendEmail.class}, max = 500, message = "Email subject exceed 500 characters.")
-	@Column(name = "subject", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 500)
+	@Size(groups = {SendEmail.class}, max = 500, message = "Email subject exceed 255 characters.")
+	@Column(name = "subject", unique = false, nullable = false, insertable = true, updatable = true, table = "email", columnDefinition = "VARCHAR(255)")
 	private String subject;
 
 	@NotBlank(groups = {SendEmail.class}, message = "Email body is blank.")
 	@Size(groups = {SendEmail.class}, max = 1000, message = "Email body exceed 1000 characters.")
-	@Column(name = "body", unique = false, nullable = false, insertable = true, updatable = true, table = "email", length = 1000)
+	@Column(name = "body", unique = false, nullable = false, insertable = true, updatable = true, table = "email", columnDefinition = "VARCHAR(1000)")
 	private String body;
 	
 	@OneToMany(targetEntity = EmailAttachment.class, cascade = {CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER, mappedBy = "email")
 	private List<EmailAttachment> attachments;
 
-	@Column(name = "isSend", unique = false, nullable = false, insertable = true, updatable = true, table = "email")
+	@Column(name = "isSend", unique = false, nullable = false, insertable = true, updatable = true, table = "email", columnDefinition = "BOOLEAN")
 	private boolean isSend;
 }
