@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.Enumeration;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -226,21 +227,26 @@ public class RestSpringController {
 			logHttpRequest(request, log);
 			Thread.sleep(sleepMs);
 			return CompletableFuture.supplyAsync(() ->
-			
-			ResponseEntity.status(HttpStatus.FOUND).body(com.pojo.ApiResponse
-					.builder()
-					.resp_code(ResponseCode.SUCCESS.getResponse_code())
-					.resp_msg(ResponseCode.SUCCESS.getResponse_desc())
-					.datetime(tool.getTodayDateTimeInString())
-					.pojo(Pojo.builder()
-							.id(faker.number().randomDigit())
-							.name(faker.name().fullName())
-							.ic(sampleService.generateRandomIc())
-							.dateOfBirth(faker.date().birthday().toString())
-							.password(sampleService.generatePassword(5))
-							.account_balance(BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble(0, 999)))
-							.build())
-					.build())
+			{
+				try {
+					return ResponseEntity.status(HttpStatus.FOUND).body(com.pojo.ApiResponse
+							.builder()
+							.resp_code(ResponseCode.SUCCESS.getResponse_code())
+							.resp_msg(ResponseCode.SUCCESS.getResponse_desc())
+							.datetime(tool.getTodayDateTimeInString())
+							.pojo(Pojo.builder()
+									.id(faker.number().randomDigit())
+									.name(faker.name().fullName())
+									.ic(sampleService.generateRandomIc())
+									.dateOfBirth(faker.date().birthday().toString())
+									.password(sampleService.generatePassword(5))
+									.account_balance(BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble(0, 999)))
+									.build())
+							.build());
+				} catch (Throwable e) {
+					throw new CompletionException(e);
+				}
+			}
 					);
 		} catch(Throwable e) {
 			// Get the current stack trace element

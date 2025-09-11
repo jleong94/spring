@@ -12,23 +12,40 @@
         <result property="bcc" column="bcc"/>
         <result property="subject" column="subject"/>
         <result property="body" column="body"/>
-        <result property="isHTML" column="isHTML"/>
         <result property="isSend" column="isSend"/>
 
-        <!-- Nested attachments -->
-        <collection property="attachments" ofType="com.modal.EmailAttachment"
-                    select="findEmailAttachmentByMail_id" column="mail_id"/>
+        <!-- Nested mapping (avoids N+1 queries) -->
+        <collection property="attachments" ofType="com.modal.EmailAttachment" resultMap="EmailAttachmentResultMap"/>
+    </resultMap>
+    
+    <resultMap id="EmailAttachmentResultMap" type="com.modal.EmailAttachment">
+        <id property="attachment_id" column="attachment_id"/>
+        <result property="file_path" column="file_path"/>
+        <association property="email" javaType="com.modal.Email">
+            <id property="mail_id" column="mail_id"/>
+        </association>
     </resultMap>
 
+	<!-- Single query with JOIN to avoid N+1 -->
     <select id="findEmailByMail_id" resultMap="EmailResultMap">
-    	SELECT * FROM email WHERE mail_id = #{mail_id}
-        ORDER BY created_datetime DESC
+        SELECT 
+            e.mail_id,
+            e.created_datetime,
+            e.modified_datetime,
+            e.sender,
+            e.receiver,
+            e.cc,
+            e.bcc,
+            e.subject,
+            e.body,
+            e.isSend,
+            a.attachment_id,
+            a.file_path,
+            a.mail_id
+        FROM email e
+        LEFT JOIN email_attachment a ON e.mail_id = a.mail_id
+        WHERE e.mail_id = #{mail_id}
+        ORDER BY e.created_datetime DESC
         LIMIT #{limit} OFFSET #{offset}
-    </select>
-    
-    <select id="findEmailAttachmentByMail_id" resultType="com.modal.EmailAttachment">
-        SELECT *
-        FROM email_attachment
-        WHERE mail_id = #{mail_id}
     </select>
 </mapper>

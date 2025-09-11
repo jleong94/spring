@@ -22,9 +22,9 @@ public class SampleThreadService {
 	private static final Faker faker = new Faker();
 	
 	@Async
-	public void processRecords(UUID xRequestId, int thread_nno, Deque<Pojo> deque) {
+	public void processRecords(UUID xRequestId, int thread_no, Deque<Pojo> deque) {
 		MDC.put("X-Request-ID", xRequestId);
-		log.info("Process dummy record at thread no. " + thread_nno + " start.");
+		log.info("Process dummy record at thread no. " + thread_no + " start.");
 		try {
 			Pojo pojo;
 			while ((pojo = deque.pollLast()) != null) {
@@ -49,7 +49,7 @@ public class SampleThreadService {
 				}
 			}
 		} finally {
-			log.info("Process dummy record at thread no. " + thread_nno + " END.");
+			log.info("Process dummy record at thread no. " + thread_no + " END.");
 		}
 	}
 	

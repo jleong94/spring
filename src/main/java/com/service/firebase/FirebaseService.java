@@ -5,9 +5,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import com.enums.ResponseCode;
@@ -101,6 +103,16 @@ public class FirebaseService {
 		return data == null ? Map.of() : data;
 	}
 
+	@Retryable(//Retry the method on exception
+			retryFor = { Throwable.class },
+			maxAttempts = 3,//Retry up to nth times
+			/*
+			 * backoff = Delay before each retry
+			 * delay = Start with nth seconds
+			 * multiplier = Exponential backoff (2s, 4s, 8s...)
+			 * */
+			backoff = @Backoff(delay = 1000, multiplier = 2)
+			)
 	public com.pojo.firebase.fcm.Message sendTokenBasedPushNotification(Logger log, com.pojo.firebase.fcm.Message message) throws Throwable {
 		try {
 			MulticastMessage.Builder builder = MulticastMessage.builder().addAllTokens(message.getToken());
@@ -151,6 +163,42 @@ public class FirebaseService {
 				}
 			}
 			throw e;
+		}
+	}
+
+	// @Recover is called when a @Retryable method exhausts all retries.
+	// 1st param = exception type to recover from
+	// Remaining params = must match the original @Retryable method’s args
+	// Acts as the final fallback (not retried again if it fails)
+	// Not necessary is void return type
+	@Recover
+	public void recover(Throwable throwable, Logger log, com.pojo.firebase.fcm.Message message) throws Throwable {
+		log.info("Recover on throwable start.");
+		try {
+			// Persist failure details
+			
+			// Trigger alerts (Ops team, monitoring system)
+
+			//Return a safe fallback value 
+			return;
+		} catch(Throwable e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} finally{
+			log.info("Recover on throwable end.");
 		}
 	}
 }

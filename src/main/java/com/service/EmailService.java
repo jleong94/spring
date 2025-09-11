@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,24 +22,34 @@ import com.repo.EmailRepo;
 import jakarta.mail.internet.MimeMessage;
 @Service
 public class EmailService {
-	
+
 	@Autowired
 	JavaMailSender javaMailSender;
-	
+
 	@Autowired
 	EmailRepo emailRepo;
-	
+
 	@Autowired
 	Property property;
-	
+
 	/*
 	 * Send email
 	 * @param email
 	 * */
+	@Retryable(//Retry the method on exception
+			retryFor = { Throwable.class },
+			maxAttempts = 3,//Retry up to nth times
+			/*
+			 * backoff = Delay before each retry
+			 * delay = Start with nth seconds
+			 * multiplier = Exponential backoff (2s, 4s, 8s...)
+			 * */
+			backoff = @Backoff(delay = 1000, multiplier = 2)
+			)
 	@Transactional
 	public Email sendEmail(Logger log, Email email) throws Throwable {
 		// Regex: looks for any opening/closing tag like <...>
-	    Pattern TAG_PATTERN = Pattern.compile("<\\s*\\/?[a-zA-Z][^>]*>");
+		Pattern TAG_PATTERN = Pattern.compile("<\\s*\\/?[a-zA-Z][^>]*>");
 		try {
 			email = email.toBuilder().sender(property.getSpring_mail_host()).build();
 			MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -77,5 +90,41 @@ public class EmailService {
 			emailRepo.save(email);
 		}
 		return email;
+	}
+
+	// @Recover is called when a @Retryable method exhausts all retries.
+	// 1st param = exception type to recover from
+	// Remaining params = must match the original @Retryable method’s args
+	// Acts as the final fallback (not retried again if it fails)
+	// Not necessary is void return type
+	@Recover
+	public void recover(Throwable throwable, Logger log, Email email) throws Throwable {
+		log.info("Recover on throwable start.");
+		try {
+			// Persist failure details
+
+			// Trigger alerts (Ops team, monitoring system)
+
+			//Return a safe fallback value 
+			return;
+		} catch(Throwable e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} finally{
+			log.info("Recover on throwable end.");
+		}
 	}
 }
