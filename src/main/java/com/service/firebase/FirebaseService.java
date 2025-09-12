@@ -218,7 +218,7 @@ public class FirebaseService {
 			} if((property.getAlert_support_email_to() != null && !property.getAlert_support_email_to().isBlank()) ||
 					(property.getAlert_support_email_cc() != null && !property.getAlert_support_email_cc().isBlank()) ||
 					(property.getAlert_support_email_bcc() != null && !property.getAlert_support_email_bcc().isBlank())) {
-				String exceptionNotificationEmailTemplate = String.format(emailService.exceptionNotificationEmailTemplate(), error_detail);
+				String exceptionNotificationEmailTemplate = String.format(emailService.exceptionNotificationEmailTemplate(), property.getSpring_application_name(), property.getSpring_application_name(), error_detail);
 				Email email = Email.builder()
 						.sender(property.getSpring_mail_sender())
 						.replyTo(property.getAlert_support_email_replyTo())

@@ -20,8 +20,10 @@ server:
     client-auth: want #need: client must provide valid cert (strict), want: client cert is optional, none: no client validation (default)
   http2:
     enabled: true
-spring: #DB Config(Git will auto build using the details config in repository secrets)
-  datasource:
+spring:
+  application:
+    name: spring
+  datasource: #DB Config(Git will auto build using the details config in repository secrets)
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}

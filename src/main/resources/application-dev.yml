@@ -20,8 +20,10 @@ server:
     client-auth: want	#need: client must provide valid cert (strict), want: client cert is optional, none: no client validation (default)
   http2:
     enabled: true
-spring: #DB Config(Git will auto build using the details config in repository secrets)
-  datasource:
+spring:
+  application:
+    name: spring
+  datasource: #DB Config(Git will auto build using the details config in repository secrets)
     url: jdbc:mysql://localhost:3306/appdb?createDatabaseIfNotExist=true
     username: root
     password: Pass@123
