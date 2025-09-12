@@ -177,7 +177,8 @@ public class FirebaseService {
 		}
 	}
 
-	public com.pojo.firebase.fcm.Message fallbackSendTokenBasedPushNotification(Throwable throwable, Logger log, com.pojo.firebase.fcm.Message message) throws Throwable {
+	// Exception param must put as last param in fallback method
+	public com.pojo.firebase.fcm.Message fallbackSendTokenBasedPushNotification(Logger log, com.pojo.firebase.fcm.Message message, Throwable throwable) throws Throwable {
 		log.info("Recover on send token based push notification start.");
 		try {
 			String error_detail = "";

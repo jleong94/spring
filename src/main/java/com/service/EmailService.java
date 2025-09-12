@@ -137,7 +137,8 @@ public class EmailService {
 		return email;
 	}
 
-	public Email fallbackSendEmail(Throwable throwable, Logger log, Email email) throws Throwable {
+	// Exception param must put as last param in fallback method
+	public Email fallbackSendEmail(Logger log, Email email, Throwable throwable) throws Throwable {
 		log.info("Recover on send email start.");
 		try {
 			String error_detail = "";
