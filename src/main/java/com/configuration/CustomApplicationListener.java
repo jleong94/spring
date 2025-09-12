@@ -1,26 +1,22 @@
 package com.configuration;
 
-import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
+import com.repo.JdbcRepo;
 
 @Slf4j
 @Component
 public class CustomApplicationListener implements ApplicationListener<ApplicationReadyEvent> {
 
-	private final DataSource dataSource;
+	private final JdbcRepo jdbcRepo;
 
-	public CustomApplicationListener(DataSource dataSource) {
-		this.dataSource = dataSource;
+	public CustomApplicationListener(JdbcRepo jdbcRepo) {
+		this.jdbcRepo = jdbcRepo;
 	}
 
 	@Override
@@ -30,10 +26,7 @@ public class CustomApplicationListener implements ApplicationListener<Applicatio
 			Resource[] scripts = new PathMatchingResourcePatternResolver()
 					.getResources("classpath:db_script/*.sql");
 			for (Resource script : scripts) {
-				log.info("Running SQL script: {}", script.getFilename());
-				@Cleanup Connection connDB = dataSource.getConnection();
-				ScriptUtils.executeSqlScript(connDB, new EncodedResource(script), true, true, "--", ";", "/*", "*/");
-				log.info("SQL script executed successfully.");
+				jdbcRepo.runScriptFile(log, script);
 			}
 		} catch (Throwable e) {
 			// Get the current stack trace element
