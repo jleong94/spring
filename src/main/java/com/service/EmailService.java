@@ -8,9 +8,6 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -20,6 +17,8 @@ import com.modal.EmailAttachment;
 import com.pojo.Property;
 import com.repo.EmailRepo;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.mail.internet.MimeMessage;
@@ -88,16 +87,8 @@ public class EmailService {
 	 * Send email
 	 * @param email
 	 * */
-	@Retryable(//Retry the method on exception
-			retryFor = { Throwable.class },
-			maxAttempts = 3,//Retry up to nth times
-			/*
-			 * backoff = Delay before each retry
-			 * delay = Start with nth seconds
-			 * multiplier = Exponential backoff (2s, 4s, 8s...)
-			 * */
-			backoff = @Backoff(delay = 1000, multiplier = 2)
-			)
+	@Retry(name = "sendEmail")
+    @CircuitBreaker(name = "sendEmail", fallbackMethod = "fallbackSendEmail")
 	@Transactional
 	public Email sendEmail(Logger log, Email email) throws Throwable {
 		// Regex: looks for any opening/closing tag like <...>
@@ -146,14 +137,8 @@ public class EmailService {
 		return email;
 	}
 
-	// @Recover is called when a @Retryable method exhausts all retries.
-	// 1st param = exception type to recover from
-	// Remaining params = must match the original @Retryable method’s args
-	// Acts as the final fallback (not retried again if it fails)
-	// Return type must same with @Retryable method
-	@Recover
-	public Email recover(Throwable throwable, Logger log, Email email) throws Throwable {
-		log.info("Recover on throwable start.");
+	public Email fallbackSendEmail(Throwable throwable, Logger log, Email email) throws Throwable {
+		log.info("Recover on send email start.");
 		try {
 			String error_detail = "";
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -196,7 +181,7 @@ public class EmailService {
 			}
 			throw e;
 		} finally{
-			log.info("Recover on throwable end.");
+			log.info("Recover on send email end.");
 		}
 		return email;
 	}

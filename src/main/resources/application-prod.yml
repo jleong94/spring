@@ -1,5 +1,7 @@
 server:
+  shutdown: graceful # Ensures graceful shutdown in containers/k8s
   servlet:
+    context-path: /spring # Sets a global prefix between domain & all endpoints, {domain}/{prefix}/{endpoint}
     encoding:
       charset: UTF-8
       enabled: true
@@ -56,6 +58,7 @@ spring:
         trustCertificateKeyStorePassword: changeit
         trustCertificateKeyStoreType: PKCS12
   jpa:
+    open-in-view: false # Avoids lazy-loading leaks in enterprise apps
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
@@ -160,6 +163,9 @@ management: #Spring actuator
   metrics:
     tags:
       application: spring # Optional: customize metrics tags
+  tracing: # OpenTelemetry integration
+    sampling:
+      probability: 0.1 # Full tracing in dev, lower in prod
 alert:
   slack:
     webhook-url:
@@ -199,3 +205,21 @@ resilience4j:
       getAsyncTemplate:
         timeout-duration: 1s
         cancel-running-future: true
+  circuitbreaker:
+    instances:
+      sendEmail:
+        sliding-window-size: 50 # Look at the last nth calls.
+        failure-rate-threshold: 50 # If ≥ nth% fail → stop calling for nth seconds
+        wait-duration-in-open-state: 10s # After nth seconds, breaker moves to half-open to test few call. If successful → breaker closes again.
+      sendTokenBasedPushNotification:
+        sliding-window-size: 50 # Look at the last nth calls.
+        failure-rate-threshold: 50 # If ≥ nth% fail → stop calling for nth seconds
+        wait-duration-in-open-state: 10s # After nth seconds, breaker moves to half-open to test few call. If successful → breaker closes again. 
+  retry:
+    instances:
+      sendEmail:
+        max-attempts: 3
+        wait-duration: 2s
+      sendTokenBasedPushNotification:
+        max-attempts: 3
+        wait-duration: 2s

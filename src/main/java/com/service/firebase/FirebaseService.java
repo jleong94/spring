@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -18,6 +15,8 @@ import com.modal.Email;
 import com.pojo.Property;
 import com.service.EmailService;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
@@ -123,16 +122,8 @@ public class FirebaseService {
 		return data == null ? Map.of() : data;
 	}
 
-	@Retryable(//Retry the method on exception
-			retryFor = { Throwable.class },
-			maxAttempts = 3,//Retry up to nth times
-			/*
-			 * backoff = Delay before each retry
-			 * delay = Start with nth seconds
-			 * multiplier = Exponential backoff (2s, 4s, 8s...)
-			 * */
-			backoff = @Backoff(delay = 1000, multiplier = 2)
-			)
+	@Retry(name = "sendTokenBasedPushNotification")
+    @CircuitBreaker(name = "sendTokenBasedPushNotification", fallbackMethod = "fallbackSendTokenBasedPushNotification")
 	public com.pojo.firebase.fcm.Message sendTokenBasedPushNotification(Logger log, com.pojo.firebase.fcm.Message message) throws Throwable {
 		try {
 			MulticastMessage.Builder builder = MulticastMessage.builder().addAllTokens(message.getToken());
@@ -186,14 +177,8 @@ public class FirebaseService {
 		}
 	}
 
-	// @Recover is called when a @Retryable method exhausts all retries.
-	// 1st param = exception type to recover from
-	// Remaining params = must match the original @Retryable method’s args
-	// Acts as the final fallback (not retried again if it fails)
-	// Return type must same with @Retryable method
-	@Recover
-	public com.pojo.firebase.fcm.Message recover(Throwable throwable, Logger log, com.pojo.firebase.fcm.Message message) throws Throwable {
-		log.info("Recover on throwable start.");
+	public com.pojo.firebase.fcm.Message fallbackSendTokenBasedPushNotification(Throwable throwable, Logger log, com.pojo.firebase.fcm.Message message) throws Throwable {
+		log.info("Recover on send token based push notification start.");
 		try {
 			String error_detail = "";
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -247,7 +232,7 @@ public class FirebaseService {
 			}
 			throw e;
 		} finally{
-			log.info("Recover on throwable end.");
+			log.info("Recover on send token based push notification end.");
 		}
 		return message.toBuilder().success_count(0)
 				.fail_count(0)
