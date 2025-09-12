@@ -14,7 +14,9 @@ import org.springframework.web.client.RestTemplate;
 
 import com.enums.ResponseCode;
 import com.google.firebase.messaging.*;
+import com.modal.Email;
 import com.pojo.Property;
+import com.service.EmailService;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -23,14 +25,17 @@ import io.micrometer.core.instrument.MeterRegistry;
 public class FirebaseService {
 
 	private final Property property;
+	
+	private final EmailService emailService;
 
 	private final MeterRegistry meterRegistry;
 	private final Counter recoverCounter;
 
 	private final RestTemplate restTemplate = new RestTemplate();
 
-	public FirebaseService(Property property, MeterRegistry meterRegistry) {
+	public FirebaseService(Property property, EmailService emailService, MeterRegistry meterRegistry) {
 		this.property = property;
+		this.emailService = emailService;
 		this.meterRegistry = meterRegistry;
 		this.recoverCounter = Counter.builder("firebase_service_failures_total")
 				.description("Number of failed retries hitting @Recover")
@@ -187,9 +192,21 @@ public class FirebaseService {
 	// Acts as the final fallback (not retried again if it fails)
 	// Not necessary is void return type
 	@Recover
-	public void recover(Throwable throwable, Logger log, com.pojo.firebase.fcm.Message message) throws Throwable {
+	public com.pojo.firebase.fcm.Message recover(Throwable throwable, Logger log, com.pojo.firebase.fcm.Message message) throws Throwable {
 		log.info("Recover on throwable start.");
 		try {
+			String error_detail = "";
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			for (StackTraceElement element : throwable.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())) {
+					error_detail += (error_detail != null && !error_detail.isBlank() ? "<br>" : "") + String.format("Error in %s at line %d: %s - %s",
+							element.getClassName(),
+							element.getLineNumber(),
+							throwable.getClass().getName(),
+							throwable.getMessage());
+					break;
+				}
+			}
 			// Increment Prometheus counter
 			recoverCounter.increment();
 
@@ -197,24 +214,22 @@ public class FirebaseService {
 
 			// Trigger alerts (Ops team, monitoring system)
 			if(property.getAlert_slack_webhook_url() != null && !property.getAlert_slack_webhook_url().isBlank()) {
-				String error_detail = "";
-				StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-				for (StackTraceElement element : throwable.getStackTrace()) {
-					if (currentElement.getClassName().equals(element.getClassName())
-							&& currentElement.getMethodName().equals(element.getMethodName())) {
-						error_detail = String.format("Error in %s at line %d: %s - %s",
-								element.getClassName(),
-								element.getLineNumber(),
-								throwable.getClass().getName(),
-								throwable.getMessage());
-						break;
-					}
-				}
 				restTemplate.postForEntity(property.getAlert_slack_webhook_url(), java.util.Collections.singletonMap("text", error_detail), String.class);
+			} if((property.getAlert_support_email_to() != null && !property.getAlert_support_email_to().isBlank()) ||
+					(property.getAlert_support_email_cc() != null && !property.getAlert_support_email_cc().isBlank()) ||
+					(property.getAlert_support_email_bcc() != null && !property.getAlert_support_email_bcc().isBlank())) {
+				String exceptionNotificationEmailTemplate = String.format(emailService.exceptionNotificationEmailTemplate(), error_detail);
+				Email email = Email.builder()
+						.sender(property.getSpring_mail_sender())
+						.replyTo(property.getAlert_support_email_replyTo())
+						.receiver(property.getAlert_support_email_to())
+						.cc(property.getAlert_support_email_cc())
+						.bcc(property.getAlert_support_email_bcc())
+						.subject("System Exception Error!!!")
+						.body(exceptionNotificationEmailTemplate)
+						.build();
+				emailService.sendEmail(log, email);
 			}
-
-			//Return a safe fallback value 
-			return;
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -234,5 +249,8 @@ public class FirebaseService {
 		} finally{
 			log.info("Recover on throwable end.");
 		}
+		return message.toBuilder().success_count(0)
+				.fail_count(0)
+				.build();
 	}
 }

@@ -17,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -56,6 +57,9 @@ public class Email {
 	
 	@Column(name = "sender", unique = false, nullable = false, insertable = true, updatable = false, table = "email", columnDefinition = "VARCHAR(255)")
 	private String sender;
+	
+	@Transient
+	private String replyTo;
 	
 	@Size(groups = {SendEmail.class}, max = 255, message = "Receiver email exceed 255 characters.")
 	@Column(name = "receiver", unique = false, nullable = false, insertable = true, updatable = true, table = "email", columnDefinition = "VARCHAR(255)")

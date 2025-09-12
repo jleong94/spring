@@ -46,6 +46,9 @@ public class Property {
 
 	@Value("${spring.mail.protocol}")
     private String spring_mail_protocol;
+
+	@Value("${spring.mail.sender}")
+    private String spring_mail_sender;
 	
 	@Bean
     JavaMailSender javaMailSender() {
@@ -134,7 +137,19 @@ public class Property {
         }
     }
 	
-	//Slack
+	//Alert
 	@Value("${alert.slack.webhook-url}")
 	private String alert_slack_webhook_url;
+
+	@Value("${alert.support.email.replyTo}")
+	private String alert_support_email_replyTo;
+
+	@Value("${alert.support.email.to}")
+	private String alert_support_email_to;
+
+	@Value("${alert.support.email.cc}")
+	private String alert_support_email_cc;
+
+	@Value("${alert.support.email.bcc}")
+	private String alert_support_email_bcc;
 }

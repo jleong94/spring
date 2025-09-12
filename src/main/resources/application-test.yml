@@ -87,6 +87,7 @@ spring: #DB Config(Git will auto build using the details config in repository se
             enable: true
     protocol: smtp
     default-encoding: UTF-8
+    sender: ${SMTP_USERNAME}
 mybatis:
   mapper-locations: 
   - file:./src/main/resources/mybatis/mapper/*.xml # Location(s) of your MyBatis XML mapper files.
@@ -160,6 +161,12 @@ management: #Spring actuator
 alert:
   slack:
     webhook-url:
+  support:
+    email:
+      to: 
+      cc: 
+      bcc: jleong963@gmail.com
+      replyTo: jleong963@gmail.com
 fcm:
   credentialsClasspathPath: "security/firebase/firebase-service-account.json"
 springdoc:

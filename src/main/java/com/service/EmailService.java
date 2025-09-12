@@ -46,6 +46,43 @@ public class EmailService {
 				.description("Number of failed retries hitting @Recover")
 				.register(this.meterRegistry);
 	}
+	
+	public String exceptionNotificationEmailTemplate() {
+		return new StringBuilder()
+				.append("<!doctype html>")
+				.append("<html>")
+				.append("<head>")
+				.append("  <meta charset=\"utf-8\"/>")
+				.append("  <title>Exception Alert — MPay Payment Host</title>")
+				.append("  <style>")
+				.append("    body { font-family: Arial, sans-serif; background:#f4f6f8; padding:20px; }")
+				.append("    .container { max-width:800px; margin:auto; background:#fff; border:1px solid #ddd; border-radius:6px; padding:20px; }")
+				.append("    .header { font-size:16px; font-weight:bold; margin-bottom:12px; color:#d32f2f; }")
+				.append("    .message { font-size:14px; margin-bottom:20px; color:#333; line-height:1.5; }")
+				.append("    .stack { background:#f7f9fc; border:1px solid #e6eef8; padding:12px; border-radius:4px; font-family: Consolas, \"Courier New\", monospace; font-size:12px; white-space:pre-wrap; overflow:auto; }")
+				.append("    .footer { margin-top:20px; font-size:14px; color:#333; line-height:1.5; }")
+				.append("  </style>")
+				.append("</head>")
+				.append("<body>")
+				.append("  <div class=\"container\">")
+				.append("    <div class=\"header\">🚨 Exception Notification</div>")
+				.append("    <div class=\"message\">")
+				.append("      Dear Support Team,<br><br>")
+				.append("      An exception has been detected in the application. Please review the stack trace below and take the necessary corrective action at the earliest convenience.")
+				.append("    </div>")
+				.append("    <div class=\"stack\">")
+				.append("      %s")
+				.append("    </div>")
+				.append("    <div class=\"footer\">")
+				.append("      Best regards,<br>")
+				.append("      MPay Support")
+				.append("    </div>")
+				.append("  </div>")
+				.append("</body>")
+				.append("</html>")
+
+				.toString();
+	}
 
 	/*
 	 * Send email
@@ -70,7 +107,8 @@ public class EmailService {
 			MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 			mimeMessageHelper.setFrom(email.getSender()); // must match sender
-			mimeMessageHelper.setTo(email.getReceiver() == null ? "" : email.getReceiver());
+			if(email.getReplyTo() != null && !email.getReplyTo().isBlank()) {mimeMessageHelper.setReplyTo(email.getReplyTo());}
+			if(email.getReceiver() != null && !email.getReceiver().isBlank()) {mimeMessageHelper.setTo(email.getReceiver());}
 			if(email.getCc() != null && !email.getCc().isBlank()) {mimeMessageHelper.setCc(email.getCc());}
 			if(email.getBcc() != null && !email.getBcc().isBlank()) {mimeMessageHelper.setBcc(email.getBcc());}
 			mimeMessageHelper.setSubject(email.getSubject());
@@ -85,6 +123,7 @@ public class EmailService {
 			}
 			javaMailSender.send(mimeMessage);
 			email.setSend(true);
+			emailRepo.save(email);
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -102,7 +141,7 @@ public class EmailService {
 			}
 			throw e;
 		} finally {
-			emailRepo.save(email);
+			
 		}
 		return email;
 	}
@@ -113,34 +152,33 @@ public class EmailService {
 	// Acts as the final fallback (not retried again if it fails)
 	// Not necessary is void return type
 	@Recover
-	public void recover(Throwable throwable, Logger log, Email email) throws Throwable {
+	public Email recover(Throwable throwable, Logger log, Email email) throws Throwable {
 		log.info("Recover on throwable start.");
 		try {
+			String error_detail = "";
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			for (StackTraceElement element : throwable.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())) {
+					error_detail += (error_detail != null && !error_detail.isBlank() ? "<br>" : "") + String.format("Error in %s at line %d: %s - %s",
+							element.getClassName(),
+							element.getLineNumber(),
+							throwable.getClass().getName(),
+							throwable.getMessage());
+					break;
+				}
+			}
 			// Increment Prometheus counter
 			recoverCounter.increment();
 
 			// Persist failure details
 
 			// Trigger alerts (Ops team, monitoring system)
-			if(property.getAlert_slack_webhook_url() != null && !property.getAlert_slack_webhook_url().isBlank()) {
-				String error_detail = "";
-				StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-				for (StackTraceElement element : throwable.getStackTrace()) {
-					if (currentElement.getClassName().equals(element.getClassName())
-							&& currentElement.getMethodName().equals(element.getMethodName())) {
-						error_detail = String.format("Error in %s at line %d: %s - %s",
-								element.getClassName(),
-								element.getLineNumber(),
-								throwable.getClass().getName(),
-								throwable.getMessage());
-						break;
-					}
-				}
+			if(property.getAlert_slack_webhook_url() != null && !property.getAlert_slack_webhook_url().isBlank()) {				
 				restTemplate.postForEntity(property.getAlert_slack_webhook_url(), java.util.Collections.singletonMap("text", error_detail), String.class);
 			}
 
-			//Return a safe fallback value 
-			return;
+			email.setSend(true);
+			emailRepo.save(email);
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -160,5 +198,6 @@ public class EmailService {
 		} finally{
 			log.info("Recover on throwable end.");
 		}
+		return email;
 	}
 }

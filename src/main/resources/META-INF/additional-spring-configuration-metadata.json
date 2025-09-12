@@ -98,5 +98,30 @@
     "name": "alert.slack.webhook-url",
     "type": "java.lang.String",
     "description": "A description for 'alert.slack.webhook-url'"
+  },
+  {
+    "name": "alert.support.email.to",
+    "type": "java.lang.String",
+    "description": "A description for 'alert.support.email.to'"
+  },
+  {
+    "name": "alert.support.email.cc",
+    "type": "java.lang.String",
+    "description": "A description for 'alert.support.email.cc'"
+  },
+  {
+    "name": "alert.support.email.bcc",
+    "type": "java.lang.String",
+    "description": "A description for 'alert.support.email.bcc'"
+  },
+  {
+    "name": "alert.support.email.replyTo",
+    "type": "java.lang.String",
+    "description": "A description for 'alert.support.email.replyTo'"
+  },
+  {
+    "name": "spring.mail.sender",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.mail.sender'"
   }
 ]}
