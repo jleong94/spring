@@ -190,7 +190,7 @@ public class FirebaseService {
 	// 1st param = exception type to recover from
 	// Remaining params = must match the original @Retryable method’s args
 	// Acts as the final fallback (not retried again if it fails)
-	// Not necessary is void return type
+	// Return type must same with @Retryable method
 	@Recover
 	public com.pojo.firebase.fcm.Message recover(Throwable throwable, Logger log, com.pojo.firebase.fcm.Message message) throws Throwable {
 		log.info("Recover on throwable start.");

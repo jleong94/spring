@@ -46,7 +46,7 @@ public class EmailService {
 				.description("Number of failed retries hitting @Recover")
 				.register(this.meterRegistry);
 	}
-	
+
 	public String exceptionNotificationEmailTemplate() {
 		return new StringBuilder()
 				.append("<!doctype html>")
@@ -141,7 +141,7 @@ public class EmailService {
 			}
 			throw e;
 		} finally {
-			
+
 		}
 		return email;
 	}
@@ -150,7 +150,7 @@ public class EmailService {
 	// 1st param = exception type to recover from
 	// Remaining params = must match the original @Retryable method’s args
 	// Acts as the final fallback (not retried again if it fails)
-	// Not necessary is void return type
+	// Return type must same with @Retryable method
 	@Recover
 	public Email recover(Throwable throwable, Logger log, Email email) throws Throwable {
 		log.info("Recover on throwable start.");
