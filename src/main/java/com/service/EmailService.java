@@ -74,7 +74,7 @@ public class EmailService {
 				.append("    </div>")
 				.append("    <div class=\"footer\">")
 				.append("      Best regards,<br>")
-				.append("      MPay Support")
+				.append("      %s Support Team")
 				.append("    </div>")
 				.append("  </div>")
 				.append("</body>")
