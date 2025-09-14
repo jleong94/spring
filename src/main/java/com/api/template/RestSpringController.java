@@ -108,9 +108,9 @@ public class RestSpringController {
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
 	@PostMapping(value = "v1/template/post", consumes = {MediaType.APPLICATION_JSON}, produces = {MediaType.APPLICATION_JSON})
 	@JsonView({Pojo.Post.class})//Which getter parameter should return within json
-	@Validated({Pojo.Post.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
 	@Transactional
-	public ResponseEntity<com.pojo.ApiResponse> postTemplate(HttpServletRequest request, @RequestBody Pojo pojo) throws Throwable{
+	//@Validated - Triggers validation on parameter where annotation validation apply with groups = {}.
+	public ResponseEntity<com.pojo.ApiResponse> postTemplate(HttpServletRequest request, @RequestBody @Validated({Pojo.Post.class}) Pojo pojo) throws Throwable{
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Post template start-");
 		try {
@@ -164,7 +164,6 @@ public class RestSpringController {
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
 	@GetMapping(value = "v1/template/get/{ic}", produces = {MediaType.APPLICATION_JSON})
 	@JsonView({Pojo.Get.class})//Which getter parameter should return within json
-	@Validated({Pojo.Get.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
 	@Transactional
 	public ResponseEntity<com.pojo.ApiResponse> getTemplate(HttpServletRequest request, @PathVariable @NotBlank String ic) throws Throwable{
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
@@ -220,7 +219,6 @@ public class RestSpringController {
 	@TimeLimiter(name = "getAsyncTemplate")//To control timeout of endpoint
 	@GetMapping(value = "v1/template/get-async/{sleepMs}", produces = {MediaType.APPLICATION_JSON})
 	@JsonView({Pojo.Get.class})//Which getter parameter should return within json
-	@Validated({Pojo.Get.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
 	@Transactional
 	public CompletableFuture<ResponseEntity<com.pojo.ApiResponse>> getAsyncTemplate(HttpServletRequest request, @PathVariable long sleepMs) throws Throwable{
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
@@ -283,9 +281,9 @@ public class RestSpringController {
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
 	@PutMapping(value = "v1/template/put/{id}/{ic}", consumes = {MediaType.APPLICATION_JSON}, produces = {MediaType.APPLICATION_JSON})
 	@JsonView({Pojo.Put.class})//Which getter parameter should return within json
-	@Validated({Pojo.Put.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
 	@Transactional
-	public ResponseEntity<com.pojo.ApiResponse> putTemplate(HttpServletRequest request, @PathVariable @NotBlank int id, @PathVariable @NotBlank String ic, @RequestBody Pojo pojo) throws Throwable{
+	//@Validated - Triggers validation on parameter where annotation validation apply with groups = {}.
+	public ResponseEntity<com.pojo.ApiResponse> putTemplate(HttpServletRequest request, @PathVariable @NotBlank int id, @PathVariable @NotBlank String ic, @RequestBody @Validated({Pojo.Put.class}) Pojo pojo) throws Throwable{
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Put template start-");
 		try {
@@ -326,9 +324,8 @@ public class RestSpringController {
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
 	@DeleteMapping(value = "v1/template/delete", produces = {MediaType.APPLICATION_JSON})
 	@JsonView({Pojo.Delete.class})//Which getter parameter should return within json
-	@Validated({Pojo.Delete.class})//Triggers validation on parameter where annotation validation apply with groups = {}.
 	@Transactional
-	public ResponseEntity<com.pojo.ApiResponse> putTemplate(HttpServletRequest request, @RequestParam int ic) throws Throwable{
+	public ResponseEntity<com.pojo.ApiResponse> deleteTemplate(HttpServletRequest request, @RequestParam int ic) throws Throwable{
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Delete template start-");
 		try {

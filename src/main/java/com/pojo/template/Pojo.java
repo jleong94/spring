@@ -8,9 +8,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -29,12 +29,12 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Pojo request & response payload")
 public class Pojo {
 
-	public class Post {}
-	public class Get {}
-	public class Put {}
-	public class Delete {}
+	public interface Post {}
+	public interface Get {}
+	public interface Put {}
+	public interface Delete {}
 	
-	@Positive(message = "Id must larger than 0")
+	@Min(groups = {Post.class, Put.class}, value = 1, message = "Id must larger than 0")
 	@JsonProperty(value= "id", access = Access.READ_WRITE)
 	@JsonView({Post.class, Get.class, Put.class})
 	@Schema(description = "Unique identifier")
@@ -71,7 +71,7 @@ public class Pojo {
 	@Schema(description = "Password")
 	private String password;
 	
-	@Digits(integer = 7, fraction = 2, message = "Only up to max 7 digits with 2 decimal places")
+	@Digits(groups = {Post.class, Put.class}, integer = 7, fraction = 2, message = "Only up to max 7 digits with 2 decimal places")
 	@DecimalMin(groups = {Post.class, Put.class}, value = "0.00", inclusive = true, message = "Account balance must be larger or equal to 0.00")
 	@JsonProperty(value= "account_balance", access = Access.READ_WRITE)
 	@JsonView({Post.class, Get.class, Put.class})

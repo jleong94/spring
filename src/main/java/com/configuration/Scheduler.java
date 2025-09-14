@@ -82,7 +82,7 @@ public class Scheduler {
         }
     } 
 
-	@Scheduled(cron = "*/5 * * * * *", zone = "Asia/Kuala_Lumpur")
+	@Scheduled(cron = "* */5 * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler
 	public void sampleTask() throws Throwable {
         MDC.put("X-Request-ID", UUID.randomUUID());
@@ -113,7 +113,7 @@ public class Scheduler {
 
     private final SampleThreadService sampleThreadService;
 	
-	@Scheduled(cron = "*/10 * * * * *", zone = "Asia/Kuala_Lumpur")
+	@Scheduled(cron = "* */10 * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler
 	public void sampleTask2() throws Throwable {
 		UUID xRequestId = UUID.randomUUID();
