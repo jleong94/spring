@@ -4,7 +4,7 @@ log.info("hello {}", "world"); in log file it print as hello world
  -->
 <configuration packagingData="true" debug="false" scan="true" scanPeriod="30 seconds">
 	<springProperty scope="context" name="LOG_DIR" source="project.log.name" />
-	<springProperty scope="context" name="APP_NAME" value="spring.application.name"/>
+	<springProperty scope="context" name="APP_NAME" source="spring.application.name"/>
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} %X{X-Request-ID} - %msg%n</pattern>
