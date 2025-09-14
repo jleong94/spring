@@ -2,14 +2,19 @@
 <!-- 
 log.info("hello {}", "world"); in log file it print as hello world
  -->
-<configuration packagingData="true" debug="false" scan="true" scanPeriod="15 seconds">
+<configuration packagingData="true" debug="false" scan="true" scanPeriod="30 seconds">
 	<springProperty scope="context" name="LOG_DIR" source="project.log.name" />
+	<springProperty scope="context" name="APP_NAME" value="spring.application.name"/>
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} %X{X-Request-ID} - %msg%n</pattern>
 		</encoder>
 	</appender>
 	<appender name="ROOT_LOGGING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_DIR}/${APP_NAME}/application.json.log</file>
+		<append>true</append>
+		<prudent>false</prudent><!-- prudent=true only if multiple JVMs share the same file -->
+		<immediateFlush>false</immediateFlush><!-- Performance: avoid flushing on every line -->
 		<encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
 		    <providers>
 		        <timestamp>
@@ -24,13 +29,11 @@ log.info("hello {}", "world"); in log file it print as hello world
 		        <stackTrace/>
 		    </providers>
 		</encoder>
-		<immediateFlush>true</immediateFlush>
-		<append>true</append>
-		<prudent>true</prudent>
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<fileNamePattern>${LOG_DIR}/%d{yyyy-MM-dd}.%i.json.log</fileNamePattern>
+			<fileNamePattern>${LOG_DIR}/${APP_NAME}/%d{yyyy-MM-dd}.%i.json.log</fileNamePattern>
             <maxFileSize>500MB</maxFileSize>
-            <maxHistory>31</maxHistory>
+            <maxHistory>31</maxHistory> <!-- keep nth days -->
+            <totalSizeCap>10GB</totalSizeCap> <!-- prevent disk bloat -->
         </rollingPolicy>
 	</appender>
     
