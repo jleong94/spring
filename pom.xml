@@ -80,7 +80,7 @@
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-text</artifactId>
-		    <version>1.13.1</version>
+		    <version>1.14.0</version>
 		</dependency>
 		<!--advanced text-processing utilities-->
 		
@@ -336,7 +336,7 @@
 			<plugin>
 			    <groupId>org.owasp</groupId>
 			    <artifactId>dependency-check-maven</artifactId>
-			    <version>11.1.1</version>
+			    <version>12.1.3</version>
 			    <configuration>
 			        <failBuildOnCVSS>7</failBuildOnCVSS>
 			    </configuration>
