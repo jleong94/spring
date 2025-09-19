@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-	<suppress>
-        <filePath regex="true">.*brave-instrumentation-mongodb.*\.jar</filePath>
-        <notes>Suppress due to not using</notes>
+    <suppress>
+    	<gav regex="true">^io\.zipkin\.brave:brave-instrumentation-mongodb:.*$</gav>
+    	<cvssBelow>10.0</cvssBelow>
+    </suppress>
+    <suppress>
+    	<gav regex="true">^io\.netty:.*:.*$</gav>
+    	<cvssBelow>10.0</cvssBelow>
     </suppress>
 </suppressions>
