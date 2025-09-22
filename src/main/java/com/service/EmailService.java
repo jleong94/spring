@@ -1,15 +1,18 @@
 package com.service;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
 
 import com.modal.Email;
@@ -46,41 +49,27 @@ public class EmailService {
 				.register(this.meterRegistry);
 	}
 
-	public String exceptionNotificationEmailTemplate() {
-		return new StringBuilder()
-				.append("<!doctype html>")
-				.append("<html>")
-				.append("<head>")
-				.append("  <meta charset=\"utf-8\"/>")
-				.append("  <title>Exception Alert \u2014 %s</title>")
-				.append("  <style>")
-				.append("    body { font-family: Arial, sans-serif; background:#f4f6f8; padding:20px; }")
-				.append("    .container { max-width:800px; margin:auto; background:#fff; border:1px solid #ddd; border-radius:6px; padding:20px; }")
-				.append("    .header { font-size:16px; font-weight:bold; margin-bottom:12px; color:#d32f2f; }")
-				.append("    .message { font-size:14px; margin-bottom:20px; color:#333; line-height:1.5; }")
-				.append("    .stack { background:#f7f9fc; border:1px solid #e6eef8; padding:12px; border-radius:4px; font-family: Consolas, \"Courier New\", monospace; font-size:12px; white-space:pre-wrap; overflow:auto; }")
-				.append("    .footer { margin-top:20px; font-size:14px; color:#333; line-height:1.5; }")
-				.append("  </style>")
-				.append("</head>")
-				.append("<body>")
-				.append("  <div class=\"container\">")
-				.append("    <div class=\"header\">🚨 Exception Notification \u2014 %s</div>")
-				.append("    <div class=\"message\">")
-				.append("      Dear Support Team,<br><br>")
-				.append("      An exception has been detected in the application. Please review the stack trace below and take the necessary corrective action at the earliest convenience.")
-				.append("    </div>")
-				.append("    <div class=\"stack\">")
-				.append("      %s")
-				.append("    </div>")
-				.append("    <div class=\"footer\">")
-				.append("      Best regards,<br>")
-				.append("      %s Support Team")
-				.append("    </div>")
-				.append("  </div>")
-				.append("</body>")
-				.append("</html>")
-
-				.toString();
+	public String loadHtmlTemplate(Logger log, String filename) throws Throwable {
+		try {
+			ClassPathResource resource = new ClassPathResource("templates/html/".concat(filename));
+            return StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
+		} catch(Throwable e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		}
 	}
 
 	/*

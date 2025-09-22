@@ -37,6 +37,8 @@ N/A
 cd path\to\your\jar\directory
 # Step 5: Run the JAR with custom JVM options
 java -Xms256m -Xmx2048m -XX:+PrintGCDetails -jar spring.jar
+
+Note: Unlock & set password for file import into .p12 same as .p12 file 
 ```
 📊 Roadmap<br>
 - [ ] Setup fluentbit & opensearch to ship log & perform analysis.
