@@ -18,7 +18,7 @@ server:
     key-store: file:./src/main/resources/security/keystore.p12 # Holds your own identity: your server's private key + certificate
     key-store-password: changeit
     key-store-type: PKCS12
-    keyAlias: spring #Tell spring which key alias imported in PKCS12 file should use
+    key-alias: spring #Tell spring which key alias imported in PKCS12 file should use
     client-auth: want #need: client must provide valid cert (strict), want: client cert is optional, none: no client validation (default)
   http2:
     enabled: true
