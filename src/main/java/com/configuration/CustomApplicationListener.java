@@ -24,7 +24,7 @@ public class CustomApplicationListener implements ApplicationListener<Applicatio
 		try {
 			//Automate run script located at classpath once JPA done execution
 			Resource[] scripts = new PathMatchingResourcePatternResolver()
-					.getResources("classpath:db_script/*.sql");
+					.getResources("classpath*:db_script/*.sql");
 			for (Resource script : scripts) {
 				jdbcRepo.runScriptFile(log, script);
 			}
