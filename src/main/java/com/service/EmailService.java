@@ -1,5 +1,6 @@
 package com.service;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,7 +8,6 @@ import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -25,6 +25,7 @@ import io.github.resilience4j.retry.annotation.Retry;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.mail.internet.MimeMessage;
+
 @Service
 public class EmailService {
 
@@ -51,8 +52,8 @@ public class EmailService {
 
 	public String loadHtmlTemplate(Logger log, String filename) throws Throwable {
 		try {
-			ClassPathResource resource = new ClassPathResource("templates/html/".concat(filename));
-            return StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
+			InputStream in = getClass().getClassLoader().getResourceAsStream("templates/html/".concat(filename));
+            return StreamUtils.copyToString(in, StandardCharsets.UTF_8);
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];

@@ -92,7 +92,7 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 	        // Also add to response for client tracking
 	        response.setHeader("X-Request-ID", xRequestId.toString());
 	        
-			MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
+			MDC.put("X-Request-ID", response.getHeader("X-Request-ID") != null && !response.getHeader("X-Request-ID").isBlank() ? response.getHeader("X-Request-ID") : UUID.randomUUID());
 			log.info("-Custom once per request filter start-");
 			logHttpRequest(request, log);
 
