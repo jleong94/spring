@@ -95,7 +95,7 @@ spring:
     sender: test@gmail.com
 mybatis:
   mapper-locations: 
-  - file:.classpath:mybatis/mapper/*.xml # Location(s) of your MyBatis XML mapper files.
+  - classpath:mybatis/mapper/*.xml # Location(s) of your MyBatis XML mapper files.
   type-aliases-package: com.modal # Package(s) to scan for domain/model classes to create type aliases automatically.
   configuration:
     # Automatically converts column names with underscores (snake_case) to camelCase in Java objects.
