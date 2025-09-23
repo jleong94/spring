@@ -127,7 +127,7 @@ public class EmailService {
 	}
 
 	// Exception param must put as last param in fallback method
-	public Email fallbackSendEmail(Logger log, Email email, Throwable throwable) throws Throwable {
+	public Email fallbackSendEmail(Logger log, Email email, Throwable throwable) {
 		log.info("Recover on send email start.");
 		try {
 			String error_detail = "";
@@ -169,7 +169,6 @@ public class EmailService {
 					break;
 				}
 			}
-			throw e;
 		} finally{
 			log.info("Recover on send email end.");
 		}
