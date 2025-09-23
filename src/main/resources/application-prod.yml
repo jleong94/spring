@@ -6,7 +6,31 @@ server:
       charset: UTF-8
       enabled: true
       force: true
-  port: 1122 #Server port config. Valid range: 0 → 65535 
+  port: 1122 #Server port config. Valid range: 0 → 65535
+  tomcat:
+    threads:
+      min-spare: 20 # Keep at least nth idle worker threads ready
+      max: 400 # Allow up to nth concurrent request-processing threads(2x number of DB connections)
+    max-connections: 400 # Max TCP connections handled at once(2x number of DB connections)
+    accept-count: 1000 # Queue size for incoming requests if all threads are busy
+    connection-timeout: 60s # Drop a connection if idle too long
+    keep-alive-timeout: 60s # Keep-alive socket timeout
+    max-swallow-size: 2MB # Max size of discarded request body after error
+    basedir: ./logs/spring # Tomcat working directory
+    accesslog:
+      enabled: true
+      directory: access_logs # Access logs go into ./logs/{project_name}/access_log
+      pattern: '%h %l %u %t{yyyy-MM-dd''T''HH:mm:ss.SSSZ} "%r" %s %b %D'
+      rotate: true # Rotate logs automatically
+      rename-on-rotate: true # Old logs renamed instead of overwritten
+      file-date-format: .yyyy-MM-dd # Append date to log file name
+      suffix: .log # Log files end with .log
+      prefix: access_log # Log files start with access_log
+  max-http-request-header-size: 16kb # Prevent huge headers (defense vs DoS)
+  compression:
+    enabled: true # Enable gzip compression for responses
+    mime-types: application/json
+    min-response-size: 1024 # Compress only if body is > 1KB 
   ssl: #SSL TLS, Trust store, Key store
     enabled: true
     enabled-protocols: TLSv1.2,TLSv1.3

@@ -80,7 +80,12 @@ Check the service status: sudo systemctl status mpaypayment & journalctl -u mpay
 Disable the service from starting at boot: sudo systemctl disable mpaypayment
 Enable the service from starting at boot: sudo systemctl enable mpaypayment
 
-Note: Unlock & set password for file import into .p12 same as .p12 file 
+🔑 Keystore Setup:
+# Step 1: Install keystore explorer & launch it. 
+# Step 2: Click on, open an existing keystore & select the target .p12 file.
+# Step 3: Import the key, signed cert & intermediate cert.
+# Step 4: Right click on cert, select unlock & set password(password same as .p12 itself).
+# Step 5: Save it.
 ```
 📊 Roadmap<br>
 - [ ] Setup fluentbit & opensearch to ship log & perform analysis.
