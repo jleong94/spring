@@ -12,10 +12,10 @@ server:
     enabled-protocols: TLSv1.2,TLSv1.3
     protocol: TLSv1.2
     ciphers: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-    trust-store: file:./src/main/resources/security/truststore.p12 # Holds trusted public certificates
+    trust-store: classpath:security/truststore.p12 # Holds trusted public certificates
     trust-store-password: changeit
     trust-store-type: PKCS12
-    key-store: file:./src/main/resources/security/keystore.p12 # Holds your own identity: your server's private key + certificate
+    key-store: classpath:security/keystore.p12 # Holds your own identity: your server's private key + certificate
     key-store-password: changeit
     key-store-type: PKCS12
     key-alias: spring #Tell spring which key alias imported in PKCS12 file should use
@@ -54,7 +54,7 @@ spring:
         # VERIFY_CA - SSL is required, and server cert must be signed by a trusted CA.
         # VERIFY_IDENTITY - Like VERIFY_CA, plus it validates hostname matches certificate CN/SAN.
         sslMode: VERIFY_IDENTITY
-        trustCertificateKeyStoreUrl: file:./src/main/resources/security/keystore.p12
+        trustCertificateKeyStoreUrl: classpath:security/keystore.p12
         trustCertificateKeyStorePassword: changeit
         trustCertificateKeyStoreType: PKCS12
   jpa:
@@ -95,7 +95,7 @@ spring:
     sender: ${SMTP_USERNAME}
 mybatis:
   mapper-locations: 
-  - file:./src/main/resources/mybatis/mapper/*.xml # Location(s) of your MyBatis XML mapper files.
+  - classpath:mybatis/mapper/*.xml # Location(s) of your MyBatis XML mapper files.
   type-aliases-package: com.modal # Package(s) to scan for domain/model classes to create type aliases automatically.
   configuration:
     # Automatically converts column names with underscores (snake_case) to camelCase in Java objects.
