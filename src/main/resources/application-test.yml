@@ -26,7 +26,7 @@ server:
       file-date-format: .yyyy-MM-dd # Append date to log file name
       suffix: .log # Log files end with .log
       prefix: access_log # Log files start with access_log
-  max-http-request-header-size: 16kb # Prevent huge headers (defense vs DoS)
+  max-http-request-header-size: 16KB # Prevent huge headers (defense vs DoS)
   compression:
     enabled: true # Enable gzip compression for responses
     mime-types: application/json
