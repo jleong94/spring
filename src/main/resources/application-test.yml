@@ -20,7 +20,7 @@ server:
     accesslog:
       enabled: true
       directory: access_logs # Access logs go into ./logs/{project_name}/access_log
-      pattern: '%h %l %u %t{yyyy-MM-dd''T''HH:mm:ss.SSSZ} "%r" %s %b %D'
+      pattern: '%h %l %u %t "%r" %s %b %D'
       rotate: true # Rotate logs automatically
       rename-on-rotate: true # Old logs renamed instead of overwritten
       file-date-format: .yyyy-MM-dd # Append date to log file name
