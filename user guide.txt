@@ -1,7 +1,4 @@
-Command for run Java JAR file:
-java -Xms256m -Xmx2048m -XX:+PrintGCDetails -jar app.jar
-
-Command for run Java class file:
+Command for run Java class file from BAT:
 @echo off
 SET PROJECT_NAME=app
 SET BASE_DIR=C:\jakarta-tomcat\webapps
@@ -14,10 +11,6 @@ exit;
 Handling for HttpServlet
 request.setCharacterEncoding("UTF-8"); response.setCharacterEncoding("UTF-8"); response.setContentType("text/html; charset=UTF-8");
 request.getParameter("") == null || request.getParameter("").trim().isEmpty() ? "" : StringEscapeUtils.escapeHtml4(request.getParameter("")).trim();
-
-Command(Spring):
-1. verify clean install - Build spring project into jar or war file.
-2. ./mvnw compile - Run in cursor terminal to get .class file output & jar or war file for deployment.
 
 Lombok:
 Need to download the jar & click the jar to install at eclipse installation path.
