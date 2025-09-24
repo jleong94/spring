@@ -17,8 +17,15 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
-import com.exception.UnauthenticatedAccessException;
+import com.enums.ResponseCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.pojo.ApiResponse;
 import com.pojo.Property;
+import com.utilities.Tool;
+
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.MediaType;
 import lombok.extern.slf4j.Slf4j;
 
 /*
@@ -39,10 +46,16 @@ public class SecurityConfig implements WebMvcConfigurer {
 	
 	private final CustomHandlerInterceptor customHandlerInterceptor;
 	
-	public SecurityConfig(CustomOncePerRequestFilter customOncePerRequestFilter, Property property, CustomHandlerInterceptor customHandlerInterceptor) {
+	private final Tool tool;
+	
+	private final ObjectMapper objectMapper = new ObjectMapper()
+			.registerModule(new JavaTimeModule());
+	
+	public SecurityConfig(CustomOncePerRequestFilter customOncePerRequestFilter, Property property, CustomHandlerInterceptor customHandlerInterceptor, Tool tool) {
 		this.customOncePerRequestFilter = customOncePerRequestFilter;
 		this.property = property;
 		this.customHandlerInterceptor = customHandlerInterceptor;
+		this.tool = tool;
 	}
 
 	@Bean
@@ -80,11 +93,25 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.exceptionHandling(exception -> exception
 						.authenticationEntryPoint((request, response, authEx) -> {
 							//Fired when an unauthenticated request tries to access a protected resource
-							throw new UnauthenticatedAccessException("Unauthorized access.");
+							response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+							response.setContentType(MediaType.APPLICATION_JSON);
+							response.getWriter().write(objectMapper.writeValueAsString(ApiResponse
+									.builder()
+									.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
+									.resp_msg("Unauthenticated access.")
+									.datetime(tool.getTodayDateTimeInString())
+									.build()));
 						})
-						.accessDeniedHandler((req, res, accessDeniedEx) -> {
+						.accessDeniedHandler((request, response, accessDeniedEx) -> {
 							//Fired when an authenticated user lacks required permissions
-							throw new UnauthenticatedAccessException("Access denied.");
+							response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+							response.setContentType(MediaType.APPLICATION_JSON);
+							response.getWriter().write(objectMapper.writeValueAsString(ApiResponse
+									.builder()
+									.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
+									.resp_msg("Unauthorized access.")
+									.datetime(tool.getTodayDateTimeInString())
+									.build()));
 						})
 						)
 				// Register custom filter before Spring Security’s BasicAuthenticationFilter
