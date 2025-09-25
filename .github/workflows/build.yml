@@ -41,10 +41,10 @@ jobs:
       run: |  # Builds the JAR file
         if [ -n "${{ secrets.NVD_API_KEY }}" ]; then
           echo "NVD API key detected. Running Dependency-Check..."
-          mvn --batch-mode clean deploy -Dnvd.api.key=${{ secrets.NVD_API_KEY }}
+          mvn --batch-mode clean verify -Dnvd.api.key=${{ secrets.NVD_API_KEY }}
         else
           echo "No NVD API key found. Skipping Dependency-Check..."
-          mvn --batch-mode clean deploy -Dnvd.skip=true
+          mvn --batch-mode clean verify -Dnvd.skip=true
         fi
 
     - name: Create Incremental Version Tag
@@ -114,10 +114,10 @@ jobs:
       run: |  # Builds the JAR file
         if [ -n "${{ secrets.NVD_API_KEY }}" ]; then
           echo "NVD API key detected. Running Dependency-Check..."
-          mvn --batch-mode clean deploy -Dnvd.api.key=${{ secrets.NVD_API_KEY }}
+          mvn --batch-mode clean verify -Dnvd.api.key=${{ secrets.NVD_API_KEY }}
         else
           echo "No NVD API key found. Skipping Dependency-Check..."
-          mvn --batch-mode clean deploy -Dnvd.skip=true
+          mvn --batch-mode clean verify -Dnvd.skip=true
         fi
 
     - name: Create Incremental Version Tag
