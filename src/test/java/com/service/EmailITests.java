@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
@@ -15,6 +16,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.MethodOrderer;
 import com.modal.Email;
+import com.pojo.Property;
 
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
@@ -35,8 +37,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(EmailService.class) // Import your service class
+@Import({EmailService.class, Property.class}) // Import your service class
 @TestPropertySource(locations = "classpath:application-test.yml")
+@EnableConfigurationProperties(Property.class)
 public class EmailITests {
 	
 	@Autowired
