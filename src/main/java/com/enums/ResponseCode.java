@@ -6,7 +6,8 @@ public enum ResponseCode {
 	SUCCESS(0, "Success", "Successful."),
     UNAUTHORIZED_ACCESS(1, "Failed", null),
     ERROR(2, "Failed", null),
-    FAILED(3, "Failed", null);
+    FAILED(3, "Failed", null),
+    RATE_LIMIT(4, "Failed", "Exceed rate limit. Please retry later.");
 
 	private final int response_code;
 	private final String response_status;

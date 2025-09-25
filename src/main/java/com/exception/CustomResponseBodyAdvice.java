@@ -127,7 +127,7 @@ public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 	public ResponseEntity<ApiResponse> rateLimitExceededException(RateLimitExceededException e) {
 		return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(ApiResponse
 				.builder()
-				.resp_code(ResponseCode.ERROR.getResponse_code())
+				.resp_code(ResponseCode.RATE_LIMIT.getResponse_code())
 				.resp_msg(e.getMessage())
 				.datetime(tool.getTodayDateTimeInString())
 				.build());

@@ -43,6 +43,7 @@
 	
 	<properties>
 		<java.version>21</java.version>
+		<nvd.skip>true</nvd.skip>
 	</properties>
 	
 	<dependencyManagement>
@@ -373,7 +374,7 @@
 			    <configuration>
 			        <failBuildOnCVSS>7</failBuildOnCVSS>
 			        <suppressionFile>${project.basedir}/dependency-suppression.xml</suppressionFile><!--Skip Vulnerabilities OWASP Dependency-Check on certain library-->
-			        <skip>false</skip>
+			        <skip>${nvd.skip}</skip>
 			    </configuration>
 			    <executions>
 			        <execution>

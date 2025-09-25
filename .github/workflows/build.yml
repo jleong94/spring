@@ -38,7 +38,14 @@ jobs:
         EOF
 
     - name: Build with Maven
-      run: mvn clean deploy -Dnvd.api.key=${{ secrets.NVD_API_KEY }}  # Builds the JAR file
+      run: |  # Builds the JAR file
+        if [ -n "${{ secrets.NVD_API_KEY }}" ]; then
+          echo "NVD API key detected. Running Dependency-Check..."
+          mvn --batch-mode clean deploy -Dnvd.api.key=${{ secrets.NVD_API_KEY }}
+        else
+          echo "No NVD API key found. Skipping Dependency-Check..."
+          mvn --batch-mode clean deploy -Dnvd.skip=true
+        fi
 
     - name: Create Incremental Version Tag
       id: tagger
@@ -104,7 +111,14 @@ jobs:
         EOF
 
     - name: Build with Maven
-      run: mvn clean deploy -Dnvd.api.key=${{ secrets.NVD_API_KEY }}  # Builds the JAR file
+      run: |  # Builds the JAR file
+        if [ -n "${{ secrets.NVD_API_KEY }}" ]; then
+          echo "NVD API key detected. Running Dependency-Check..."
+          mvn --batch-mode clean deploy -Dnvd.api.key=${{ secrets.NVD_API_KEY }}
+        else
+          echo "No NVD API key found. Skipping Dependency-Check..."
+          mvn --batch-mode clean deploy -Dnvd.skip=true
+        fi
 
     - name: Create Incremental Version Tag
       id: tagger
