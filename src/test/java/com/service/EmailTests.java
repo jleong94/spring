@@ -1,6 +1,7 @@
 package com.service;
 
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +27,12 @@ import org.jboss.logging.MDC;
 
 import lombok.extern.slf4j.Slf4j;
 
+@Tag("integration")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
-public class EmailITests {
+public class EmailTests {
 	
 	@Autowired
 	private EmailService emailService;

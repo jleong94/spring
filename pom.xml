@@ -343,9 +343,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <includes>
-            <include>**/*Tests.java</include><!-- Run only test classes ending with 'Tests.java' (unit/slice tests) -->
-          </includes>
+          <groups>unit</groups> <!-- only run @Tag with value unit -->
         </configuration>
       </plugin>
       <!-- Unit tests -->
@@ -361,9 +359,7 @@
               <goal>verify</goal>
             </goals>
             <configuration>
-              <includes>
-                <include>**/*ITests.java</include><!-- Run only test classes ending with 'ITests.java' (Integration tests) -->
-              </includes>
+              <groups>integration</groups> <!-- only run @Tag with value integration -->
             </configuration>
           </execution>
         </executions>
