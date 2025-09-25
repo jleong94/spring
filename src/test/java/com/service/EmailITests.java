@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @DataJpaTest
 @Import(EmailService.class) // Import your service class
 @TestPropertySource(locations = "classpath:application-test.yml")
-public class EmailTests {
+public class EmailITests {
 	
 	@Autowired
 	private EmailService emailService;
