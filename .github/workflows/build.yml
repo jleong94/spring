@@ -105,6 +105,7 @@ jobs:
         echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> $GITHUB_ENV
         echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> $GITHUB_ENV
         echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> $GITHUB_ENV
+        echo "SMTP_SENDER=${{ secrets.SMTP_SENDER }}" >> $GITHUB_ENV
         mkdir -p src/main/resources/security/firebase
         cat << 'EOF' > src/main/resources/security/firebase/firebase-service-account.json
         ${{ secrets.FIREBASE_CREDENTIALS_JSON }}

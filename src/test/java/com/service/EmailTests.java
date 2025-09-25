@@ -5,9 +5,11 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.MethodOrderer;
@@ -30,8 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 @Tag("integration")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
-@SpringBootTest
-@ActiveProfiles("test")
+@DataJpaTest
+@Import(EmailService.class) // Import your service class
+@TestPropertySource(locations = "classpath:application-test.yml")
 public class EmailTests {
 	
 	@Autowired
@@ -39,6 +42,9 @@ public class EmailTests {
 	
 	@MockitoBean
 	private JavaMailSender mailSender;
+	
+	@Value("${spring.mail.sender}")
+    private String spring_mail_sender;
 
 	@Test
 	@Transactional
@@ -51,6 +57,7 @@ public class EmailTests {
 		    when(mailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
 		    
 			Email email = Email.builder()
+					.sender(spring_mail_sender)
 					.receiver("james.leong@mpsb.net")
 					.subject("Test Email")
 					.body("Hello world.")

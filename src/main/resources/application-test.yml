@@ -116,7 +116,7 @@ spring:
             enable: true
     protocol: smtp
     default-encoding: UTF-8
-    sender: ${SMTP_USERNAME}
+    sender: ${SMTP_SENDER}
 mybatis:
   mapper-locations: 
   - classpath:mybatis/mapper/*.xml # Location(s) of your MyBatis XML mapper files.

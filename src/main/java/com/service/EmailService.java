@@ -84,7 +84,7 @@ public class EmailService {
 		// Regex: looks for any opening/closing tag like <...>
 		Pattern TAG_PATTERN = Pattern.compile("<\\s*\\/?[a-zA-Z][^>]*>");
 		try {
-			email = email.toBuilder().sender(property.getSpring_mail_host()).build();
+			email = email.toBuilder().sender(email.getSender() == null || email.getSender().isBlank() ? property.getSpring_mail_sender() : email.getSender()).build();
 			MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 			mimeMessageHelper.setFrom(email.getSender()); // must match sender
