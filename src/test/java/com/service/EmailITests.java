@@ -18,6 +18,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import com.modal.Email;
 import com.pojo.Property;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,6 +51,9 @@ public class EmailITests {
 	
 	@Value("${spring.mail.sender}")
     private String spring_mail_sender;
+	
+	@MockitoBean
+	private MeterRegistry meterRegistry;
 
 	@Test
 	@Transactional
