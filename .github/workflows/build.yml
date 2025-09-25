@@ -38,7 +38,7 @@ jobs:
         EOF
 
     - name: Build with Maven
-      run: mvn clean deploy  # Builds the JAR file
+      run: mvn clean deploy -Dnvd.api.key=${{ secrets.NVD_API_KEY }}  # Builds the JAR file
 
     - name: Create Incremental Version Tag
       id: tagger
@@ -104,7 +104,7 @@ jobs:
         EOF
 
     - name: Build with Maven
-      run: mvn clean deploy  # Builds the JAR file
+      run: mvn clean deploy -Dnvd.api.key=${{ secrets.NVD_API_KEY }}  # Builds the JAR file
 
     - name: Create Incremental Version Tag
       id: tagger
