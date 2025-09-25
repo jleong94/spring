@@ -338,6 +338,37 @@
 				<groupId>org.springframework.boot</groupId>
             	<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<!-- Unit tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*Tests.java</include><!-- Run only test classes ending with 'Tests.java' (unit/slice tests) -->
+          </includes>
+        </configuration>
+      </plugin>
+      <!-- Unit tests -->
+			<!-- Integration tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>integration-tests</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>**/*ITests.java</include><!-- Run only test classes ending with 'ITests.java' (Integration tests) -->
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Integration tests -->
 			<!--Check Component Vulnerabilities Using OWASP Dependency-Check-->
 			<plugin>
 			    <groupId>org.owasp</groupId>

@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
-public class EmailTests {
+public class EmailITests {
 	
 	@Autowired
 	private EmailService emailService;

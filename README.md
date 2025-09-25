@@ -21,7 +21,9 @@ This project serves as a fully working **base template** for Java Spring Boot ap
 # Step 2: Click install, wait for it finish & restart eclipse.
 # Step 3: Right click target project, select run as->run configurations.
 # Step 4: Select maven build.
-# Step 5: Put in, verify clean install on goals input box.
+# Step 5: Put in, verify clean {goal} on goals input box.
+  - {goal}: validate → compile → test → package → integration-test → verify → install → deploy
+  - Most right side will cover the job from right to left.
 # Step 6: On jre tab, pick the right jdk on alternate jre dropdown.
 # Step 7: Click run & wait for it finish.
 # Step 8: JAR file will output at {project directory}/target
