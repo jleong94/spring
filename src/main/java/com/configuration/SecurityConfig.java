@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -60,8 +61,10 @@ public class SecurityConfig implements WebMvcConfigurer {
 	}
 
 	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Throwable {
+	@Order(1)
+	SecurityFilterChain httpSecurityFilterChain(HttpSecurity http) throws Throwable {
 		return http
+				.securityMatcher(new CustomRequestMatcher(8080))
 				.headers(headers -> {
 					// Force HTTPS communication and prevent protocol downgrade attacks.
 					if (sslEnabled) {
@@ -125,7 +128,149 @@ public class SecurityConfig implements WebMvcConfigurer {
 						.requestMatchers(HttpMethod.POST, "/v1/template/put").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/delete").permitAll()
 						//.requestMatchers(HttpMethod.POST, "<endpoint - example, /v1/test>").hasAnyAuthority("SCOPE_<user type>_<action>_<permission: read/write>")
-						.anyRequest().authenticated() // All other endpoints are publicly accessible
+						.anyRequest().authenticated() // All other endpoints must authenticated
+						)
+				.build();// Return the built filter chain
+	}
+
+	@Bean
+	@Order(2)
+	SecurityFilterChain httpsSecurityFilterChain(HttpSecurity http) throws Throwable {
+		return http
+				.securityMatcher(new CustomRequestMatcher(8443))
+				.headers(headers -> {
+					// Force HTTPS communication and prevent protocol downgrade attacks.
+					if (sslEnabled) {
+						headers.httpStrictTransportSecurity(hsts -> hsts
+								.includeSubDomains(true)// Applies HSTS to subdomains
+								.maxAgeInSeconds(31536000)// Cache duration: 1 year
+								);
+					}
+					 // Mitigate XSS, clickjacking, and content injection attacks
+					headers.contentSecurityPolicy(csp -> csp
+							.policyDirectives("default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none';")
+							);
+					//Prevent the site from being embedded in frames (defense against clickjacking)
+					headers.frameOptions(frame -> frame.deny());
+					//Referrer policy to prevent leaking full URLs when navigating offsite
+					headers.referrerPolicy(referrer -> referrer
+							.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)
+							);
+				})
+
+				// Disable CSRF protection because app is stateless (e.g., uses JWT tokens)
+				.csrf(csrf -> csrf.disable())
+				// Enable Cross-Origin Resource Sharing with custom config
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				// Stateless session management: no HTTP session stored server-side
+				.sessionManagement(session ->
+				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+						)
+				// Handle authentication & access errors with custom exceptions
+				.exceptionHandling(exception -> exception
+						.authenticationEntryPoint((request, response, authEx) -> {
+							//Fired when an unauthenticated request tries to access a protected resource
+							response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+							response.setContentType(MediaType.APPLICATION_JSON);
+							response.getWriter().write(objectMapper.writeValueAsString(ApiResponse
+									.builder()
+									.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
+									.resp_msg("Unauthenticated access.")
+									.datetime(tool.getTodayDateTimeInString())
+									.build()));
+						})
+						.accessDeniedHandler((request, response, accessDeniedEx) -> {
+							//Fired when an authenticated user lacks required permissions
+							response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+							response.setContentType(MediaType.APPLICATION_JSON);
+							response.getWriter().write(objectMapper.writeValueAsString(ApiResponse
+									.builder()
+									.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
+									.resp_msg("Unauthorized access.")
+									.datetime(tool.getTodayDateTimeInString())
+									.build()));
+						})
+						)
+				// Register custom filter before Spring Security’s BasicAuthenticationFilter
+				.addFilterBefore(customOncePerRequestFilter, BasicAuthenticationFilter.class)
+				// Secure endpoint access rules
+				.authorizeHttpRequests((requests) -> requests
+						.requestMatchers(HttpMethod.POST, "/v1/template/post").permitAll()
+						.requestMatchers(HttpMethod.POST, "/v1/template/get").permitAll()
+						.requestMatchers(HttpMethod.POST, "/v1/template/get-async").permitAll()
+						.requestMatchers(HttpMethod.POST, "/v1/template/put").permitAll()
+						.requestMatchers(HttpMethod.POST, "/v1/template/delete").permitAll()
+						//.requestMatchers(HttpMethod.POST, "<endpoint - example, /v1/test>").hasAnyAuthority("SCOPE_<user type>_<action>_<permission: read/write>")
+						.anyRequest().authenticated() // All other endpoints  must authenticated
+						)
+				.build();// Return the built filter chain
+	}
+
+	@Bean
+	@Order(3)
+	SecurityFilterChain managementSecurityFilterChain(HttpSecurity http) throws Throwable {
+		return http
+				.securityMatcher(new CustomRequestMatcher(8444))
+				.headers(headers -> {
+					// Force HTTPS communication and prevent protocol downgrade attacks.
+					if (sslEnabled) {
+						headers.httpStrictTransportSecurity(hsts -> hsts
+								.includeSubDomains(true)// Applies HSTS to subdomains
+								.maxAgeInSeconds(31536000)// Cache duration: 1 year
+								);
+					}
+					 // Mitigate XSS, clickjacking, and content injection attacks
+					headers.contentSecurityPolicy(csp -> csp
+							.policyDirectives("default-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none';")
+							);
+					//Prevent the site from being embedded in frames (defense against clickjacking)
+					headers.frameOptions(frame -> frame.deny());
+					//Referrer policy to prevent leaking full URLs when navigating offsite
+					headers.referrerPolicy(referrer -> referrer
+							.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)
+							);
+				})
+
+				// Disable CSRF protection because app is stateless (e.g., uses JWT tokens)
+				.csrf(csrf -> csrf.disable())
+				// Enable Cross-Origin Resource Sharing with custom config
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				// Stateless session management: no HTTP session stored server-side
+				.sessionManagement(session ->
+				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+						)
+				// Handle authentication & access errors with custom exceptions
+				.exceptionHandling(exception -> exception
+						.authenticationEntryPoint((request, response, authEx) -> {
+							//Fired when an unauthenticated request tries to access a protected resource
+							response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+							response.setContentType(MediaType.APPLICATION_JSON);
+							response.getWriter().write(objectMapper.writeValueAsString(ApiResponse
+									.builder()
+									.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
+									.resp_msg("Unauthenticated access.")
+									.datetime(tool.getTodayDateTimeInString())
+									.build()));
+						})
+						.accessDeniedHandler((request, response, accessDeniedEx) -> {
+							//Fired when an authenticated user lacks required permissions
+							response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+							response.setContentType(MediaType.APPLICATION_JSON);
+							response.getWriter().write(objectMapper.writeValueAsString(ApiResponse
+									.builder()
+									.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())
+									.resp_msg("Unauthorized access.")
+									.datetime(tool.getTodayDateTimeInString())
+									.build()));
+						})
+						)
+				// Register custom filter before Spring Security’s BasicAuthenticationFilter
+				.addFilterBefore(customOncePerRequestFilter, BasicAuthenticationFilter.class)
+				// Secure endpoint access rules
+				.authorizeHttpRequests((requests) -> requests
+						.requestMatchers("/actuator/**").permitAll()
+						//.requestMatchers(HttpMethod.POST, "<endpoint - example, /v1/test>").hasAnyAuthority("SCOPE_<user type>_<action>_<permission: read/write>")
+						.anyRequest().denyAll() // All other endpoints will be deny.
 						)
 				.build();// Return the built filter chain
 	}

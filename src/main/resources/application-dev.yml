@@ -164,6 +164,8 @@ allowed:
   origins: localhost:8080
 management: #Spring actuator
   server:
+    base-path: /spring  # Sets a global prefix between domain & all endpoints, {domain}/{prefix}/{endpoint}
+    address: 0.0.0.0 # bind to private/internal IP only
     port: 8444
   endpoints:
     web:
