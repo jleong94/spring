@@ -68,6 +68,7 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 				resolvedKey = resolvedKey.concat(resolvedRequestBodyFieldKey);
 			}
 			// Try to consume a token
+			log.info("Resolved key {}", resolvedKey);
 			CustomBucket bucket = rateLimitService.resolveBucket(resolvedKey, request.getRequestURI());
 			boolean allowed = bucket.tryConsume(1);
 

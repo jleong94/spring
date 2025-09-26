@@ -4,21 +4,14 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.junit.jupiter.api.MethodOrderer;
 import com.modal.Email;
-import com.pojo.Property;
 
-import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,25 +28,15 @@ import lombok.extern.slf4j.Slf4j;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Slf4j
-@DataJpaTest
-@Testcontainers
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({EmailService.class, Property.class}) // Import your service class
-@TestPropertySource(locations = "classpath:application-test.yml")
-@EnableConfigurationProperties(Property.class)
+@SpringBootTest
+@ActiveProfiles("test")
 public class EmailITests {
-	
+
 	@Autowired
 	private EmailService emailService;
-	
+
 	@MockitoBean
 	private JavaMailSender mailSender;
-	
-	@Value("${spring.mail.sender}")
-    private String spring_mail_sender;
-	
-	@MockitoBean
-	private MeterRegistry meterRegistry;
 
 	@Test
 	@Transactional
@@ -63,17 +46,16 @@ public class EmailITests {
 		log.info("-Test send email start-");
 		try {
 			// stub createMimeMessage to return a usable object
-		    when(mailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
-		    
+			when(mailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
+
 			Email email = Email.builder()
-					.sender(spring_mail_sender)
 					.receiver("james.leong@mpsb.net")
 					.subject("Test Email")
 					.body("Hello world.")
 					.build();
 			// ✅ Assert: result should be true
-	        assertTrue(emailService.sendEmail(log, email).isSend(), "sendEmail should return true when email is sent successfully");
-			
+			assertTrue(emailService.sendEmail(log, email).isSend(), "sendEmail should return true when email is sent successfully");
+
 			// Widely used validation: check send() was called once
 			verify(mailSender, times(1)).send(any(MimeMessage.class));
 		} catch(Throwable e) {
