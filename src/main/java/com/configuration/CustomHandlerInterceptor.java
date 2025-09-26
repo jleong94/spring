@@ -12,6 +12,7 @@ import com.pojo.bucket4j.CustomBucket;
 import com.service.RateLimitService;
 import com.validation.RateLimit;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,10 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Handler interceptor start-");
 		try {
+			if (request.getDispatcherType() != DispatcherType.REQUEST || request.getAttribute("CustomHandlerInterceptor") != null) {
+		        return true; //Avoid same full logic run twice for handler interceptor
+		    }
+			request.setAttribute("CustomHandlerInterceptor", Boolean.TRUE);
 			// Check if the handler is a HandlerMethod (i.e., a controller method).
 			// This allows access to method-level annotations such as @RateLimitHeader.
 			if (!(handler instanceof HandlerMethod)) {
