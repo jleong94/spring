@@ -163,6 +163,8 @@ rate:
 allowed:
   origins: localhost:8080
 management: #Spring actuator
+  server:
+    port: 8444
   endpoints:
     web:
       exposure: # endpoint: /actuator

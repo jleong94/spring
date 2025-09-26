@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -118,8 +119,13 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.addFilterBefore(customOncePerRequestFilter, BasicAuthenticationFilter.class)
 				// Secure endpoint access rules
 				.authorizeHttpRequests((requests) -> requests
+						.requestMatchers(HttpMethod.POST, "/v1/template/post").permitAll()
+						.requestMatchers(HttpMethod.POST, "/v1/template/get").permitAll()
+						.requestMatchers(HttpMethod.POST, "/v1/template/get-async").permitAll()
+						.requestMatchers(HttpMethod.POST, "/v1/template/put").permitAll()
+						.requestMatchers(HttpMethod.POST, "/v1/template/delete").permitAll()
 						//.requestMatchers(HttpMethod.POST, "<endpoint - example, /v1/test>").hasAnyAuthority("SCOPE_<user type>_<action>_<permission: read/write>")
-						.anyRequest().permitAll() // All other endpoints are publicly accessible
+						.anyRequest().authenticated() // All other endpoints are publicly accessible
 						)
 				.build();// Return the built filter chain
 	}
