@@ -167,6 +167,16 @@ management: #Spring actuator
     base-path: /spring  # Sets a global prefix between domain & all endpoints, {domain}/{prefix}/{endpoint}
     address: 0.0.0.0 # bind to private/internal IP only
     port: 8444
+    ssl: #SSL TLS, Trust store, Key store
+      enabled: false
+      enabled-protocols: TLSv1.2,TLSv1.3
+      protocol: TLSv1.2
+      ciphers: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+      key-store: classpath:security/keystore.p12 # Holds your own identity: your server's private key + certificate
+      key-store-password: changeit
+      key-store-type: PKCS12
+      key-alias: spring #Tell spring which key alias imported in PKCS12 file should use
+      client-auth: want #need: client must provide valid cert (strict), want: client cert is optional, none: no client validation (default)
   endpoints:
     web:
       exposure: # endpoint: /actuator
@@ -191,9 +201,13 @@ management: #Spring actuator
   metrics:
     tags:
       application: spring # Optional: customize metrics tags
+      environment: test
+      region: slg-my
   tracing: # OpenTelemetry integration
     sampling:
       probability: 0.5 # Full tracing in dev, lower in prod
+    baggage:
+      remote-fields: X-Request-ID,X-Correlation-ID # Pass these IDs across services for log & trace correlation 
 alert:
   slack:
     webhook-url:
