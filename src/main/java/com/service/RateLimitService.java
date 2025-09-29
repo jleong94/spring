@@ -3,12 +3,14 @@ package com.service;
 import com.configuration.RateLimitProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import com.pojo.bucket4j.CustomBucket;
 
 import io.github.bucket4j.Bandwidth;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerMapping;
@@ -18,6 +20,8 @@ import javax.cache.Cache;
 import javax.cache.CacheManager;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 import java.util.Map;
 
 @Service
@@ -162,17 +166,22 @@ public class RateLimitService {
 			byte[] body = ((ContentCachingRequestWrapper) effectiveRequest).getContentAsByteArray();
 			// If body is empty, return null
 			if (body.length == 0) return null;
-			// Parse the cached body as a JSON tree
-			JsonNode rootNode = objectMapper.readTree(body);
-			// Traverse nested fields using dot notation (e.g., "user.id" -> root.get("user").get("id"))
-			String[] fields = fieldPath.split("\\.");
-			JsonNode currentNode = rootNode;
-			for (String field : fields) {
-				if (currentNode == null) return null;
-				currentNode = currentNode.get(field);
+			// Convert the cached request body (byte[]) into a String, 
+			// using the request's character encoding if available, otherwise fall back to UTF-8.
+			String requestBody = new String(body, request.getCharacterEncoding() != null && !request.getCharacterEncoding().isBlank() ? request.getCharacterEncoding() : StandardCharsets.UTF_8.toString());
+			if(isJson(requestBody)) {
+				// Use JsonPath to extract the desired field value dynamically from JSON payload
+				return JsonPath.read(requestBody, "$..".concat(fieldPath)).toString();
 			}
-			// Return the value as text if found, otherwise null
-			return currentNode != null ? currentNode.asText() : null;
+			String parameterValue = "";
+			Enumeration<String> parameterNames = request.getParameterNames();
+			if(parameterNames != null) {
+				while(parameterNames.hasMoreElements()) {
+					String parameterName = parameterNames.nextElement();
+					parameterValue += (parameterValue.length() > 0 ? "," : "").concat(StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
+				}
+			}
+			return parameterValue;
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -190,5 +199,12 @@ public class RateLimitService {
 			}
 			throw e;
 		}
+	}
+	
+	private boolean isJson(String value) {
+		try {
+			JsonNode node = objectMapper.readTree(value);
+			return node.isObject() || node.isArray();
+		} catch(Throwable e) {return false;}
 	}
 }

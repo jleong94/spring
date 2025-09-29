@@ -30,16 +30,61 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
-		log.info("-Handler interceptor start-");
+		log.info("-Handler interceptor preHandle start-");
+		try {
+			
+			return true;
+		} catch(Exception e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		} catch(Throwable e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw new Exception(e);
+		} finally {
+			log.info("-Handler interceptor preHandle end-");
+			MDC.clear();
+		}
+    }
+	
+	@Override
+	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
+		log.info("-Handler interceptor afterCompletion start-");
 		try {
 			if (request.getDispatcherType() != DispatcherType.REQUEST || request.getAttribute("CustomHandlerInterceptor") != null) {
-		        return true; //Avoid same full logic run twice for handler interceptor
-		    }
+				return; //Avoid same full logic run twice for handler interceptor
+			}
 			request.setAttribute("CustomHandlerInterceptor", Boolean.TRUE);
 			// Check if the handler is a HandlerMethod (i.e., a controller method).
 			// This allows access to method-level annotations such as @RateLimitHeader.
 			if (!(handler instanceof HandlerMethod)) {
-				return true;
+				return;
 			}
 			// Cast the generic handler object to HandlerMethod to access controller method metadata
 			HandlerMethod handlerMethod = (HandlerMethod) handler;
@@ -82,7 +127,7 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 				throw new RateLimitExceededException("Rate limit exceeded");
 			}
 
-			return true;
+			return;
 		} catch(Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -116,8 +161,8 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 			}
 			throw new Exception(e);
 		} finally {
-			log.info("-Handler interceptor end-");
+			log.info("-Handler interceptor afterCompletion end-");
 			MDC.clear();
 		}
-    }
+	}
 }
