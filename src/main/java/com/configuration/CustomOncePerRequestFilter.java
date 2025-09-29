@@ -12,12 +12,12 @@ import org.jboss.logging.MDC;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.lang.NonNull;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,7 +68,7 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 			UUID xRequestId = UUID.randomUUID();
 			
 			// Wrap request to add custom header
-			ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request) {
+			HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request) {
 	            @Override
 	            public String getHeader(String name) {
 	                if ("X-Request-ID".equals(name)) {
