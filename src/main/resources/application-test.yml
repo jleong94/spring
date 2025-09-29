@@ -16,10 +16,10 @@ server:
     connection-timeout: 60s # Drop a connection if idle too long
     keep-alive-timeout: 60s # Keep-alive socket timeout
     max-swallow-size: 2MB # Max size of discarded request body after error
-    basedir: ./logs/spring # Tomcat working directory
+    basedir: ./logs # Tomcat working directory
     accesslog:
       enabled: true
-      directory: access_logs # Access logs go into ./logs/{project_name}/access_log
+      directory: access_logs # Access logs go into ./logs/access_log
       pattern: '%h %l %u %t "%r" %s %b %D'
       rotate: true # Rotate logs automatically
       rename-on-rotate: true # Old logs renamed instead of overwritten
