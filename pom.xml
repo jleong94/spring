@@ -351,6 +351,9 @@
           <includes>
             <include>**/*Tests.java</include> <!-- Run test for class name end with Tests -->
           </includes>
+          <excludes>
+            <exclude>**/*ITests.java</exclude> <!-- Exclude run test for class name end with ITests -->
+          </excludes>
         </configuration>
       </plugin>
       <!-- Unit tests -->
@@ -367,7 +370,7 @@
             </goals>
             <configuration>
               <includes>
-                <include>**/*ITests.java</include> <!-- Run test for class name end with Tests -->
+                <include>**/*ITests.java</include> <!-- Run test for class name end with ITests -->
               </includes>
             </configuration>
           </execution>
