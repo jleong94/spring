@@ -85,12 +85,12 @@ WantedBy=multi-user.target
 EOF
 # Step 14: Copt & paste below CLI to perform necessary action.
 To refresh the updated script to system: sudo systemctl daemon-reload
-Start the service: sudo systemctl start mpaypayment
-Stop the service: sudo systemctl stop mpaypayment
-Restart the service: sudo systemctl restart mpaypayment
-Check the service status: sudo systemctl status mpaypayment & journalctl -u mpaypayment -f
-Disable the service from starting at boot: sudo systemctl disable mpaypayment
-Enable the service from starting at boot: sudo systemctl enable mpaypayment
+Start the service: sudo systemctl start spring
+Stop the service: sudo systemctl stop spring
+Restart the service: sudo systemctl restart spring
+Check the service status: sudo systemctl status spring & journalctl -u spring -f
+Disable the service from starting at boot: sudo systemctl disable spring
+Enable the service from starting at boot: sudo systemctl enable spring
 
 🔑 Keystore Setup:
 # Step 1: Install keystore explorer & launch it. 
