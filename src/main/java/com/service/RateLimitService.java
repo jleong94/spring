@@ -1,33 +1,25 @@
 package com.service;
 
 import com.configuration.RateLimitProperties;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
 import com.pojo.bucket4j.CustomBucket;
 
 import io.github.bucket4j.Bandwidth;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Map;
 
 @Service
 public class RateLimitService {
-	
-	private final ObjectMapper objectMapper;
 
 	private final Cache<String, CustomBucket> cache;
 	
@@ -38,8 +30,7 @@ public class RateLimitService {
      *
      * @param cacheManager Spring's CacheManager used to retrieve a named cache.
      */
-	public RateLimitService(ObjectMapper objectMapper, RateLimitProperties rateLimitProperties, CacheManager cacheManager) {
-		this.objectMapper = objectMapper;
+	public RateLimitService(RateLimitProperties rateLimitProperties, CacheManager cacheManager) {
 		this.rateLimitProperties = rateLimitProperties;
 		this.cache = cacheManager.getCache("buckets", String.class, CustomBucket.class);
 	}
@@ -85,7 +76,7 @@ public class RateLimitService {
 					break;
 				}       
 				if (resolvedKey != null && !resolvedKey.isBlank()) {
-					result += (result.length() > 0 ? ":" : "") + keyValue + ":" + resolvedKey;
+					result += (result.length() > 0 ? "," : "") + keyValue + ":" + resolvedKey;
 				}
 			}
 		} catch(Throwable e) {
@@ -149,30 +140,6 @@ public class RateLimitService {
 	 */
 	private String resolveRequestBodyField(Logger log, HttpServletRequest request, String fieldPath) throws Throwable {
 		try {
-			HttpServletRequest effectiveRequest = request;
-			// Traverse wrapper chain to find ContentCachingRequestWrapper
-			// This is needed because your request may be wrapped multiple times (e.g., by custom or Spring wrappers)
-			while (effectiveRequest instanceof HttpServletRequestWrapper) {
-				if (effectiveRequest instanceof ContentCachingRequestWrapper) {
-					break;
-				}
-				effectiveRequest = (HttpServletRequest) ((HttpServletRequestWrapper) effectiveRequest).getRequest();
-			}
-			// If the caching wrapper isn't present, return null (body can't be re-read safely)
-			if (!(effectiveRequest instanceof ContentCachingRequestWrapper)) {
-				return null; // Body caching is not available
-			}
-			// Extract cached body as byte array
-			byte[] body = ((ContentCachingRequestWrapper) effectiveRequest).getContentAsByteArray();
-			// If body is empty, return null
-			if (body.length == 0) return null;
-			// Convert the cached request body (byte[]) into a String, 
-			// using the request's character encoding if available, otherwise fall back to UTF-8.
-			String requestBody = new String(body, request.getCharacterEncoding() != null && !request.getCharacterEncoding().isBlank() ? request.getCharacterEncoding() : StandardCharsets.UTF_8.toString());
-			if(isJson(requestBody)) {
-				// Use JsonPath to extract the desired field value dynamically from JSON payload
-				return JsonPath.read(requestBody, "$..".concat(fieldPath)).toString();
-			}
 			String parameterValue = "";
 			Enumeration<String> parameterNames = request.getParameterNames();
 			if(parameterNames != null) {
@@ -199,12 +166,5 @@ public class RateLimitService {
 			}
 			throw e;
 		}
-	}
-	
-	private boolean isJson(String value) {
-		try {
-			JsonNode node = objectMapper.readTree(value);
-			return node.isObject() || node.isArray();
-		} catch(Throwable e) {return false;}
 	}
 }
