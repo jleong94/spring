@@ -20,7 +20,7 @@ server:
     accesslog:
       enabled: true
       directory: access_logs # Access logs go into ./logs/access_log
-      pattern: '%h %l %u %t "%r" %s %b %D'
+      pattern: '%h %l %u %t "%r" %s %b %D' # format: clientIP userIdent userAuth timestamp "requestLine" status responseSize(bytes) timeTaken(ms)
       rotate: true # Rotate logs automatically
       rename-on-rotate: true # Old logs renamed instead of overwritten
       file-date-format: .yyyy-MM-dd # Append date to log file name
