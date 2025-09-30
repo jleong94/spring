@@ -1,4 +1,5 @@
 server:
+  forward-headers-strategy: native # Enable Forwarded Headers support
   shutdown: graceful # Ensures graceful shutdown in containers/k8s
   servlet:
     context-path: /spring # Sets a global prefix between domain & all endpoints, {domain}/{prefix}/{endpoint}
