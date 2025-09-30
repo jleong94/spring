@@ -56,6 +56,7 @@ spring:
     password: Pass@123
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
+      validation-timeout: 5000 # Max time to check if a DB connection is alive before using it (ms)
       maximum-pool-size: 30 # Defines how many connections can be open concurrently
       minimum-idle: 10 # Minimum idle connections in the pool(in count)
       idle-timeout: 600000  # Helps recycle connections and free up resources(in milliseconds). idle-timeout must be less than max-lifetime
