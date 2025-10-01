@@ -72,7 +72,7 @@ public class RestJAXRS {
 	@Path("/token/{x3}")
 	@Consumes({"application/json; charset=UTF-8"})
 	@Produces({"application/json; charset=UTF-8"})
-	protected Response methodName(@Context HttpServletRequest request,
+	public Response methodName(@Context HttpServletRequest request,
 			@HeaderParam("authorization") @DefaultValue("") String authorization,//Values from header
 			@CookieParam("session") @DefaultValue("") String session,//Values from cookies
 			@QueryParam("x2") @DefaultValue("") String x2,// /token?x2=test & with default value empty string
