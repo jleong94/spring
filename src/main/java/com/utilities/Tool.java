@@ -15,16 +15,10 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.Cleanup;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.common.SecurityUtils;
@@ -176,73 +170,5 @@ public class Tool {
 			}
 		}
 		return savedFiles;
-	}
-
-	public String maskJson(Logger log, Set<String> jsonKey, String inputJson) {
-		String result = "";
-		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			JsonNode root = objectMapper.readTree(inputJson);
-			maskNode(jsonKey, root);
-			result = objectMapper.writeValueAsString(root);
-		} catch(Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-		}
-		return result;
-	}
-
-	private void maskNode(Set<String> jsonKey, JsonNode node) {
-		if (node.isObject()) {
-			ObjectNode object = (ObjectNode) node;
-			object.fieldNames().forEachRemaining(field -> {
-				JsonNode child = object.get(field);
-				if (jsonKey.contains(field)) {
-					if (child.isTextual()) {
-						object.put(field, maskValue(child.asText()));
-					} else if (child.isArray()) {
-						ArrayNode array = (ArrayNode) child;
-						for (int i = 0; i < array.size(); i++) {
-							JsonNode item = array.get(i);
-							if (item.isTextual()) {
-								array.set(i, TextNode.valueOf(maskValue(item.asText())));
-							} else {
-								maskNode(jsonKey, item); // array of objects
-							}
-						}
-					} else {
-						maskNode(jsonKey, child);
-					}
-				} else {
-					maskNode(jsonKey, child);  // recurse
-				}
-			});
-		} else if (node.isArray()) {
-			for (JsonNode item : node) {
-				maskNode(jsonKey, item);
-			}
-		}
-	}
-
-	public String maskValue(String plainValue) {
-		if (plainValue == null || plainValue.isBlank()) return "";
-		int length = plainValue.length();
-		if (length <= 10) return "*".repeat(length); // not enough room to show 6 + 4
-		String front = plainValue.substring(0, 6);
-		String end = plainValue.substring(length - 4);
-		String masked = "*".repeat(length - 10);
-		return front.concat(masked).concat(end);
 	}
 }
