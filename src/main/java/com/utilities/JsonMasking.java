@@ -161,24 +161,4 @@ public class JsonMasking {
 	private boolean shouldMaskField(String fieldName) {
 		return this.fields2Mask.contains(fieldName.toLowerCase());
 	}
-
-	/**
-	 * Adds a single field name to the set of fields to be masked.
-	 * The field name is converted to lowercase for case-insensitive matching.
-	 * 
-	 * @param fieldName Field name to be added to masking set
-	 */
-	public void addFieldToMask(String fieldName) {
-		this.fields2Mask.add(fieldName.toLowerCase());
-	}
-
-	/**
-	 * Removes a field name from the set of fields to be masked.
-	 * The field name is converted to lowercase for case-insensitive matching.
-	 * 
-	 * @param fieldName Field name to be removed from masking set
-	 */
-	public void removeFieldFromMask(String fieldName) {
-		this.fields2Mask.remove(fieldName.toLowerCase());
-	}
 }
