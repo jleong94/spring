@@ -26,7 +26,7 @@ public class CardService {
      * @param cardNumber The card number to validate
      * @return ValidationResult containing the result and any error messages
      */
-	public CardValidity validateCard(Logger log, String cardNumber) throws Throwable {
+	public CardValidity validateCard(Logger log, String cardNumber) {
         try {
             // Log validation attempt with masked card number
         	log.info("Check {} for card validity.", maskCardNumber(cardNumber));
@@ -71,7 +71,10 @@ public class CardService {
 					break;
 				}
 			}
-            throw e;
+			return CardValidity.builder()
+	      			   .valid(false)
+	      			   .message(e.getMessage() != null && !e.getMessage().isBlank() ? e.getMessage() : "Exception error.")
+	      			   .build();
         }
     }
 

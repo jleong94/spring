@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class CardValidity {
 
 	private boolean valid;
+	
 	private String message;
 }
