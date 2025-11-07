@@ -25,6 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Property {
 	
+	@Value("${spring.profiles.active}")
+    private String spring_profiles_active;
+	
 	@Value("${spring.application.name}")
     private String spring_application_name;
 
@@ -67,10 +70,12 @@ public class Property {
 
         return javaMailSenderImpl;
     }
+	//Email SMTP
 	
 	//CORS
 	@Value("#{'${allowed.origins}'.split(',')}")
     private List<String> allowed_origins;
+	//CORS
 	
 	//Server
 	@Value("${server.ssl.enabled-protocols}")
@@ -96,10 +101,11 @@ public class Property {
 
 	@Value("${server.ssl.trust-store-type}")
     private String server_ssl_trust_store_type;
+	//Server
 	
-	// Firebase
-	@Value("${fcm.credentialsClasspathPath}")
-    private String fcm_credentialsClasspathPath;
+	// Google
+	@Value("${google.fcm.credentials.path}")
+    private String google_fcm_credentials_path;
 	
 	@PostConstruct
     public void initFirebase() throws Throwable {
@@ -109,17 +115,17 @@ public class Property {
                 return;
             }
 
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(this.fcm_credentialsClasspathPath);
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(this.google_fcm_credentials_path);
             if (inputStream != null) {
             	GoogleCredentials googleCredentials = GoogleCredentials.fromStream(inputStream);
-            	log.info("Initializing Firebase with classpath credentials: {}", this.fcm_credentialsClasspathPath);
+            	log.info("Initializing Firebase with classpath credentials: {}", this.google_fcm_credentials_path);
             	FirebaseOptions firebaseOptions = FirebaseOptions.builder()
                         .setCredentials(googleCredentials)
                         .build();
                 FirebaseApp.initializeApp(firebaseOptions);
                 log.info("Firebase initialized");
             } else {
-            	log.info("Couldn't find {} on classpath.", this.fcm_credentialsClasspathPath);
+            	log.info("Couldn't find {} on classpath.", this.google_fcm_credentials_path);
             }
         } catch (Throwable e) {
         	// Get the current stack trace element
@@ -140,6 +146,10 @@ public class Property {
         }
     }
 	
+	@Value("${google.pay.key.path}")
+    private String google_pay_key_path;
+	// Google
+	
 	//Alert
 	@Value("${alert.slack.webhook-url}")
 	private String alert_slack_webhook_url;
@@ -155,4 +165,5 @@ public class Property {
 
 	@Value("${alert.support.email.bcc}")
 	private String alert_support_email_bcc;
+	//Alert
 }

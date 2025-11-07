@@ -264,13 +264,18 @@
 		</dependency>
 		<!-- Mail -->
 		
-		<!-- Firebase Admin -->
+		<!-- Google -->
 		<dependency>
 		    <groupId>com.google.firebase</groupId>
 		    <artifactId>firebase-admin</artifactId>
 		    <version>9.6.0</version>
 		</dependency>
-		<!-- Firebase Admin -->
+		<dependency>
+        <groupId>com.google.crypto.tink</groupId>
+        <artifactId>apps-paymentmethodtoken</artifactId>
+        <version>1.12.2</version>
+    </dependency>
+		<!-- Google -->
 		
 		<!-- SSHJ(SSH2 & SFTP operation) -->
 		<dependency>

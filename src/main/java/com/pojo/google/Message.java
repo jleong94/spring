@@ -1,4 +1,4 @@
-package com.pojo.firebase.fcm;
+package com.pojo.google;
 
 import java.util.List;
 import java.util.Map;

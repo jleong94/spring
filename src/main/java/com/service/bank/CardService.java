@@ -23,10 +23,11 @@ public class CardService {
 	/**
      * Validates a credit card number using the Luhn algorithm and additional checks.
      * 
-     * @param cardNumber The card number to validate
+     * @param cardNumber The card number to validate 
+     * @param aid AID from terminal
      * @return ValidationResult containing the result and any error messages
      */
-	public CardValidity validateCard(Logger log, String cardNumber) {
+	public CardValidity validateCard(Logger log, String cardNumber, String aid) {
         try {
             // Log validation attempt with masked card number
         	log.info("Check {} for card validity.", maskCardNumber(cardNumber));
@@ -41,7 +42,7 @@ public class CardService {
             String cleanedNumber = cleanCardNumber(cardNumber);
             
             // Validate card type and length
-            CardType cardType = determineCardType(cleanedNumber);
+            CardType cardType = determineCardType(cleanedNumber, aid);
             if (cardType == CardType.UNKNOWN) {
             	return CardValidity.builder()
          			   .valid(false)
@@ -156,15 +157,22 @@ public class CardService {
      * Determines the card type based on the card number prefix.
      * 
      * @param cardNumber Cleaned card number
+     * @param aid AID from terminal
      * @return CardType enum representing the detected card type
      */
-    private CardType determineCardType(String cardNumber) {
+    private CardType determineCardType(String cardNumber, String aid) {
     	// VISA: Starts with 4, length 16
         if (Pattern.matches("^4[0-9]{15}$", cardNumber)) {
+        	if(aid != null && aid.trim().equalsIgnoreCase("A0000005241010")) {
+        		return CardType.MYDEBIT;
+        	}
             return CardType.VISA;
         }
         // MASTERCARD: Starts with 51-55, length 16
         if (Pattern.matches("^5[1-5][0-9]{14}$", cardNumber)) {
+        	if(aid != null && aid.trim().equalsIgnoreCase("A0000005241010")) {
+        		return CardType.MYDEBIT;
+        	}
             return CardType.MASTERCARD;
         }
         // AMEX: Starts with 34 or 37, length 15
@@ -174,10 +182,6 @@ public class CardService {
         // DISCOVER: Starts with 6011 or 65, length 16
         if (Pattern.matches("^(6011|65)[0-9]{12}$", cardNumber)) {
             return CardType.DISCOVER;
-        }
-        // MYDEBIT: Starts with 5018, 5020, or 5038, length 16
-        if (Pattern.matches("^(5018|5020|5038)[0-9]{12}$", cardNumber)) {
-            return CardType.MYDEBIT;
         }
         // UNIONPAY: Starts with 62, length 16-19
         if (Pattern.matches("^62[0-9]{14,17}$", cardNumber)) {

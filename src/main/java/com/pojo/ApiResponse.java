@@ -3,6 +3,7 @@ package com.pojo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.pojo.google.GooglePay;
 import com.pojo.template.Pojo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,19 +21,24 @@ import lombok.*;
 public class ApiResponse {
 
 	@JsonProperty(value= "resp_code", access = Access.READ_ONLY)
-	@JsonView({Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
+	@JsonView({GooglePay.Post.class, Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
 	@Schema(description = "Response code")
 	private int resp_code;
 
 	@JsonProperty(value= "resp_msg", access = Access.READ_ONLY)
-	@JsonView({Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
+	@JsonView({GooglePay.Post.class, Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
 	@Schema(description = "Response description")
 	private String resp_msg;
 
 	@JsonProperty(value= "datetime", access = Access.READ_ONLY)
-	@JsonView({Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
+	@JsonView({GooglePay.Post.class, Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
 	@Schema(description = "Response datetime")
 	private String datetime;
+	
+	@JsonProperty(value= "googlePay", access = Access.READ_ONLY)
+	@JsonView({GooglePay.Post.class})
+	@Schema(description = "Google Pay payload")
+	private GooglePay googlePay;
 	
 	@JsonProperty(value= "pojo", access = Access.READ_ONLY)
 	@JsonView({Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})

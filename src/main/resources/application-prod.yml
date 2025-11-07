@@ -219,8 +219,13 @@ alert:
       cc: 
       bcc: jleong963@gmail.com
       replyTo: jleong963@gmail.com
-fcm:
-  credentialsClasspathPath: "security/firebase/firebase-service-account.json"
+google:
+  fcm:
+    credentials:
+      path: "security/google/firebase/firebase-service-account.json"
+  pay:
+    key:
+      path: "security/google/pay/prod"
 springdoc:
   api-docs:
     enabled: true

@@ -1,4 +1,4 @@
-package com.service.firebase;
+package com.service.google;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +28,7 @@ public class FirebaseService {
 	private final EmailService emailService;
 
 	private final MeterRegistry meterRegistry;
+	
 	private final Counter recoverCounter;
 
 	private final RestTemplate restTemplate = new RestTemplate();
@@ -124,7 +125,7 @@ public class FirebaseService {
 
 	@Retry(name = "sendTokenBasedPushNotification")
     @CircuitBreaker(name = "sendTokenBasedPushNotification", fallbackMethod = "fallbackSendTokenBasedPushNotification")
-	public com.pojo.firebase.fcm.Message sendTokenBasedPushNotification(Logger log, com.pojo.firebase.fcm.Message message) throws Throwable {
+	public com.pojo.google.Message sendTokenBasedPushNotification(Logger log, com.pojo.google.Message message) throws Throwable {
 		try {
 			MulticastMessage.Builder builder = MulticastMessage.builder().addAllTokens(message.getToken());
 
@@ -178,7 +179,7 @@ public class FirebaseService {
 	}
 
 	// Exception param must put as last param in fallback method
-	public com.pojo.firebase.fcm.Message fallbackSendTokenBasedPushNotification(Logger log, com.pojo.firebase.fcm.Message message, Throwable throwable) {
+	public com.pojo.google.Message fallbackSendTokenBasedPushNotification(Logger log, com.pojo.google.Message message, Throwable throwable) {
 		log.info("Recover on send token based push notification start.");
 		try {
 			String error_detail = "";

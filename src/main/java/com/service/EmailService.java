@@ -36,6 +36,7 @@ public class EmailService {
 	private final Property property;
 
 	private final MeterRegistry meterRegistry;
+	
 	private final Counter recoverCounter;
 
 	private final RestTemplate restTemplate = new RestTemplate();
