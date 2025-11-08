@@ -264,11 +264,18 @@ resilience4j:
         sliding-window-size: 50 # Look at the last nth calls.
         failure-rate-threshold: 50 # If ≥ nth% fail → stop calling for nth seconds
         wait-duration-in-open-state: 10s # After nth seconds, breaker moves to half-open to test few call. If successful → breaker closes again. 
+      decryptGooglePayToken:
+        sliding-window-size: 50 # Look at the last nth calls.
+        failure-rate-threshold: 50 # If ≥ nth% fail → stop calling for nth seconds
+        wait-duration-in-open-state: 10s # After nth seconds, breaker moves to half-open to test few call. If successful → breaker closes again. 
   retry:
     instances:
       sendEmail:
         max-attempts: 3
         wait-duration: 2s
       sendTokenBasedPushNotification:
+        max-attempts: 3
+        wait-duration: 2s
+      decryptGooglePayToken:
         max-attempts: 3
         wait-duration: 2s

@@ -171,4 +171,33 @@ public class Tool {
 		}
 		return savedFiles;
 	}
+	
+	public List<Path> loadFileList(Logger log, String dir) throws Throwable {
+		try {
+			Path path = Paths.get(dir).normalize();
+			if (!Files.exists(path) || !Files.isDirectory(path)) {
+				return Collections.emptyList();
+			}
+
+			return Files.list(path)
+					.filter(Files::isRegularFile)
+					.toList();
+		} catch(Throwable e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		}
+	}
 }
