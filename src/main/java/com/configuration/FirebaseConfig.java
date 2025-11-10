@@ -33,6 +33,8 @@ public class FirebaseConfig {
 	private boolean init = false;
 	
 	private Credentials credentials;
+	
+	public FirebaseConfig() {}
 
 	public FirebaseConfig(Credentials credentials) {
 		this.credentials = credentials;
