@@ -1,6 +1,5 @@
 package com.pojo;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,12 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-
-import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -102,53 +95,6 @@ public class Property {
 	@Value("${server.ssl.trust-store-type}")
     private String server_ssl_trust_store_type;
 	//Server
-	
-	// Google
-	@Value("${google.fcm.credentials.path}")
-    private String google_fcm_credentials_path;
-	
-	@PostConstruct
-    public void initFirebase() throws Throwable {
-        try {
-            if (!FirebaseApp.getApps().isEmpty()) {
-                log.info("Firebase already initialized");
-                return;
-            }
-
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(this.google_fcm_credentials_path);
-            if (inputStream != null) {
-            	GoogleCredentials googleCredentials = GoogleCredentials.fromStream(inputStream);
-            	log.info("Initializing Firebase with classpath credentials: {}", this.google_fcm_credentials_path);
-            	FirebaseOptions firebaseOptions = FirebaseOptions.builder()
-                        .setCredentials(googleCredentials)
-                        .build();
-                FirebaseApp.initializeApp(firebaseOptions);
-                log.info("Firebase initialized");
-            } else {
-            	log.info("Couldn't find {} on classpath.", this.google_fcm_credentials_path);
-            }
-        } catch (Throwable e) {
-        	// Get the current stack trace element
-        	StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-        	// Find matching stack trace element from exception
-        	for (StackTraceElement element : e.getStackTrace()) {
-        		if (currentElement.getClassName().equals(element.getClassName())
-        				&& currentElement.getMethodName().equals(element.getMethodName())) {
-        			log.error("Error in {} at line {}: {} - {}",
-        					element.getClassName(),
-        					element.getLineNumber(),
-        					e.getClass().getName(),
-        					e.getMessage());
-        			break;
-        		}
-        	}
-        	throw e;
-        }
-    }
-	
-	@Value("${google.pay.key.path}")
-    private String google_pay_key_path;
-	// Google
 	
 	//Alert
 	@Value("${alert.slack.webhook-url}")

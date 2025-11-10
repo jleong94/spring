@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.configuration.GooglePayConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.crypto.tink.apps.paymentmethodtoken.GooglePaymentsPublicKeysManager;
@@ -40,7 +41,9 @@ public class GooglePayService {
 
 	private final RestTemplate restTemplate = new RestTemplate();
 
-	public GooglePayService(Tool tool, Property property, EmailService emailService, MeterRegistry meterRegistry) {
+	private final GooglePayConfig googlePayConfig;
+
+	public GooglePayService(Tool tool, Property property, EmailService emailService, MeterRegistry meterRegistry, GooglePayConfig googlePayConfig) {
 		this.tool = tool;
 		this.property = property;
 		this.emailService = emailService;
@@ -48,13 +51,14 @@ public class GooglePayService {
 		this.recoverCounter = Counter.builder("firebase_service_failures_total")
 				.description("Number of failed retries hitting @Recover")
 				.register(this.meterRegistry);
+		this.googlePayConfig = googlePayConfig;
 	}
 	
 	@Retry(name = "decryptGooglePayToken")
     @CircuitBreaker(name = "decryptGooglePayToken", fallbackMethod = "fallbackDecryptGooglePayToken")
 	public com.pojo.google.GooglePay decryptGooglePayToken(Logger log, com.pojo.google.GooglePay googlePay) throws Throwable {
 		try {
-			List<Path> paths = tool.loadFileList(log, property.getGoogle_pay_key_path());
+			List<Path> paths = tool.loadFileList(log, googlePayConfig.getKey().getPath());
 			Builder paymentMethodTokenRecipient = new PaymentMethodTokenRecipient.Builder()
 					.fetchSenderVerifyingKeysWith(property.getSpring_profiles_active().equals("prod") ? GooglePaymentsPublicKeysManager.INSTANCE_PRODUCTION : GooglePaymentsPublicKeysManager.INSTANCE_TEST);
 			if(!property.getSpring_profiles_active().equals("prod")) {paymentMethodTokenRecipient.recipientId("merchant:12345678901234567890");}
