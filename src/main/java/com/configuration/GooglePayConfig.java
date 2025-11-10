@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
 @AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
+@NoArgsConstructor//Generates a constructor with no parameters
 @Builder(toBuilder = true)
 public class GooglePayConfig {
 
@@ -36,7 +37,7 @@ public class GooglePayConfig {
 	
 	private Key key;
 	
-	private final Property property;
+	private Property property;
 
 	public GooglePayConfig(Property property, Key key) {
 		this.property = property;
