@@ -2,6 +2,7 @@ package com.configuration;
 
 import java.time.Instant;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
@@ -37,6 +38,7 @@ public class GooglePayConfig {
 	
 	private Key key;
 	
+	@Autowired(required = false)
 	private Property property;
 
 	public GooglePayConfig(Property property, Key key) {
