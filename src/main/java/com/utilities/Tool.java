@@ -15,6 +15,7 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -172,6 +173,29 @@ public class Tool {
 		return savedFiles;
 	}
 	
+	/**
+	 * Loads a list of regular files from the specified directory path.
+	 * 
+	 * This method scans the given directory and returns a list of Path objects
+	 * representing regular files (not directories or other special files) within
+	 * that directory. The directory path is normalized before processing.
+	 * 
+	 * @param log   Logger instance used for error reporting
+	 * @param dir   String representing the directory path to scan
+	 * 
+	 * @return List<Path> containing paths to all regular files in the directory.
+	 *         Returns an empty list if the directory doesn't exist or is not a directory.
+	 * 
+	 * @throws Throwable if any error occurs during file system operations. The error
+	 *         is logged with detailed stack trace information (including class name,
+	 *         line number, and error message) before being re-thrown.
+	 * 
+	 * @implNote
+	 * - Uses Files.list() for directory streaming
+	 * - Normalizes input path to resolve any ".." or "." components
+	 * - Filters results to include only regular files (not directories or special files)
+	 * - Includes advanced error logging with precise stack trace information
+	 */
 	public List<Path> loadFileList(Logger log, String dir) throws Throwable {
 		try {
 			Path path = Paths.get(dir).normalize();
@@ -181,7 +205,7 @@ public class Tool {
 
 			return Files.list(path)
 					.filter(Files::isRegularFile)
-					.toList();
+					.collect(Collectors.toList());
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
