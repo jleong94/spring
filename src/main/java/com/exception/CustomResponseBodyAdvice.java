@@ -26,6 +26,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.enums.ResponseCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pojo.ApiResponse;
@@ -68,6 +69,8 @@ public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 					request.getURI(), 
 					new ObjectMapper()
 					.registerModule(new JavaTimeModule())
+					// ignore extra fields in JSON that are not in the Object
+					.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 					.writeValueAsString(body));
 		} catch (JsonProcessingException e) {
 			// Get the current stack trace element

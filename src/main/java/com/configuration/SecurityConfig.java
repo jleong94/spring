@@ -20,6 +20,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 import com.enums.ResponseCode;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pojo.ApiResponse;
@@ -51,7 +52,9 @@ public class SecurityConfig implements WebMvcConfigurer {
 	private final Tool tool;
 	
 	private final ObjectMapper objectMapper = new ObjectMapper()
-			.registerModule(new JavaTimeModule());
+			.registerModule(new JavaTimeModule())
+			// ignore extra fields in JSON that are not in the Object
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	
 	public SecurityConfig(CustomOncePerRequestFilter customOncePerRequestFilter, Property property, CustomHandlerInterceptor customHandlerInterceptor, Tool tool) {
 		this.customOncePerRequestFilter = customOncePerRequestFilter;

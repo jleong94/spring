@@ -26,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 
 import com.enums.ResponseCode;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.javafaker.Faker;
@@ -52,7 +53,9 @@ public class RestSpringController {
 	private static final Faker faker = new Faker();
 
 	private final ObjectMapper objectMapper = new ObjectMapper()
-			.registerModule(new JavaTimeModule());
+			.registerModule(new JavaTimeModule())
+			// ignore extra fields in JSON that are not in the Object
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 	private final Tool tool;
 

@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -38,7 +39,9 @@ public class JsonMasking {
 	 */
 	public JsonMasking(ObjectMapper objectMapper) {
 		this.objectMapper = new ObjectMapper()
-				.registerModule(new JavaTimeModule());
+				.registerModule(new JavaTimeModule())
+				// ignore extra fields in JSON that are not in the Object
+				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
 
 	/**

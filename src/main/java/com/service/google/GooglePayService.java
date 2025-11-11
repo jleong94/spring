@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.configuration.GooglePayConfig;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.crypto.tink.apps.paymentmethodtoken.GooglePaymentsPublicKeysManager;
@@ -27,7 +28,9 @@ import io.micrometer.core.instrument.MeterRegistry;
 public class GooglePayService {
 	
 	private final ObjectMapper objectMapper = new ObjectMapper()
-			.registerModule(new JavaTimeModule());
+			.registerModule(new JavaTimeModule())
+			// ignore extra fields in JSON that are not in the Object
+			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	
 	private final Tool tool;
 
@@ -73,7 +76,7 @@ public class GooglePayService {
 			}
 			String decryptedMsg = paymentMethodTokenRecipient.build()
 					.unseal(googlePay.getEncryptedMsg());
-			googlePay = objectMapper.readValue(decryptedMsg, com.pojo.google.GooglePay.class);
+			googlePay = objectMapper.readerForUpdating(googlePay).readValue(decryptedMsg);
 			return googlePay;
 		} catch (Throwable e) {
 			// Get the current stack trace element

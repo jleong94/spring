@@ -30,6 +30,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pojo.Property;
@@ -58,7 +59,9 @@ public class APICaller {
 		String URL = "";
 		Object object = new Object();
 		ObjectMapper objectMapper = new ObjectMapper()
-				.registerModule(new JavaTimeModule());
+				.registerModule(new JavaTimeModule())
+				// ignore extra fields in JSON that are not in the Object
+				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
 			log.info("URL: " + URL);
 			log.info("Request: " + objectMapper.writeValueAsString(object));
@@ -116,8 +119,10 @@ public class APICaller {
 					if(entity != null) {
 						String responseString = EntityUtils.toString(entity);
 						log.info("Response: " + responseString);
-//						Read & update the response JSON parameter value into Object
+						// Read the response JSON parameter value & put into object as new instance
 						object = objectMapper.readValue(responseString, Object.class);
+						// Read the response JSON parameter value & patch into existing object
+						object = objectMapper.readerForUpdating(object).readValue(responseString);
 					}
 				} catch(Throwable e) {
 					// Get the current stack trace element
@@ -180,7 +185,9 @@ public class APICaller {
 		Object object = new Object();
 		CompletableFuture<Object> futureObject = new CompletableFuture<>();
 		ObjectMapper objectMapper = new ObjectMapper()
-				.registerModule(new JavaTimeModule());
+				.registerModule(new JavaTimeModule())
+				// ignore extra fields in JSON that are not in the Object
+				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
 			log.info("URL: " + URL);
 			log.info("Request: " + objectMapper.writeValueAsString(object));
@@ -231,8 +238,10 @@ public class APICaller {
 	                    	HttpEntity entity = httpResponse.getEntity();
 	        				String responseString = EntityUtils.toString(entity);
 							log.info("Response: " + responseString);
-//							Read & update the response JSON parameter value into Object
+							// Read the response JSON parameter value & put into object as new instance
 							Object object = objectMapper.readValue(responseString, Object.class);
+							// Read the response JSON parameter value & patch into existing object
+							object = objectMapper.readerForUpdating(object).readValue(responseString);
 	                        futureObject.complete(object);
 	                    } catch (Throwable e) {
 	                    	// Get the current stack trace element
