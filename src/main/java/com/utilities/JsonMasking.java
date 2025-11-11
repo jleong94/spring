@@ -7,12 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
  * Utility component for masking sensitive fields in JSON data.
@@ -38,10 +36,7 @@ public class JsonMasking {
 	 * @param objectMapper Jackson ObjectMapper instance
 	 */
 	public JsonMasking(ObjectMapper objectMapper) {
-		this.objectMapper = new ObjectMapper()
-				.registerModule(new JavaTimeModule())
-				// ignore extra fields in JSON that are not in the Object
-				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		this.objectMapper = objectMapper;
 	}
 
 	/**

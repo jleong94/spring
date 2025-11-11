@@ -26,9 +26,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.enums.ResponseCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pojo.ApiResponse;
 import com.utilities.Tool;
 import jakarta.mail.MessagingException;
@@ -45,8 +43,11 @@ public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
 	private final Tool tool;
 	
-	public CustomResponseBodyAdvice(Tool tool) {
+	private final ObjectMapper objectMapper;
+	
+	public CustomResponseBodyAdvice(Tool tool, ObjectMapper objectMapper) {
 		this.tool = tool;
+		this.objectMapper = objectMapper;
 	}
 
 	@Override
@@ -67,11 +68,7 @@ public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 			log.info("Response to [{} {}] => {}", 
 					request.getMethod(), 
 					request.getURI(), 
-					new ObjectMapper()
-					.registerModule(new JavaTimeModule())
-					// ignore extra fields in JSON that are not in the Object
-					.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-					.writeValueAsString(body));
+					objectMapper.writeValueAsString(body));
 		} catch (JsonProcessingException e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];

@@ -26,9 +26,7 @@ import org.springframework.validation.annotation.Validated;
 
 import com.enums.ResponseCode;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.javafaker.Faker;
 import com.pojo.template.Pojo;
 import com.service.template.SampleService;
@@ -52,16 +50,14 @@ public class RestSpringController {
 
 	private static final Faker faker = new Faker();
 
-	private final ObjectMapper objectMapper = new ObjectMapper()
-			.registerModule(new JavaTimeModule())
-			// ignore extra fields in JSON that are not in the Object
-			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	private final ObjectMapper objectMapper;
 
 	private final Tool tool;
 
 	private final SampleService sampleService;
 	
-	public RestSpringController(Tool tool, SampleService sampleService) {
+	public RestSpringController(ObjectMapper objectMapper, Tool tool, SampleService sampleService) {
+		this.objectMapper = objectMapper;
 		this.tool = tool;
 		this.sampleService = sampleService;
 	}

@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.configuration.GooglePayConfig;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.crypto.tink.apps.paymentmethodtoken.GooglePaymentsPublicKeysManager;
 import com.google.crypto.tink.apps.paymentmethodtoken.PaymentMethodTokenRecipient;
 import com.google.crypto.tink.apps.paymentmethodtoken.PaymentMethodTokenRecipient.Builder;
@@ -27,10 +25,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 @Service
 public class GooglePayService {
 	
-	private final ObjectMapper objectMapper = new ObjectMapper()
-			.registerModule(new JavaTimeModule())
-			// ignore extra fields in JSON that are not in the Object
-			.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	private final ObjectMapper objectMapper;
 	
 	private final Tool tool;
 
@@ -46,7 +41,8 @@ public class GooglePayService {
 
 	private final GooglePayConfig googlePayConfig;
 
-	public GooglePayService(Tool tool, Property property, EmailService emailService, MeterRegistry meterRegistry, GooglePayConfig googlePayConfig) {
+	public GooglePayService(ObjectMapper objectMapper, Tool tool, Property property, EmailService emailService, MeterRegistry meterRegistry, GooglePayConfig googlePayConfig) {
+		this.objectMapper = objectMapper;
 		this.tool = tool;
 		this.property = property;
 		this.emailService = emailService;

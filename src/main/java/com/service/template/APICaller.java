@@ -30,9 +30,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pojo.Property;
 import com.service.MTLSCertificationDetectionService;
 import com.solab.iso8583.IsoMessage;
@@ -45,11 +43,14 @@ import lombok.Cleanup;
 @Service
 public class APICaller {
 	
+	private final ObjectMapper objectMapper;
+	
 	private final MTLSCertificationDetectionService mTlsCertificationDetectionService;
 	
 	private final Property property;
 	
-	public APICaller(MTLSCertificationDetectionService mTlsCertificationDetectionService, Property property) {
+	public APICaller(ObjectMapper objectMapper, MTLSCertificationDetectionService mTlsCertificationDetectionService, Property property) {
+		this.objectMapper = objectMapper;
 		this.mTlsCertificationDetectionService = mTlsCertificationDetectionService;
 		this.property = property;
 	}
@@ -58,10 +59,6 @@ public class APICaller {
 		String result = "";
 		String URL = "";
 		Object object = new Object();
-		ObjectMapper objectMapper = new ObjectMapper()
-				.registerModule(new JavaTimeModule())
-				// ignore extra fields in JSON that are not in the Object
-				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
 			log.info("URL: " + URL);
 			log.info("Request: " + objectMapper.writeValueAsString(object));
@@ -184,10 +181,6 @@ public class APICaller {
 		String URL = "";
 		Object object = new Object();
 		CompletableFuture<Object> futureObject = new CompletableFuture<>();
-		ObjectMapper objectMapper = new ObjectMapper()
-				.registerModule(new JavaTimeModule())
-				// ignore extra fields in JSON that are not in the Object
-				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
 			log.info("URL: " + URL);
 			log.info("Request: " + objectMapper.writeValueAsString(object));

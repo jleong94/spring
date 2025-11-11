@@ -57,20 +57,11 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 			// Resolve the actual key from the request
 			String resolvedKey = resolvedIpKey;
 			if(resolvedHeaderKey != null && !resolvedHeaderKey.isBlank()) {
-				if(resolvedKey != null && !resolvedKey.isBlank()) {
-					resolvedKey = resolvedKey.concat("|");
-				}
-				resolvedKey = resolvedKey.concat(resolvedHeaderKey);
+				resolvedKey = resolvedKey != null && !resolvedKey.isBlank() ? resolvedKey.concat("|").concat(resolvedHeaderKey) : resolvedKey.concat(resolvedHeaderKey);
 			} if(resolvedPathVariableKey != null && !resolvedPathVariableKey.isBlank()) {
-				if(resolvedKey != null && !resolvedKey.isBlank()) {
-					resolvedKey = resolvedKey.concat("|");
-				}
-				resolvedKey = resolvedKey.concat(resolvedPathVariableKey);
+				resolvedKey = resolvedKey != null && !resolvedKey.isBlank() ? resolvedKey.concat("|").concat(resolvedPathVariableKey) : resolvedKey.concat(resolvedPathVariableKey);
 			} if(resolvedRequestBodyFieldKey != null && !resolvedRequestBodyFieldKey.isBlank()) {
-				if(resolvedKey != null && !resolvedKey.isBlank()) {
-					resolvedKey = resolvedKey.concat("|");
-				}
-				resolvedKey = resolvedKey.concat(resolvedRequestBodyFieldKey);
+				resolvedKey = resolvedKey != null && !resolvedKey.isBlank() ? resolvedKey.concat("|").concat(resolvedRequestBodyFieldKey) : resolvedKey.concat(resolvedRequestBodyFieldKey);
 			}
 			// Try to consume a token
 			log.info("Resolved key {}", resolvedKey);
