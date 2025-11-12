@@ -15,9 +15,10 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.Cleanup;
@@ -29,6 +30,12 @@ import net.schmizz.sshj.transport.verification.HostKeyVerifier;
 
 @Component
 public class Tool {
+	
+	private final ResourcePatternResolver resourcePatternResolver;
+	
+	public Tool(ResourcePatternResolver resourcePatternResolver) {
+		this.resourcePatternResolver = resourcePatternResolver;
+	}
 
 	public List<String> downloadFileFromSftp(Logger log, String host, String username, String password, String remote_path, String local_path, String knownHostsFilePath, String fingerprint) throws Throwable {
 		List<String> downloadedFiles = new ArrayList<>();
@@ -173,39 +180,40 @@ public class Tool {
 		return savedFiles;
 	}
 	
-	/**
-	 * Loads a list of regular files from the specified directory path.
-	 * 
-	 * This method scans the given directory and returns a list of Path objects
-	 * representing regular files (not directories or other special files) within
-	 * that directory. The directory path is normalized before processing.
-	 * 
+	/** 
 	 * @param log   Logger instance used for error reporting
-	 * @param dir   String representing the directory path to scan
+	 * @param classpath   String representing the class path to scan
 	 * 
 	 * @return List<Path> containing paths to all regular files in the directory.
-	 *         Returns an empty list if the directory doesn't exist or is not a directory.
+	 *         Returns an empty list if the resource size is 0.
 	 * 
 	 * @throws Throwable if any error occurs during file system operations. The error
 	 *         is logged with detailed stack trace information (including class name,
 	 *         line number, and error message) before being re-thrown.
-	 * 
-	 * @implNote
-	 * - Uses Files.list() for directory streaming
-	 * - Normalizes input path to resolve any ".." or "." components
-	 * - Filters results to include only regular files (not directories or special files)
-	 * - Includes advanced error logging with precise stack trace information
 	 */
-	public List<Path> loadFileList(Logger log, String dir) throws Throwable {
+	public List<Path> loadFileListFromClasspath(Logger log, String classpath) throws Throwable {
 		try {
-			Path path = Paths.get(dir).normalize();
-			if (!Files.exists(path) || !Files.isDirectory(path)) {
-				return Collections.emptyList();
-			}
+			String pattern = "classpath:" + classpath + "/**";
+			Resource[] resources = resourcePatternResolver.getResources(pattern);
+			
+			if (resources.length == 0) {
+	            log.error("No files found in key directory: {}", classpath);
+	            return Collections.emptyList();
+	        }
+			
+			List<Path> keyFiles = new ArrayList<>();
+	        for (Resource resource : resources) {
+	            if (resource.isReadable() && !resource.getFilename().isEmpty()) {
+	                // Convert Resource to Path
+	                Path path = resource.getFile().toPath();
+	                keyFiles.add(path);
+	                log.debug("Found key file: {}", path);
+	            }
+	        }
 
-			return Files.list(path)
-					.filter(Files::isRegularFile)
-					.collect(Collectors.toList());
+			log.info("Successfully loaded {} key files from directory: {}", keyFiles.size(), classpath);
+
+			return keyFiles;
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];

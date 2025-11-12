@@ -57,7 +57,7 @@ public class GooglePayService {
     @CircuitBreaker(name = "decryptGooglePayToken", fallbackMethod = "fallbackDecryptGooglePayToken")
 	public com.pojo.google.GooglePay decryptGooglePayToken(Logger log, com.pojo.google.GooglePay googlePay) throws Throwable {
 		try {
-			List<Path> paths = tool.loadFileList(log, googlePayConfig.getKey().getPath());
+			List<Path> paths = tool.loadFileListFromClasspath(log, googlePayConfig.getKey().getPath());
 			Builder paymentMethodTokenRecipient = new PaymentMethodTokenRecipient.Builder()
 					.fetchSenderVerifyingKeysWith(property.getSpring_profiles_active().equals("prod") ? GooglePaymentsPublicKeysManager.INSTANCE_PRODUCTION : GooglePaymentsPublicKeysManager.INSTANCE_TEST);
 			if(!property.getSpring_profiles_active().equals("prod")) {paymentMethodTokenRecipient.recipientId("merchant:12345678901234567890");}
