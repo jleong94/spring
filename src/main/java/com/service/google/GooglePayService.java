@@ -67,7 +67,7 @@ public class GooglePayService {
 				if(path.getFileName().endsWith("pk8")) {
 					// Multiple private keys can be added to support graceful
 					// key rotations.
-					paymentMethodTokenRecipient.addRecipientPrivateKey(path.toAbsolutePath().toString());
+					paymentMethodTokenRecipient.addRecipientPrivateKey(tool.readFileWithBufferedReader(log, path.toAbsolutePath().toString()));
 				}
 			}
 			String decryptedMsg = paymentMethodTokenRecipient.build()

@@ -1,7 +1,9 @@
 package com.utilities;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -201,6 +203,65 @@ public class Tool {
 	                .filter(Files::isRegularFile)
 	                .collect(Collectors.toList());
 		} catch(Throwable e) {
+			// Get the current stack trace element
+			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
+			// Find matching stack trace element from exception
+			for (StackTraceElement element : e.getStackTrace()) {
+				if (currentElement.getClassName().equals(element.getClassName())
+						&& currentElement.getMethodName().equals(element.getMethodName())) {
+					log.error("Error in {} at line {}: {} - {}",
+							element.getClassName(),
+							element.getLineNumber(),
+							e.getClass().getName(),
+							e.getMessage());
+					break;
+				}
+			}
+			throw e;
+		}
+	}
+	
+	/**
+	 * Reads the entire content of a file using BufferedReader with proper resource management.
+	 * 
+	 * This method reads a file line by line and concatenates all lines into a single string.
+	 * Note: Line breaks are NOT preserved in the returned string. If line breaks are needed,
+	 * consider appending System.lineSeparator() or "\n" after each line.
+	 * 
+	 * @param log the Logger instance for error logging
+	 * @param filePath the absolute or relative path to the file to be read
+	 * @return the complete file content as a single string (without line breaks)
+	 * @throws Throwable if any I/O error occurs during file reading, including:
+	 *                   - FileNotFoundException if the file doesn't exist
+	 *                   - AccessDeniedException if the file is not readable
+	 *                   - IOException for other I/O errors
+	 * 
+	 * @implNote Uses Lombok's @Cleanup annotation to ensure BufferedReader is properly closed
+	 * @implNote For large files, consider using streaming approach to avoid memory issues
+	 * @implNote Character encoding is fixed to UTF-8
+	 */
+	public String readFileWithBufferedReader(Logger log, String filePath) throws Throwable {
+		try {
+			// Convert file path string to Path object for NIO operations
+			Path path = Paths.get(filePath);
+			
+			// Create BufferedReader with UTF-8 encoding
+			// @Cleanup ensures reader.close() is called automatically when exiting the try block
+			@Cleanup BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
+			
+			// Initialize variables for line-by-line reading
+			String line;
+			StringBuilder lines = new StringBuilder(); // Thread-safe but synchronized; consider StringBuilder for single-threaded
+			
+			// Read file line by line until EOF (null)
+			while ((line = reader.readLine()) != null) {
+				// Append each line to buffer (line breaks are stripped by readLine())
+				lines.append(line);
+			}
+			
+			// Return concatenated content
+			return lines.toString();
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
