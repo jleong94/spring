@@ -1,6 +1,7 @@
 package com.utilities;
 
 import java.io.File;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,10 +16,9 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.Cleanup;
@@ -30,12 +30,6 @@ import net.schmizz.sshj.transport.verification.HostKeyVerifier;
 
 @Component
 public class Tool {
-	
-	private final ResourcePatternResolver resourcePatternResolver;
-	
-	public Tool(ResourcePatternResolver resourcePatternResolver) {
-		this.resourcePatternResolver = resourcePatternResolver;
-	}
 
 	public List<String> downloadFileFromSftp(Logger log, String host, String username, String password, String remote_path, String local_path, String knownHostsFilePath, String fingerprint) throws Throwable {
 		List<String> downloadedFiles = new ArrayList<>();
@@ -193,27 +187,19 @@ public class Tool {
 	 */
 	public List<Path> loadFileListFromClasspath(Logger log, String classpath) throws Throwable {
 		try {
-			String pattern = "classpath:" + classpath + "/**";
-			Resource[] resources = resourcePatternResolver.getResources(pattern);
-			
-			if (resources.length == 0) {
-	            log.error("No files found in key directory: {}", classpath);
+			ClassLoader classLoader = getClass().getClassLoader();
+	        URL resourceUrl = classLoader.getResource(classpath);
+	        
+	        if (resourceUrl == null) {
+	            log.error("Resource path not found: {}", classpath);
 	            return Collections.emptyList();
 	        }
-			
-			List<Path> keyFiles = new ArrayList<>();
-	        for (Resource resource : resources) {
-	            if (resource.isReadable() && !resource.getFilename().isEmpty()) {
-	                // Convert Resource to Path
-	                Path path = resource.getFile().toPath();
-	                keyFiles.add(path);
-	                log.debug("Found key file: {}", path);
-	            }
-	        }
-
-			log.info("Successfully loaded {} key files from directory: {}", keyFiles.size(), classpath);
-
-			return keyFiles;
+	        
+	        Path directoryPath = Paths.get(resourceUrl.toURI());
+	        
+	        return Files.walk(directoryPath, 1)
+	                .filter(Files::isRegularFile)
+	                .collect(Collectors.toList());
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
