@@ -6,44 +6,56 @@ log.info("hello {}", "world"); in log file it print as hello world
 	<springProperty scope="context" name="LOG_DIR" source="project.log.name" />
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} %X{X-Request-ID} - %msg%n</pattern>
-		</encoder>
+	    <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} %X{X-Request-ID} - %msg%n</pattern>
+    </encoder>
 	</appender>
 	<appender name="ROOT_LOGGING" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${LOG_DIR}/application.json.log</file>
+    <filter class="ch.qos.logback.core.filter.LevelFilter"><!-- Add error handling -->
+	    <level>ERROR</level>
+	    <onMatch>ACCEPT</onMatch>
+	    <onMismatch>NEUTRAL</onMismatch>
+    </filter>
 		<append>true</append>
 		<prudent>false</prudent><!-- prudent=true only if multiple JVMs share the same file -->
 		<immediateFlush>false</immediateFlush><!-- Performance: avoid flushing on every line -->
 		<encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-		    <providers>
-		        <timestamp>
-		            <fieldName>timestamp</fieldName>
-		        </timestamp>
-		        <logLevel/>
-		        <loggerName/>
-		        <context/><!-- adds Sleuth traceId, spanId automatically -->
-		        <mdc/>
-		        <threadName/>
-		        <message/>
-		        <stackTrace/>
-		    </providers>
+	    <providers>
+	      <timestamp>
+	          <fieldName>timestamp</fieldName>
+	      </timestamp>
+	      <logLevel/>
+	      <loggerName/>
+	      <context/><!-- adds Sleuth traceId, spanId automatically -->
+	      <mdc/>
+	      <threadName/>
+	      <message/>
+	      <stackTrace/>
+	    </providers>
 		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<fileNamePattern>${LOG_DIR}/%d{yyyy-MM-dd}.%i.json.log</fileNamePattern>
-            <maxFileSize>500MB</maxFileSize>
-            <maxHistory>31</maxHistory> <!-- keep nth days -->
-            <totalSizeCap>10GB</totalSizeCap> <!-- prevent disk bloat -->
-        </rollingPolicy>
+	      <maxFileSize>500MB</maxFileSize>
+	      <maxHistory>31</maxHistory> <!-- keep nth days -->
+	      <totalSizeCap>10GB</totalSizeCap> <!-- prevent disk bloat -->
+      </rollingPolicy>
 	</appender>
+	<!-- Async wrapper for better performance -->
+  <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+	  <queueSize>512</queueSize>
+	  <discardingThreshold>0</discardingThreshold>
+	  <neverBlock>false</neverBlock>
+	  <appender-ref ref="ROOT_LOGGING"/>
+  </appender>
     
-    <!-- TRACE, DEBUG, INFO, WARN, ERROR, FATAL(If put INFO as level only it will only log for INFO, WARN, ERROR & FATAL -->
-	<root level="INFO" additivity="false">
+  <!-- TRACE, DEBUG, INFO, WARN, ERROR, FATAL(If put INFO as level only it will only log for INFO, WARN, ERROR & FATAL -->
+	<root level="INFO">
 		<appender-ref ref="CONSOLE"/>
-		<appender-ref ref="ROOT_LOGGING"/>
+		<appender-ref ref="ASYNC_FILE"/>
 	</root>
 	<!--  
 	<logger name="package+java file name" level="ALL"> 
-        <appender-ref ref="" /> 
-    </logger>
+    <appender-ref ref="" /> 
+  </logger>
     -->
 </configuration>
