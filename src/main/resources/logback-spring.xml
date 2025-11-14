@@ -11,11 +11,6 @@ log.info("hello {}", "world"); in log file it print as hello world
 	</appender>
 	<appender name="ROOT_LOGGING" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>${LOG_DIR}/application.json.log</file>
-    <filter class="ch.qos.logback.core.filter.LevelFilter"><!-- Add error handling -->
-	    <level>ERROR</level>
-	    <onMatch>ACCEPT</onMatch>
-	    <onMismatch>NEUTRAL</onMismatch>
-    </filter>
 		<append>true</append>
 		<prudent>false</prudent><!-- prudent=true only if multiple JVMs share the same file -->
 		<immediateFlush>false</immediateFlush><!-- Performance: avoid flushing on every line -->
@@ -43,8 +38,9 @@ log.info("hello {}", "world"); in log file it print as hello world
 	<!-- Async wrapper for better performance -->
   <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
 	  <queueSize>512</queueSize>
-	  <discardingThreshold>0</discardingThreshold>
-	  <neverBlock>false</neverBlock>
+	  <discardingThreshold>0</discardingThreshold><!-- Don't discard any logs -->
+	  <neverBlock>false</neverBlock><!-- Block if queue is full (don't lose logs) -->
+	  <includeCallerData>false</includeCallerData><!-- Performance: disable caller data -->
 	  <appender-ref ref="ROOT_LOGGING"/>
   </appender>
     

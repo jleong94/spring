@@ -11,9 +11,9 @@ server:
   tomcat:
     threads:
       min-spare: 20 # Keep at least nth idle worker threads ready
-      max: 400 # Allow up to nth concurrent request-processing threads(2x number of DB connections)
-    max-connections: 400 # Max TCP connections handled at once(2x number of DB connections)
-    accept-count: 1000 # Queue size for incoming requests if all threads are busy
+      max: 200 # Allow up to nth concurrent request-processing threads(2x number of DB connections)
+    max-connections: 200 # Max TCP connections handled at once(2x number of DB connections)
+    accept-count: 100 # Queue size for incoming requests if all threads are busy
     connection-timeout: 60s # Drop a connection if idle too long
     keep-alive-timeout: 60s # Keep-alive socket timeout
     max-swallow-size: 2MB # Max size of discarded request body after error
@@ -30,13 +30,22 @@ server:
   max-http-request-header-size: 16KB # Prevent huge headers (defense vs DoS)
   compression:
     enabled: true # Enable gzip compression for responses
-    mime-types: application/json
-    min-response-size: 1024 # Compress only if body is > 1KB 
+    mime-types: 
+      - application/json
+      - application/xml
+      - text/html
+      - text/xml
+      - text/plain
+    min-response-size: 1KB
   ssl: #SSL TLS, Trust store, Key store
     enabled: true
-    enabled-protocols: TLSv1.2,TLSv1.3
-    protocol: TLSv1.2
-    ciphers: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    protocol: TLS
+    enabled-protocols: TLSv1.3,TLSv1.2
+    ciphers: 
+      - TLS_AES_256_GCM_SHA384  # TLS 1.3
+      - TLS_AES_128_GCM_SHA256  # TLS 1.3
+      - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384  # TLS 1.2
+      - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256  # TLS 1.2
     trust-store: classpath:security/truststore.p12 # Holds trusted public certificates
     trust-store-password: changeit
     trust-store-type: PKCS12
@@ -48,6 +57,8 @@ server:
   http2:
     enabled: true
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s  # Wait for in-flight requests
   application:
     name: spring
   datasource: #DB Config(Git will auto build using the details config in repository secrets)
@@ -57,7 +68,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       validation-timeout: 5000 # Max time to check if a DB connection is alive before using it (ms)
-      maximum-pool-size: 30 # Defines how many connections can be open concurrently
+      maximum-pool-size: 20 # Defines how many connections can be open concurrently
       minimum-idle: 10 # Minimum idle connections in the pool(in count)
       idle-timeout: 600000  # Helps recycle connections and free up resources(in milliseconds). idle-timeout must be less than max-lifetime
       max-lifetime: 1800000  # Helps recycle connections and free up resources(in milliseconds). idle-timeout must be less than max-lifetime
@@ -163,7 +174,7 @@ rate:
         tokens: 10
         period: 60
 allowed:
-  origins: localhost:8080
+  origins: ${ALLOWED_ORIGINS:http://localhost:8080,https://localhost:8080}
 management: #Spring actuator
   server:
     base-path: /spring  # Sets a global prefix between domain & all endpoints, {domain}/{prefix}/{endpoint}
@@ -171,9 +182,13 @@ management: #Spring actuator
     port: 8444
     ssl: #SSL TLS, Trust store, Key store
       enabled: true
-      enabled-protocols: TLSv1.2,TLSv1.3
-      protocol: TLSv1.2
-      ciphers: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+      protocol: TLS
+      enabled-protocols: TLSv1.3,TLSv1.2
+      ciphers: 
+        - TLS_AES_256_GCM_SHA384  # TLS 1.3
+        - TLS_AES_128_GCM_SHA256  # TLS 1.3
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384  # TLS 1.2
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256  # TLS 1.2
       key-store: classpath:security/keystore.p12 # Holds your own identity: your server's private key + certificate
       key-store-password: changeit
       key-store-type: PKCS12
@@ -257,17 +272,101 @@ resilience4j:
   circuitbreaker:
     instances:
       sendEmail:
-        sliding-window-size: 50 # Look at the last nth calls.
-        failure-rate-threshold: 50 # If ≥ nth% fail → stop calling for nth seconds
-        wait-duration-in-open-state: 10s # After nth seconds, breaker moves to half-open to test few call. If successful → breaker closes again.
+        # Monitor the last 50 calls to decide if circuit should open
+        # Uses a ring buffer to track success/failure of recent calls
+        sliding-window-size: 50
+        # If ≥50% of calls fail → circuit opens (stops calling the service)
+        # Example: If 25 out of 50 calls fail, circuit breaks
+        # Lower value (e.g., 30) = more sensitive to failures
+        failure-rate-threshold: 50
+        # If ≥50% of calls are slow → circuit opens
+        # Works together with slow-call-duration-threshold
+        # Prevents cascading failures from slow dependencies
+        # Example: If 25 out of 50 calls exceed 3s, circuit breaks 
+        slow-call-rate-threshold: 50
+        # Any call taking longer than 3 seconds is considered "slow"
+        # Helps detect degraded performance before complete failure
+        # Adjust based on your SLA (e.g., 2s for critical APIs, 5s for batch jobs)
+        slow-call-duration-threshold: 3s
+        # After circuit opens, wait 10 seconds before testing recovery
+        # During this time, all calls immediately fail-fast (no actual calls made)
+        # After 10s → circuit moves to HALF_OPEN state to test if service recovered
+        # Longer duration (30s-60s) for external services, shorter (5s-10s) for internal
+        wait-duration-in-open-state: 10
+        # Collect at least 10 calls before calculating failure/slow rates
+        # Prevents premature circuit opening on startup or low traffic
+        # Example: If only 5 calls made and 3 fail (60%), circuit won't open yet
+        # Should be ≤ sliding-window-size (typically 10-20% of window size)
+        minimum-number-of-calls: 10
+        # When in HALF_OPEN, allow exactly 3 test calls to check service health
+        # If all 3 succeed → circuit CLOSES (back to normal)
+        # If any fail → circuit reopens immediately and waits again
+        # Lower value (2-3) = faster decision, Higher value (5-10) = more thorough test
+        permitted-number-of-calls-in-half-open-state: 3
       sendTokenBasedPushNotification:
-        sliding-window-size: 50 # Look at the last nth calls.
-        failure-rate-threshold: 50 # If ≥ nth% fail → stop calling for nth seconds
-        wait-duration-in-open-state: 10s # After nth seconds, breaker moves to half-open to test few call. If successful → breaker closes again.
+        # Monitor the last 50 calls to decide if circuit should open
+        # Uses a ring buffer to track success/failure of recent calls
+        sliding-window-size: 50
+        # If ≥50% of calls fail → circuit opens (stops calling the service)
+        # Example: If 25 out of 50 calls fail, circuit breaks
+        # Lower value (e.g., 30) = more sensitive to failures
+        failure-rate-threshold: 50
+        # If ≥50% of calls are slow → circuit opens
+        # Works together with slow-call-duration-threshold
+        # Prevents cascading failures from slow dependencies
+        # Example: If 25 out of 50 calls exceed 3s, circuit breaks 
+        slow-call-rate-threshold: 50
+        # Any call taking longer than 3 seconds is considered "slow"
+        # Helps detect degraded performance before complete failure
+        # Adjust based on your SLA (e.g., 2s for critical APIs, 5s for batch jobs)
+        slow-call-duration-threshold: 3s
+        # After circuit opens, wait 10 seconds before testing recovery
+        # During this time, all calls immediately fail-fast (no actual calls made)
+        # After 10s → circuit moves to HALF_OPEN state to test if service recovered
+        # Longer duration (30s-60s) for external services, shorter (5s-10s) for internal
+        wait-duration-in-open-state: 10
+        # Collect at least 10 calls before calculating failure/slow rates
+        # Prevents premature circuit opening on startup or low traffic
+        # Example: If only 5 calls made and 3 fail (60%), circuit won't open yet
+        # Should be ≤ sliding-window-size (typically 10-20% of window size)
+        minimum-number-of-calls: 10
+        # When in HALF_OPEN, allow exactly 3 test calls to check service health
+        # If all 3 succeed → circuit CLOSES (back to normal)
+        # If any fail → circuit reopens immediately and waits again
+        # Lower value (2-3) = faster decision, Higher value (5-10) = more thorough test
+        permitted-number-of-calls-in-half-open-state: 3
       decryptGooglePayToken:
-        sliding-window-size: 50 # Look at the last nth calls.
-        failure-rate-threshold: 50 # If ≥ nth% fail → stop calling for nth seconds
-        wait-duration-in-open-state: 10s # After nth seconds, breaker moves to half-open to test few call. If successful → breaker closes again.  
+        # Monitor the last 50 calls to decide if circuit should open
+        # Uses a ring buffer to track success/failure of recent calls
+        sliding-window-size: 50
+        # If ≥50% of calls fail → circuit opens (stops calling the service)
+        # Example: If 25 out of 50 calls fail, circuit breaks
+        # Lower value (e.g., 30) = more sensitive to failures
+        failure-rate-threshold: 50
+        # If ≥50% of calls are slow → circuit opens
+        # Works together with slow-call-duration-threshold
+        # Prevents cascading failures from slow dependencies
+        # Example: If 25 out of 50 calls exceed 3s, circuit breaks 
+        slow-call-rate-threshold: 50
+        # Any call taking longer than 3 seconds is considered "slow"
+        # Helps detect degraded performance before complete failure
+        # Adjust based on your SLA (e.g., 2s for critical APIs, 5s for batch jobs)
+        slow-call-duration-threshold: 3s
+        # After circuit opens, wait 10 seconds before testing recovery
+        # During this time, all calls immediately fail-fast (no actual calls made)
+        # After 10s → circuit moves to HALF_OPEN state to test if service recovered
+        # Longer duration (30s-60s) for external services, shorter (5s-10s) for internal
+        wait-duration-in-open-state: 10
+        # Collect at least 10 calls before calculating failure/slow rates
+        # Prevents premature circuit opening on startup or low traffic
+        # Example: If only 5 calls made and 3 fail (60%), circuit won't open yet
+        # Should be ≤ sliding-window-size (typically 10-20% of window size)
+        minimum-number-of-calls: 10
+        # When in HALF_OPEN, allow exactly 3 test calls to check service health
+        # If all 3 succeed → circuit CLOSES (back to normal)
+        # If any fail → circuit reopens immediately and waits again
+        # Lower value (2-3) = faster decision, Higher value (5-10) = more thorough test
+        permitted-number-of-calls-in-half-open-state: 3  
   retry:
     instances:
       sendEmail:
