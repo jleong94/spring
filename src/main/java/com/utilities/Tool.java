@@ -2,6 +2,9 @@ package com.utilities;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -222,32 +225,33 @@ public class Tool {
 	}
 	
 	/**
-	 * Reads the entire content of a file using BufferedReader with proper resource management.
-	 * 
-	 * This method reads a file line by line and concatenates all lines into a single string.
-	 * Note: Line breaks are NOT preserved in the returned string. If line breaks are needed,
-	 * consider appending System.lineSeparator() or "\n" after each line.
-	 * 
-	 * @param log the Logger instance for error logging
-	 * @param filePath the absolute or relative path to the file to be read
-	 * @return the complete file content as a single string (without line breaks)
-	 * @throws Throwable if any I/O error occurs during file reading, including:
-	 *                   - FileNotFoundException if the file doesn't exist
-	 *                   - AccessDeniedException if the file is not readable
-	 *                   - IOException for other I/O errors
-	 * 
-	 * @implNote Uses Lombok's @Cleanup annotation to ensure BufferedReader is properly closed
-	 * @implNote For large files, consider using streaming approach to avoid memory issues
-	 * @implNote Character encoding is fixed to UTF-8
+	 * Read a text resource from the classpath and return its contents as a String.
+	 *
+	 * Important:
+	 * - The resource must be on the classpath (e.g. src/main/resources/key.pkcs8.pem).
+	 * - When using ClassLoader.getResourceAsStream(...), do NOT start the path with a leading '/'.
+	 * - This method preserves original line breaks (important for PEM files).
+	 *
+	 * @param log      SLF4J logger used for error reporting
+	 * @param filePath classpath-relative path to resource (e.g. "security/gpay/uat/key.pkcs8.pem")
+	 * @return resource content as a String (UTF-8)
+	 * @throws IOException if the resource is not found or cannot be read
 	 */
 	public String readFileWithBufferedReader(Logger log, String filePath) throws Throwable {
 		try {
-			// Convert file path string to Path object for NIO operations
-			Path path = Paths.get(filePath);
+			// Remove leading slash if present for classpath resources
+			filePath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
+			
+			// Use ClassLoader to get resource from JAR
+	        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
+	        
+	        if (inputStream == null) {
+	            throw new FileNotFoundException("Resource not found in classpath: " + filePath);
+	        }
 			
 			// Create BufferedReader with UTF-8 encoding
 			// @Cleanup ensures reader.close() is called automatically when exiting the try block
-			@Cleanup BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
+			@Cleanup BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 			
 			// Initialize variables for line-by-line reading
 			String line;
