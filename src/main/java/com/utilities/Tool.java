@@ -57,7 +57,14 @@ public class Tool {
 	                	String actual = SecurityUtils.getFingerprint(key); // e.g. "aa:bb:cc:...".  
 	                    // Normalize both sides and compare
 	                    String actualNorm = normalizeHexFingerprint(actual);
-	                    return actualNorm.equalsIgnoreCase(normalizeHexFingerprint(fingerprint));
+	                    String expectedNorm = normalizeHexFingerprint(fingerprint);
+	                    if (actualNorm.isBlank() || expectedNorm.isBlank()) {
+	                        return false;
+	                    }
+	                 // Use constant-time comparison
+	                    return java.security.MessageDigest.isEqual(
+	                            actualNorm.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+	                            expectedNorm.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 	                }
 
 					@Override
@@ -111,10 +118,8 @@ public class Tool {
 	/** Normalize colon-separated hex fingerprint to lower-case, no spaces (e.g. "aa:bb" -> "aa:bb") */
 	private static String normalizeHexFingerprint(String f) {
 		if (f == null || f.isBlank()) return "";
-		return f.trim()
-				.replaceAll("(?i)^sha256:", "")   // remove SHA256: if user mistakenly provided that
-				.replaceAll("[^0-9a-fA-F:]", "")  // drop whitespace, padding, etc.
-				.toLowerCase();
+		// Remove non-hex characters and lowercase
+	    return f.replaceAll("[^0-9a-fA-F]", "").toLowerCase();
 	}
 
 	public String getTodayDateTimeInString() {

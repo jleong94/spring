@@ -30,9 +30,17 @@ public class StartupScriptRunner {
 			//Automate run script located at classpath once JPA done execution
 			Resource[] scripts = new PathMatchingResourcePatternResolver()
 					.getResources("classpath*:db_script/*.sql");
-			// Sort scripts by filename to ensure consistent execution order
-			// Recommendation: Name scripts like 01_init.sql, 02_seed.sql, etc.
-			Arrays.sort(scripts, Comparator.comparing(Resource::getFilename));
+			if (scripts == null || scripts.length == 0) {
+                log.info("No startup SQL scripts found in classpath:db_script/");
+                return;
+            }
+			// Sort scripts by filename, handling null filenames safely
+            Arrays.sort(scripts, Comparator.comparing(
+                    r -> {
+                        String f = r.getFilename();
+                        return f == null ? "" : f;
+                    }
+            ));
 			log.info("Found {} SQL script(s) to execute", scripts.length);
 			for (Resource script : scripts) {
 				try {
