@@ -22,7 +22,7 @@ public class GooglePay {
 	
 	public interface Post {}
 
-	@JsonProperty(value= "encryptedMsg", access = Access.WRITE_ONLY)
+	@JsonProperty(value= "encryptedMsg", access = Access.READ_WRITE)
 	@JsonView({Post.class})
 	@Schema(description = "Encrypted/signed Message")
 	@NotBlank(groups = {Post.class}, message = "Encrypted/signed message is blank.")
