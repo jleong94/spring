@@ -134,7 +134,6 @@ mybatis:
   mapper-locations: 
     - classpath:mybatis/mapper/*.xml # Location(s) of your MyBatis XML mapper files.
   type-aliases-package: com.modal # Package(s) to scan for domain/model classes to create type aliases automatically.
-  config-location: classpath:mybatis/config.xml # MyBatis config file (optional, for advanced settings)
   configuration:
     # Automatically converts column names with underscores (snake_case) to camelCase in Java objects.
     # Example: database column "user_name" → Java property "userName".
