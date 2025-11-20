@@ -201,7 +201,7 @@ public class CardService {
      * @return Masked card number showing only last 4 digits
      */
     private String maskCardNumber(String cardNumber) {
-        if (cardNumber == null || cardNumber.length() < 4) {
+        if (cardNumber == null || cardNumber.length() <= 4) {
             return "****";
         }
         return "*".repeat(cardNumber.length() - 4).concat(cardNumber.substring(cardNumber.length() - 4));

@@ -7,11 +7,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.jboss.logging.MDC;
-import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.utilities.RequestLoggingUtil;
+
 import org.springframework.lang.NonNull;
 
 import jakarta.servlet.FilterChain;
@@ -27,40 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class CustomOncePerRequestFilter extends OncePerRequestFilter {
-	
-	private void logHttpRequest(HttpServletRequest request, Logger log) {
-		try {
-			Enumeration<String> headerNames = request.getHeaderNames();
-			if(headerNames != null) {
-				while(headerNames.hasMoreElements()) {
-					String headerName = headerNames.nextElement();
-					log.info(headerName + ": " + StringEscapeUtils.escapeHtml4(request.getHeader(headerName)));
-				}
-			}
-			Enumeration<String> parameterNames = request.getParameterNames();
-			if(parameterNames != null) {
-				while(parameterNames.hasMoreElements()) {
-					String parameterName = parameterNames.nextElement();
-					log.info(parameterName + ": " + StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
-				}
-			}
-		} catch(Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-		}
-	}
 	
 	@Override
 	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws IOException, ServletException{		
@@ -94,7 +61,7 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 	        
 			MDC.put("X-Request-ID", response.getHeader("X-Request-ID") != null && !response.getHeader("X-Request-ID").isBlank() ? response.getHeader("X-Request-ID") : UUID.randomUUID());
 			log.info("-Custom once per request filter start-");
-			logHttpRequest(wrappedRequest, log);
+			RequestLoggingUtil.logRequestDetails(request, log);
 
 			chain.doFilter(wrappedRequest, response);
 		} catch(Throwable e) {

@@ -11,15 +11,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.Enumeration;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.jboss.logging.MDC;
-import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -30,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
 import com.pojo.template.Pojo;
 import com.service.template.SampleService;
+import com.utilities.RequestLoggingUtil;
 import com.utilities.Tool;
 import com.validation.Audit;
 import com.validation.RateLimit;
@@ -62,40 +60,6 @@ public class RestSpringController {
 		this.sampleService = sampleService;
 	}
 
-	private void logHttpRequest(HttpServletRequest request, Logger log) {
-		try {
-			Enumeration<String> headerNames = request.getHeaderNames();
-			if(headerNames != null) {
-				while(headerNames.hasMoreElements()) {
-					String headerName = headerNames.nextElement();
-					log.info(headerName + ": " + StringEscapeUtils.escapeHtml4(request.getHeader(headerName)));
-				}
-			}
-			Enumeration<String> parameterNames = request.getParameterNames();
-			if(parameterNames != null) {
-				while(parameterNames.hasMoreElements()) {
-					String parameterName = parameterNames.nextElement();
-					log.info(parameterName + ": " + StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
-				}
-			}
-		} catch(Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-		}
-	}
-
 	@Operation(
             summary = "Post template API",
             description = "To accept JSON request via HTTP method, POST."
@@ -113,7 +77,7 @@ public class RestSpringController {
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Post template start-");
 		try {
-			logHttpRequest(request, log);
+			RequestLoggingUtil.logRequestDetails(request, log);
 			log.info("Request: " + objectMapper.writeValueAsString(pojo));
 
 			return ResponseEntity.status(HttpStatus.OK).body(com.pojo.ApiResponse
@@ -168,7 +132,7 @@ public class RestSpringController {
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Get template start-");
 		try {
-			logHttpRequest(request, log);
+			RequestLoggingUtil.logRequestDetails(request, log);
 
 			return ResponseEntity.status(HttpStatus.FOUND).body(com.pojo.ApiResponse
 					.builder()
@@ -223,7 +187,7 @@ public class RestSpringController {
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Get async template start-");
 		try {
-			logHttpRequest(request, log);
+			RequestLoggingUtil.logRequestDetails(request, log);
 			Thread.sleep(sleepMs);
 			return CompletableFuture.supplyAsync(() ->
 			{
@@ -286,7 +250,7 @@ public class RestSpringController {
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Put template start-");
 		try {
-			logHttpRequest(request, log);
+			RequestLoggingUtil.logRequestDetails(request, log);
 			log.info("Request: " + objectMapper.writeValueAsString(pojo));
 
 			return ResponseEntity.status(HttpStatus.OK).body(sampleService.putTemplate(log, id, ic, pojo));
@@ -328,7 +292,7 @@ public class RestSpringController {
 		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
 		log.info("-Delete template start-");
 		try {
-			logHttpRequest(request, log);
+			RequestLoggingUtil.logRequestDetails(request, log);
 
 			return ResponseEntity.status(HttpStatus.RESET_CONTENT).body(com.pojo.ApiResponse
 					.builder()

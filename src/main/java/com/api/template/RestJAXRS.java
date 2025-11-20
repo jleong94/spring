@@ -1,7 +1,6 @@
 /*
 package com.api.template;
 
-import java.util.Enumeration;
 import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,50 +22,14 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.jboss.logging.MDC;
 import org.json.JSONObject;
-import org.slf4j.Logger;
+
+import com.utilities.RequestLoggingUtil;
 
 @Slf4j
 @Path("/api/test")
 public class RestJAXRS {
-
-	private void logHttpRequest(HttpServletRequest request, Logger log) {
-		if (request == null || log == null) {return;}
-		try {
-			// Log request headers
-			Enumeration<String> headerNames = request.getHeaderNames();
-			if(headerNames != null) {
-				while(headerNames.hasMoreElements()) {
-					String headerName = headerNames.nextElement();
-					log.info(headerName + ": " + StringEscapeUtils.escapeHtml4(request.getHeader(headerName)));
-				}
-			}
-			Enumeration<String> parameterNames = request.getParameterNames();
-			if(parameterNames != null) {
-				while(parameterNames.hasMoreElements()) {
-					String parameterName = parameterNames.nextElement();
-					log.info(parameterName + ": " + StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
-				}
-			}
-		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName()) 
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}", 
-							element.getClassName(),
-							element.getLineNumber(), 
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-		}
-	}
 
 	@POST @GET @PUT @DELETE
 	@Path("/token/{x3}")
@@ -84,7 +47,7 @@ public class RestJAXRS {
 		Status httpStatus = Status.OK;
 		JSONObject requestJson = null, responseJson = null;
 		try {
-			logHttpRequest(request, log);
+			RequestLoggingUtil.logRequestDetails(request, log);
 			requestJson = new JSONObject(x);
 			
 		} catch(Throwable e) {
