@@ -13,5 +13,5 @@ public interface EmailMapper {
 
 	//int offset = (page - 1) * size;
 	@Transactional(readOnly = true)
-    List<Email> findEmailByMail_id(@Param("mail_id") long mail_id, @Param("limit") int limit, @Param("offset") int offset);
+    List<Email> findEmailByMailId(@Param("mail_id") long mail_id, @Param("limit") int limit, @Param("offset") int offset);
 }
