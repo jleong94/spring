@@ -46,7 +46,7 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 			// Retrieve the @RateLimit annotation (custom) from the handler method, if present
 			RateLimit rateLimit = handlerMethod.getMethodAnnotation(RateLimit.class);
 
-			String resolvedIpKey = rateLimitService.resolveKeyFromRequest(log, request, "ip", "");
+			String resolvedIpKey = rateLimitService.resolveKeyFromRequest(log, request, "", "ip");
 			String headerName = rateLimit.headerName();
 			String resolvedHeaderKey = headerName != null && !headerName.isBlank() ? rateLimitService.resolveKeyFromRequest(log, request, "header", headerName) : null;
 			String pathVariable = rateLimit.pathVariable();

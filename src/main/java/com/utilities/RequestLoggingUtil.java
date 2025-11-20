@@ -58,9 +58,9 @@ public class RequestLoggingUtil {
 
 				// Mask sensitive headers
 				if (isSensitive(headerName)) {
-					log.info("Request Headers{}: {}", headerName, MASK_VALUE);
+					log.info("Request Headers {}: {}", headerName, MASK_VALUE);
 				} else {
-					log.info("Request Headers{}: {}", headerName, truncate(headerValue, MAX_PARAM_LENGTH));
+					log.info("Request Headers {}: {}", headerName, truncate(headerValue, MAX_PARAM_LENGTH));
 				}
 			}
 		} else {
@@ -80,12 +80,12 @@ public class RequestLoggingUtil {
 		if (parameterMap != null && !parameterMap.isEmpty()) {
 			parameterMap.forEach((key, values) -> {
 				if (isSensitive(key)) {
-					log.info("Request Parameters{}: {}", key, MASK_VALUE);
+					log.info("Request Parameters {}: {}", key, MASK_VALUE);
 				} else {
 					String value = values.length == 1 
 							? truncate(values[0], MAX_PARAM_LENGTH)
 									: Arrays.toString(values);
-					log.info("Request Parameters{}: {}", key, truncate(value, MAX_PARAM_LENGTH));
+					log.info("Request Parameters {}: {}", key, truncate(value, MAX_PARAM_LENGTH));
 				}
 			});
 		} else {
