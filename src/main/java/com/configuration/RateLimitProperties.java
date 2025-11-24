@@ -7,8 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.github.bucket4j.Bandwidth;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
@@ -35,7 +33,6 @@ public class RateLimitProperties {
 	private Rate defaultRate;
 	
 	@Builder.Default
-	@JsonProperty(value = "endpoints")
     protected Map<String, Rate> endpoints = new ConcurrentHashMap<>();
 
 	// A thread-safe map holding path-specific rate limit rules
@@ -75,13 +72,10 @@ public class RateLimitProperties {
     @Builder(toBuilder = true)
     public static class Rate {
     	
-    	@JsonProperty(value = "capacity")
         private int capacity;
     	
-    	@JsonProperty(value = "tokens")
         private int tokens;
         
-    	@JsonProperty(value = "period")
         private int period;
     }
 }

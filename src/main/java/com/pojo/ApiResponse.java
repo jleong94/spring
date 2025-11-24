@@ -41,7 +41,7 @@ public class ApiResponse {
 	@Schema(description = "Google Pay payload")
 	private GooglePay googlePay;
 	
-	@JsonProperty(value= "Auth", access = Access.READ_ONLY)
+	@JsonProperty(value= "auth", access = Access.READ_ONLY)
 	@JsonView({AuthResponse.Post.class})
 	@Schema(description = "Auth payload")
 	private AuthResponse authResponse;

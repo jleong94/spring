@@ -10,7 +10,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -102,7 +101,6 @@ public class FirebaseConfig {
     @Builder(toBuilder = true)
     public static class Credentials {
     	
-    	@JsonProperty(value = "path")
         private String path;
     }
 }
