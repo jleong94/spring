@@ -24,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 @ConfigurationProperties(prefix = "google.fcm")
 @Slf4j
 @Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
+@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
+@NoArgsConstructor//Generates a constructor with no parameters
 @Builder(toBuilder = true)
 public class FirebaseConfig {
 
@@ -31,11 +33,6 @@ public class FirebaseConfig {
 	private boolean init = false;
 	
 	private Credentials credentials;
-
-	public FirebaseConfig(boolean init, Credentials credentials) {
-		this.init = init;
-		this.credentials = credentials;
-	}
 
 	@Bean
 	CommandLineRunner initFirebase() {
