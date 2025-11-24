@@ -2,15 +2,12 @@ package com.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 @Configuration
 @ConfigurationProperties(prefix = "keycloak")
 @Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non_final fields, and @RequiredArgsConstructor
-@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
 @Builder(toBuilder = true)
 public class KeycloakConfig {
 

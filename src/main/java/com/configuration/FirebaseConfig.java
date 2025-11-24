@@ -14,17 +14,14 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @ConfigurationProperties(prefix = "google.fcm")
 @Slf4j
 @Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
-@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
 @Builder(toBuilder = true)
 public class FirebaseConfig {
 
@@ -32,10 +29,9 @@ public class FirebaseConfig {
 	private boolean init = false;
 	
 	private Credentials credentials;
-	
-	public FirebaseConfig() {}
 
-	public FirebaseConfig(Credentials credentials) {
+	public FirebaseConfig(boolean init, Credentials credentials) {
+		this.init = init;
 		this.credentials = credentials;
 	}
 
@@ -96,8 +92,6 @@ public class FirebaseConfig {
 	}
 	
 	@Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
-    @AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
-    @NoArgsConstructor//Generates a constructor with no parameters
     @Builder(toBuilder = true)
     public static class Credentials {
     	
