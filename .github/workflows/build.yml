@@ -32,6 +32,8 @@ jobs:
         echo "SMTP_PORT=${{ secrets.UAT_SMTP_PORT }}" >> $GITHUB_ENV
         echo "SMTP_USERNAME=${{ secrets.UAT_SMTP_USERNAME }}" >> $GITHUB_ENV
         echo "SMTP_PASSWORD=${{ secrets.UAT_SMTP_PASSWORD }}" >> $GITHUB_ENV
+        echo "KEYCLOAK_AUTH_SERVER_URL=${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}" >> $GITHUB_ENV
+        echo "KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }}" >> $GITHUB_ENV
         mkdir -p src/main/resources/security/firebase
         cat << 'EOF' > src/main/resources/security/google/firebase/firebase-service-account.json
         ${{ secrets.UAT_FIREBASE_CREDENTIALS_JSON }}
@@ -106,6 +108,8 @@ jobs:
         echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> $GITHUB_ENV
         echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> $GITHUB_ENV
         echo "SMTP_SENDER=${{ secrets.SMTP_SENDER }}" >> $GITHUB_ENV
+        echo "KEYCLOAK_AUTH_SERVER_URL=${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}" >> $GITHUB_ENV
+        echo "KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }}" >> $GITHUB_ENV
         mkdir -p src/main/resources/security/firebase
         cat << 'EOF' > src/main/resources/security/google/firebase/firebase-service-account.json
         ${{ secrets.FIREBASE_CREDENTIALS_JSON }}

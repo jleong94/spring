@@ -128,5 +128,15 @@
     "name": "google.pay.key.path",
     "type": "java.lang.String",
     "description": "A description for 'google.pay.key.path'"
+  },
+  {
+    "name": "keycloak.client-id",
+    "type": "java.lang.String",
+    "description": "A description for 'keycloak.client-id'"
+  },
+  {
+    "name": "keycloak.client-secret",
+    "type": "java.lang.String",
+    "description": "A description for 'keycloak.client-secret'"
   }
 ]}

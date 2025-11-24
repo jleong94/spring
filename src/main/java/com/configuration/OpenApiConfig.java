@@ -5,9 +5,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 
 @Configuration
@@ -31,23 +34,23 @@ import io.swagger.v3.oas.annotations.servers.Server;
 				),
 		servers = {
 				@Server(url = "http://localhost:8080", description = "Local Development"),
-				@Server(url = "http://localhost:8080", description = "Uat Environment"),
+				@Server(url = "http://localhost:8080", description = "UAT Environment"),
 				@Server(url = "http://localhost:8080", description = "Production Environment")
-		}/*,
+		},
 		security = {
 				@SecurityRequirement(name = "bearer-jwt") // Require JWT globally
-		}*/
+		}
 		)
 // -------------------------------
 // 🔐 Security Schemes
 // -------------------------------
-/*@SecurityScheme(
+@SecurityScheme(
 		name = "bearer-jwt",                  // Used inside @Operation(security = ...)
 		type = SecuritySchemeType.HTTP,       // HTTP auth
 		scheme = "bearer",                    // "Bearer <token>"
 		bearerFormat = "JWT",                 // Hint for Swagger UI
 		description = "JWT Bearer token. Format: 'Bearer {token}'"
-		)*/
+		)
 public class OpenApiConfig {
 	
 	// 🔹 Group 1: Template APIs
@@ -56,7 +59,27 @@ public class OpenApiConfig {
         return GroupedOpenApi.builder()
                 .group("templates")
                 .packagesToScan("com.api.template")
-                .pathsToMatch("/api/template/**")
+                .pathsToMatch("/v1/template/**")
+                .build();
+    }
+    
+	// 🔹 Group 2: Authentication APIs
+	@Bean
+    public GroupedOpenApi authApi() {
+        return GroupedOpenApi.builder()
+                .group("authentication")
+                .packagesToScan("com.api.auth")
+                .pathsToMatch("/v1/auth/**")
+                .build();
+    }
+    
+	// 🔹 Group 3: Business APIs
+    @Bean
+    public GroupedOpenApi businessApi() {
+        return GroupedOpenApi.builder()
+                .group("business")
+                .packagesToScan("com.api.business")
+                .pathsToMatch("/v1/business/**")
                 .build();
     }
 }

@@ -56,7 +56,18 @@ server:
     client-auth: want	#need: client must provide valid cert (strict), want: client cert is optional, none: no client validation (default)
   http2:
     enabled: true
+keycloak:
+  auth-server-url: http://localhost:65535
+  realm: spring
+  client-id: spring
+  client-secret: Test@123456
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${keycloak.auth-server-url}/realms/${keycloak.realm}
+          jwk-set-uri: ${keycloak.auth-server-url}/realms/${keycloak.realm}/protocol/openid-connect/certs
   lifecycle:
     timeout-per-shutdown-phase: 30s  # Wait for in-flight requests
   application:
@@ -174,6 +185,14 @@ rate:
       tokens: 10 #new tokens add per period
       period: 60 #Timeunit, second
     endpoints:
+      /v1/auth/basic:
+        capacity: 3 #max number of tokens the bucket can hold 
+        tokens: 2 #new tokens add per period
+        period: 60 #Timeunit, second
+      /v1/auth/token:
+        capacity: 3 #max number of tokens the bucket can hold 
+        tokens: 2 #new tokens add per period
+        period: 60 #Timeunit, second
       /v1/template/post:
         capacity: 10 #max number of tokens the bucket can hold 
         tokens: 10 #new tokens add per period
@@ -286,6 +305,9 @@ resilience4j:
       getAsyncTemplate:
         timeout-duration: 1s
         cancel-running-future: true
+      requestAuthToken:
+        timeout-duration: 5s
+        cancel-running-future: true
   circuitbreaker:
     instances:
       sendEmail:
@@ -384,6 +406,38 @@ resilience4j:
         # If any fail → circuit reopens immediately and waits again
         # Lower value (2-3) = faster decision, Higher value (5-10) = more thorough test
         permitted-number-of-calls-in-half-open-state: 3
+      requestAuthToken:
+        # Monitor the last 50 calls to decide if circuit should open
+        # Uses a ring buffer to track success/failure of recent calls
+        sliding-window-size: 50
+        # If ≥50% of calls fail → circuit opens (stops calling the service)
+        # Example: If 25 out of 50 calls fail, circuit breaks
+        # Lower value (e.g., 30) = more sensitive to failures
+        failure-rate-threshold: 50
+        # If ≥50% of calls are slow → circuit opens
+        # Works together with slow-call-duration-threshold
+        # Prevents cascading failures from slow dependencies
+        # Example: If 25 out of 50 calls exceed 3s, circuit breaks 
+        slow-call-rate-threshold: 50
+        # Any call taking longer than 3 seconds is considered "slow"
+        # Helps detect degraded performance before complete failure
+        # Adjust based on your SLA (e.g., 2s for critical APIs, 5s for batch jobs)
+        slow-call-duration-threshold: 3s
+        # After circuit opens, wait 10 seconds before testing recovery
+        # During this time, all calls immediately fail-fast (no actual calls made)
+        # After 10s → circuit moves to HALF_OPEN state to test if service recovered
+        # Longer duration (30s-60s) for external services, shorter (5s-10s) for internal
+        wait-duration-in-open-state: 10
+        # Collect at least 10 calls before calculating failure/slow rates
+        # Prevents premature circuit opening on startup or low traffic
+        # Example: If only 5 calls made and 3 fail (60%), circuit won't open yet
+        # Should be ≤ sliding-window-size (typically 10-20% of window size)
+        minimum-number-of-calls: 10
+        # When in HALF_OPEN, allow exactly 3 test calls to check service health
+        # If all 3 succeed → circuit CLOSES (back to normal)
+        # If any fail → circuit reopens immediately and waits again
+        # Lower value (2-3) = faster decision, Higher value (5-10) = more thorough test
+        permitted-number-of-calls-in-half-open-state: 3
   retry:
     instances:
       sendEmail:
@@ -393,5 +447,8 @@ resilience4j:
         max-attempts: 3
         wait-duration: 2s
       decryptGooglePayToken:
+        max-attempts: 3
+        wait-duration: 2s
+      requestAuthToken:
         max-attempts: 3
         wait-duration: 2s

@@ -7,7 +7,11 @@ public enum ResponseCode {
     UNAUTHORIZED_ACCESS(1, "Failed", null),
     ERROR(2, "Failed", null),
     FAILED(3, "Failed", null),
-    RATE_LIMIT(4, "Failed", "Exceed rate limit. Please retry later.");
+    RATE_LIMIT(4, "Failed", "Exceed rate limit. Please retry later."),
+    FORBIDDEN_ACCESS(5, "Failed", "Forbidden - Insufficient permissions."),
+    INVALID_CREDENTIALS(6, "Failed", "Invalid username or password."),
+    TOKEN_EXPIRED(7, "Failed", "Token has expired."),
+    INVALID_TOKEN(8, "Failed", "Invalid token.");
 
 	private final int response_code;
 	private final String response_status;
