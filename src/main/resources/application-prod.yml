@@ -290,11 +290,6 @@ springdoc:
     tryItOutEnabled: true #Lets developers call APIs from the browser directly.
     syntaxHighlight: #Pretty-prints JSON/XML responses.
       activated: true
-  group-configs: #Splits OpenAPI docs into groups.
-    - group: v1
-      paths-to-match: /api/v1/**
-    - group: v2
-      paths-to-match: /api/v2/**
 resilience4j:
   timelimiter: #Must be in async
     configs: #Global Default Configuration
