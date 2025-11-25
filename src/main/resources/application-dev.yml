@@ -185,27 +185,27 @@ rate:
       tokens: 10 #new tokens add per period
       period: 60 #Timeunit, second
     endpoints:
-      /v1/auth/basic:
+      /spring/v1/auth/basic:
         capacity: 3 #max number of tokens the bucket can hold 
         tokens: 2 #new tokens add per period
         period: 60 #Timeunit, second
-      /v1/auth/token:
+      /spring/v1/auth/token:
         capacity: 3 #max number of tokens the bucket can hold 
         tokens: 2 #new tokens add per period
         period: 60 #Timeunit, second
-      /v1/template/post:
+      /spring/v1/template/post:
         capacity: 10 #max number of tokens the bucket can hold 
         tokens: 10 #new tokens add per period
         period: 60 #Timeunit, second
-      /v1/template/get:
+      /spring/v1/template/get:
         capacity: 10 #max number of tokens the bucket can hold 
         tokens: 10 #new tokens add per period
         period: 60 #Timeunit, second
-      /v1/template/put:
+      /spring/v1/template/put:
         capacity: 10 #max number of tokens the bucket can hold 
         tokens: 10 #new tokens add per period
         period: 60 #Timeunit, second
-      /v1/template/delete:
+      /spring/v1/template/delete:
        capacity: 10 #max number of tokens the bucket can hold 
        tokens: 10 #new tokens add per period
        period: 60 #Timeunit, second			

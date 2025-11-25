@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.jboss.logging.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import com.utilities.RequestLoggingUtil;
 
@@ -18,7 +19,6 @@ import org.springframework.lang.NonNull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +35,7 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 			UUID xRequestId = UUID.randomUUID();
 			
 			// Wrap request to add custom header
-			HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(request) {
+			ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request) {
 	            @Override
 	            public String getHeader(String name) {
 	                if ("X-Request-ID".equals(name)) {
@@ -61,8 +61,10 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 	        
 			MDC.put("X-Request-ID", response.getHeader("X-Request-ID") != null && !response.getHeader("X-Request-ID").isBlank() ? response.getHeader("X-Request-ID") : UUID.randomUUID());
 			log.info("-Custom once per request filter start-");
-			RequestLoggingUtil.logRequestDetails(request, log);
+			RequestLoggingUtil.logRequestDetails(wrappedRequest, log);
 
+			//SecurityContextHolder.getContext().setAuthentication(new CustomAbstractAuthenticationToken(signature, null, true));
+			
 			chain.doFilter(wrappedRequest, response);
 		} catch(Throwable e) {
 			// Get the current stack trace element
