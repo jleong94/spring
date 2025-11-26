@@ -3,9 +3,6 @@ package com.configuration;
 import java.util.Deque;
 import java.util.UUID;
 
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-
 import org.jboss.logging.MDC;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
@@ -37,50 +34,16 @@ import lombok.extern.slf4j.Slf4j;
 		)
 public class Scheduler {
 	
-	private final CacheManager cacheManager;
-	
 	private final JobLauncher jobLauncher;
 
 	private final Job job;
 	
 	//@Qualifier("<bean name>") - To match with bean name for created job in BatchJobConfig
-	public Scheduler(CacheManager cacheManager, JobLauncher jobLauncher, @Qualifier("sampleJob") Job job, SampleThreadService sampleThreadService) {
-		this.cacheManager = cacheManager;
+	public Scheduler(JobLauncher jobLauncher, @Qualifier("sampleJob") Job job, SampleThreadService sampleThreadService) {
 		this.jobLauncher = jobLauncher;
 		this.job = job;
 		this.sampleThreadService = sampleThreadService;
-	}
-	
-	@Scheduled(fixedRate = 300_000, zone = "Asia/Kuala_Lumpur")
-	@Async//Run on separate thread, non-blocking the scheduler
-	public void clearBucketsCache() throws Throwable {
-        MDC.put("X-Request-ID", UUID.randomUUID());
-		try {
-			Cache<String, ?> cache = cacheManager.getCache("buckets");
-			if (cache != null) {
-	            cache.removeAll();
-	            log.info("Cleared 'buckets' cache globally!");
-	        }
-        } catch(Throwable e) {
-        	// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
-			throw e;
-        } finally{
-        	MDC.clear();
-        }
-    } 
+	} 
 
 	@Scheduled(cron = "* */5 * * * *", zone = "Asia/Kuala_Lumpur")
 	@Async//Run on separate thread, non-blocking the scheduler

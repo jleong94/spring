@@ -2,31 +2,65 @@ package com.configuration;
 
 import java.util.Collections;
 
-import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication. AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+/**
+ * Custom authentication token that extends Spring Security's AbstractAuthenticationToken. 
+ * This implementation provides signature-based authentication for the application.
+ * 
+ * <p>This token stores a signature as the credential and supports both authenticated
+ * and unauthenticated states. When authenticated, it grants a single authority. </p>
+ * 
+ * @see AbstractAuthenticationToken
+ * @author jleong94
+ */
 public class CustomAbstractAuthenticationToken extends AbstractAuthenticationToken {
 
 	private static final long serialVersionUID = 1L;
-	
+
+	/**
+	 * The signature used as the authentication credential.
+	 */
 	private final String signature;
-	
+
+	/**
+	 * The principal object representing the authenticated user or entity.
+	 */
 	private final Object principal;
 
-    public CustomAbstractAuthenticationToken(String signature, Object principal, boolean authenticated) {
-        super(authenticated ? Collections.singletonList(new SimpleGrantedAuthority("")) : null);
-        this.signature = signature;
-        this.principal = principal;
-        setAuthenticated(authenticated);
-    }
+	/**
+	 * Constructs a new CustomAbstractAuthenticationToken with the specified parameters.
+	 * 
+	 * @param signature the signature to use as the authentication credential
+	 * @param principal the principal object representing the user or entity
+	 * @param authenticated {@code true} if the token should be marked as authenticated,
+	 *                      {@code false} otherwise.  When {@code true}, grants a single authority.
+	 */
+	public CustomAbstractAuthenticationToken(String signature, Object principal, boolean authenticated) {
+		super(authenticated ?  Collections.singletonList(new SimpleGrantedAuthority("")) : null);
+		this.signature = signature;
+		this.principal = principal;
+		setAuthenticated(authenticated);
+	}
 
-    @Override
-    public Object getCredentials() {
-        return signature;
-    }
+	/**
+	 * Returns the credentials used to authenticate the principal.
+	 * 
+	 * @return the signature used as the authentication credential
+	 */
+	@Override
+	public Object getCredentials() {
+		return signature;
+	}
 
-    @Override
-    public Object getPrincipal() {
-        return principal;
-    }
+	/**
+	 * Returns the principal being authenticated.
+	 * 
+	 * @return the principal object representing the authenticated user or entity
+	 */
+	@Override
+	public Object getPrincipal() {
+		return principal;
+	}
 }

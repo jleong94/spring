@@ -74,7 +74,7 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 			log.info("-Custom once per request filter start-");
 			RequestLoggingUtil.logRequestDetails(wrappedRequest, log);
 
-			String signature = wrappedRequest.getHeader("Signature");
+			String signature = wrappedRequest.getHeader("SIGNATURE");
 			if(signature != null) {
 				String requestBody = getRequestBody(wrappedRequest);
 				Authentication authentication = authService.isSignatureValid(log, wrappedRequest.getRequestURI(), requestBody, signature);
