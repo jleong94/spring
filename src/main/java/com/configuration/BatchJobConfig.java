@@ -71,10 +71,10 @@ public class BatchJobConfig {
 	 */
 	@Bean
     Tasklet sampleTasklet() {
-        return (contribution, chunkContext) -> {
-    		// Add your batch processing logic here
-        	
-            return RepeatStatus.FINISHED; // Indicates successful completion
-        };
+		return (contribution, chunkContext) -> {
+			// Add your batch processing logic here
+
+			return RepeatStatus.FINISHED; // Indicates successful completion
+		};
     }
 }

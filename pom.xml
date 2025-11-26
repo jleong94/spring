@@ -330,6 +330,19 @@
 		</dependency>
 		<!-- Resilience4j -->
 		
+		<!-- Shedlock -->
+    <dependency>
+        <groupId>net.javacrumbs.shedlock</groupId>
+        <artifactId>shedlock-spring</artifactId>
+        <version>7.2.0</version>
+    </dependency>
+    <dependency>
+        <groupId>net.javacrumbs.shedlock</groupId>
+        <artifactId>shedlock-provider-jdbc-template</artifactId>
+        <version>7.2.0</version>
+    </dependency>
+    <!-- Shedlock -->
+		
 		<!-- Optional -->
 		<!-- ISO8583 -->
 		<dependency>
