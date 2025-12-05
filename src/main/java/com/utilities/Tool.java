@@ -520,7 +520,7 @@ public class Tool {
 			for(Path path : paths) {
 				if(path.getFileName().toString().contains("rsa-private")) {
 					// Read the private key file content
-					String strPk = readFileWithBufferedReader(log, path. toAbsolutePath().toString());
+					String strPk = readFileWithBufferedReader(log, (classpath.concat("/").concat(path.getFileName().toString())));
 
 					// Remove PEM headers/footers and whitespace to get raw Base64 data
 					// Handles both PKCS#1 (RSA PRIVATE KEY) and PKCS#8 (PRIVATE KEY) formats
@@ -604,7 +604,7 @@ public class Tool {
 			for(Path path : paths) {
 				if(path.getFileName().toString().contains("rsa-public")) {
 					// Read the public key file content
-					String strPk = readFileWithBufferedReader(log, path.toAbsolutePath().toString());
+					String strPk = readFileWithBufferedReader(log, (classpath.concat("/").concat(path.getFileName().toString())));
 
 					// Remove PEM headers/footers and whitespace to get raw Base64 data
 					String realPK = strPk. replace("-----BEGIN PUBLIC KEY-----", "")
