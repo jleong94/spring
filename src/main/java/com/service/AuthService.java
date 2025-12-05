@@ -29,7 +29,7 @@ public class AuthService {
 			if(uri.contains(" ")) {
 				
 			} else {verifySHA256RSA = tool.verifySHA256RSA(log, apiKey.getGeneral(), requestBody, signature);}
-			return new CustomAbstractAuthenticationToken(signature, null, verifySHA256RSA);
+			return new CustomAbstractAuthenticationToken(signature, null, verifySHA256RSA, null);
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
