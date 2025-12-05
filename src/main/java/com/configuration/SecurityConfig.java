@@ -51,15 +51,12 @@ public class SecurityConfig implements WebMvcConfigurer {
 	
 	private final ObjectMapper objectMapper;
 	
-	 private final KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter;
-	
-	public SecurityConfig(CustomOncePerRequestFilter customOncePerRequestFilter, Property property, CustomHandlerInterceptor customHandlerInterceptor, Tool tool, ObjectMapper objectMapper, KeycloakJwtAuthenticationConverter keycloakJwtAuthenticationConverter) {
+	public SecurityConfig(CustomOncePerRequestFilter customOncePerRequestFilter, Property property, CustomHandlerInterceptor customHandlerInterceptor, Tool tool, ObjectMapper objectMapper) {
 		this.customOncePerRequestFilter = customOncePerRequestFilter;
 		this.property = property;
 		this.customHandlerInterceptor = customHandlerInterceptor;
 		this.tool = tool;
 		this.objectMapper = objectMapper;
-		this.keycloakJwtAuthenticationConverter = keycloakJwtAuthenticationConverter;
 	}
 
 	@Bean
@@ -95,10 +92,6 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 						)
-				// Configure OAuth2 Resource Server with Keycloak JWT
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(keycloakJwtAuthenticationConverter))
-                )
 				// Handle authentication & access errors with custom exceptions
 				.exceptionHandling(exception -> exception
 						.authenticationEntryPoint((request, response, authEx) -> {
@@ -128,8 +121,6 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.addFilterBefore(customOncePerRequestFilter, BasicAuthenticationFilter.class)
 				// Secure endpoint access rules
 				.authorizeHttpRequests((requests) -> requests
-						.requestMatchers(HttpMethod.POST, "/v1/auth/basic").permitAll()
-						.requestMatchers(HttpMethod.POST, "/v1/auth/token").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/post").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/get").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/get-async").permitAll()
@@ -174,10 +165,6 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.sessionManagement(session ->
 				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 						)
-				// Configure OAuth2 Resource Server with Keycloak JWT
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(keycloakJwtAuthenticationConverter))
-                )
 				// Handle authentication & access errors with custom exceptions
 				.exceptionHandling(exception -> exception
 						.authenticationEntryPoint((request, response, authEx) -> {
@@ -207,8 +194,6 @@ public class SecurityConfig implements WebMvcConfigurer {
 				.addFilterBefore(customOncePerRequestFilter, BasicAuthenticationFilter.class)
 				// Secure endpoint access rules
 				.authorizeHttpRequests((requests) -> requests
-						.requestMatchers(HttpMethod.POST, "/v1/auth/basic").permitAll()
-						.requestMatchers(HttpMethod.POST, "/v1/auth/token").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/post").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/get").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/get-async").permitAll()

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.pojo.google.GooglePay;
-import com.pojo.keycloak.AuthResponse;
 import com.pojo.template.Pojo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -40,11 +39,6 @@ public class ApiResponse {
 	@JsonView({GooglePay.Post.class})
 	@Schema(description = "Google Pay payload")
 	private GooglePay googlePay;
-	
-	@JsonProperty(value= "auth", access = Access.READ_ONLY)
-	@JsonView({AuthResponse.Post.class})
-	@Schema(description = "Auth payload")
-	private AuthResponse authResponse;
 	
 	@JsonProperty(value= "pojo", access = Access.READ_ONLY)
 	@JsonView({Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})

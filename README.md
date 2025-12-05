@@ -34,12 +34,16 @@ N/A
 🔍 OpenSearch Setup(Window):
 N/A
 
-🔐 Keycloak Setup(Window):
-# Step 1: Download keycloak from https://www.keycloak.org/
-# Step 2: Download the mysql jar from https://mvnrepository.com/artifact/com.mysql/mysql-connector-j & put at <Installation path>\keycloak-<version>\providers
-# Step 3: Copy the content keycloak.conf(git version) & replace with keycloak.conf at path, <Installation path>\keycloak-<version>\conf.  
-# Step 4: Navigate cmd to path, <Installation path>\keycloak-<version>\bin & run, kc.bat start --optimized
-# Step 5: Access url, localhost:<port> on browser to test whether keycloak is accessible. For further setup, please refer to https://www.keycloak.org/guides.
+🔐 RSA Key Pair Generation(Window):
+# Step 1: Make sure cygwin/openssl was install in your machine.
+# Step 2: Run cmd as admin & below command to change the path.
+          Cygwin - <Installation drive>\cygwin64
+          Openssl - <Installation drive>\OpenSSL\bin
+# Step 3: Run command, openssl genrsa -out rsa-private.pem 2048
+# Step 4: Run command, openssl rsa -in rsa-private.pem -pubout -out rsa-public.pem 
+# Step 5: Generated key pair will show in respective path.
+          Cygwin - <Installation drive>\cygwin64\home\<machine name>
+          Openssl - <Installation drive>\OpenSSL\bin
 
 🌱 Spring Boot Application Setup(Window):
 # Step 1: Make sure running environment installed JDK 21 or above
@@ -112,7 +116,6 @@ Enable the service from starting at boot: sudo systemctl enable spring
 
 📚 Resources<br>
 - [Spring Boot Docs](https://docs.spring.io/spring-boot/index.html)↗
-- [Keycloak Docs](https://www.keycloak.org/documentation)↗
 - [MySQL Docs](https://dev.mysql.com/doc/)↗
 - [FluentBit Docs](https://docs.fluentbit.io/manual)↗
 - [OpenSearch Docs](https://docs.opensearch.org/latest/)↗
