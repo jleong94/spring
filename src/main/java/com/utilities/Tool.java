@@ -256,42 +256,32 @@ public class Tool {
 			// Create a File object to check if it exists on the file system
 			File file = new File(filePath);
 
-			// Initialize InputStream (will be auto-closed by Lombok @Cleanup)
-			@Cleanup InputStream inputStream = null;
+			// Initialize InputStream using try-with-resources to avoid Lombok @Cleanup and ensure proper null-check
+			try (InputStream inputStream = file.exists() ? new FileInputStream(file) : getClass().getClassLoader().getResourceAsStream(filePath)) {
 
-			// Try to load from file system first (for development with absolute paths)
-			if(file.exists()) {
-				inputStream = new FileInputStream(file);
-			} 
-			// If not found on file system, try to load from classpath (for JAR deployment)
-			else {
-				inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
+				// Validate that the resource was found
+				if (inputStream == null) {
+					throw new FileNotFoundException("Resource not found in classpath: " + filePath); // BUG FIX: Should be filePath, not inputStream
+				}
+
+				// Create BufferedReader with UTF-8 encoding for proper character handling
+				try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+
+					// Variables for reading lines
+					String line;
+					StringBuilder lines = new StringBuilder(); // NOTE: StringBuilder is preferred over StringBuffer
+
+					// Read file line by line and append to buffer
+					while ((line = reader.readLine()) != null) {
+						lines.append(line);
+						// NOTE: This removes line breaks - original file formatting is lost
+						// Consider appending System.lineSeparator() if line breaks are needed
+					}
+
+					// Return the complete file contents as a single string
+					return lines.toString();
+				}
 			}
-
-			// Validate that the resource was found
-			if (inputStream == null) {
-				throw new FileNotFoundException("Resource not found in classpath: " + filePath); // BUG FIX: Should be filePath, not inputStream
-			}
-
-			// Create BufferedReader with UTF-8 encoding for proper character handling
-			// @Cleanup ensures the reader is automatically closed
-			@Cleanup BufferedReader reader = new BufferedReader(
-					new InputStreamReader(inputStream, StandardCharsets.UTF_8)
-					);
-
-			// Variables for reading lines
-			String line;
-			StringBuffer lines = new StringBuffer(); // NOTE: Consider using StringBuilder for better performance
-
-			// Read file line by line and append to buffer
-			while ((line = reader. readLine()) != null) {
-				lines.append(line);
-				// NOTE: This removes line breaks - original file formatting is lost
-				// Consider appending System.lineSeparator() if line breaks are needed
-			}
-
-			// Return the complete file contents as a single string
-			return lines.toString();
 		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];

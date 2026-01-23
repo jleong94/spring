@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class CustomHandlerInterceptor implements HandlerInterceptor {
 
+	private static final String REQUEST_ID_HEADER = "X-Request-ID";
+
 	private final RateLimitService rateLimitService;
 
 	public CustomHandlerInterceptor(RateLimitService rateLimitService) {
@@ -29,7 +31,8 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
+		String requestId = request.getHeader(REQUEST_ID_HEADER);
+		MDC.put(REQUEST_ID_HEADER, requestId != null && !requestId.isBlank() ? requestId : UUID.randomUUID().toString());
 		log.info("-Handler interceptor start-");
 		try {
 			if (request.getDispatcherType() != DispatcherType.REQUEST || request.getAttribute("CustomHandlerInterceptor") != null) {
