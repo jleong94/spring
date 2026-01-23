@@ -1,7 +1,6 @@
 package com.configuration;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -10,9 +9,7 @@ import java.util.UUID;
 
 import org.jboss.logging.MDC;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StreamUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import com.service.AuthService;
 import com.utilities.RequestLoggingUtil;
@@ -45,27 +42,27 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 		try {
 			UUID xRequestId = UUID.randomUUID();
 
-			// Wrap request to add custom header
-			ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request) {
-				@Override
-				public String getHeader(String name) {
-					if ("X-Request-ID".equals(name)) {
-						return xRequestId.toString();
-					}
-					return super.getHeader(name);
-				}
+			// Wrap request ONCE to cache body
+	        CachedBodyHttpServletRequest wrappedRequest = new CachedBodyHttpServletRequest(request) {
+	            @Override
+	            public String getHeader(String name) {
+	                if ("X-Request-ID".equals(name)) {
+	                    return xRequestId.toString();
+	                }
+	                return super.getHeader(name);
+	            }
 
-				@Override
-				public Enumeration<String> getHeaderNames() {
-					Set<String> headerNames = new HashSet<>();
-					Enumeration<String> originalHeaders = super.getHeaderNames();
-					while (originalHeaders.hasMoreElements()) {
-						headerNames.add(originalHeaders.nextElement());
-					}
-					headerNames.add("X-Request-ID");
-					return Collections.enumeration(headerNames);
-				}
-			};
+	            @Override
+	            public Enumeration<String> getHeaderNames() {
+	                Set<String> headerNames = new HashSet<>();
+	                Enumeration<String> originalHeaders = super.getHeaderNames();
+	                while (originalHeaders.hasMoreElements()) {
+	                    headerNames.add(originalHeaders.nextElement());
+	                }
+	                headerNames.add("X-Request-ID");
+	                return Collections.enumeration(headerNames);
+	            }
+	        };
 
 			// Also add to response for client tracking
 			response.setHeader("X-Request-ID", xRequestId.toString());
@@ -76,12 +73,12 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 
 			String signature = wrappedRequest.getHeader("SIGNATURE");
 			if(signature != null) {
-				String requestBody = getRequestBody(wrappedRequest);
+				String requestBody = wrappedRequest.getBody(); // Simply get cached body
 				Authentication authentication = authService.isSignatureValid(log, wrappedRequest.getRequestURI(), requestBody, signature);
 				if(authentication.isAuthenticated()) {SecurityContextHolder.getContext().setAuthentication(authentication);}
 			}
 
-			chain.doFilter(wrappedRequest, response);
+			chain.doFilter(wrappedRequest, response); // Pass the wrapped request down the chain
 		} catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -102,17 +99,5 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 			log.info("-Custom once per request filter end-");
 			MDC.clear();
 		}
-	}
-
-	private String getRequestBody(ContentCachingRequestWrapper request) throws IOException {
-		// Method 1: Read input stream directly (this triggers caching)
-		@SuppressWarnings("unused")
-		byte[] content = StreamUtils.copyToByteArray(request.getInputStream());
-
-		// Now getContentAsByteArray() will work
-		byte[] cachedContent = request.getContentAsByteArray();
-
-		return cachedContent.length > 0 ? 
-				new String(cachedContent, StandardCharsets.UTF_8) : "";
 	}
 }
