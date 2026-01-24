@@ -26,9 +26,12 @@ public class AuthService {
 		boolean verifySHA256RSA = false;
 		try {
 			log.info("Plain signature body: {}", requestBody);
-			if(uri.contains(" ")) {
-				
-			} else {verifySHA256RSA = tool.verifySHA256RSA(log, apiKey.getGeneral(), requestBody, signature);}
+			// Reject malformed URIs instead of bypassing validation
+			if(uri == null || uri.isBlank() || uri.contains(" ")) {
+				log.warn("Invalid URI detected: {}", uri);
+				throw new ServletException("Invalid URI format");
+			}
+			verifySHA256RSA = tool.verifySHA256RSA(log, apiKey.getGeneral(), requestBody, signature);
 			return new CustomAbstractAuthenticationToken(signature, null, verifySHA256RSA, null);
 		} catch(Throwable e) {
 			// Get the current stack trace element
