@@ -1,124 +1,163 @@
-## 🏗️ Spring Boot Base Project Template
+# Spring Boot Base Project Template
 
-> Java 21 + Spring Boot + MySQL
+A production-ready starter for building Spring Boot services with Java 21, MySQL, robust security, observability, and CI/CD.
 
-This project serves as a fully working **base template** for Java Spring Boot application. Easily clone and duplicate this project as a solid starting point for building microservices or monoliths.
+## Prerequisites
 
----
+- Java 21 (Temurin recommended)
+- Maven 3.9+
+- MySQL 8.x
+- Git
+- Docker (optional, for containerization)
+- Keystore Explorer (optional, for SSL/MTLS keystores)
 
-🛠 Tech Stack
-- **Java:** JDK 21  
-- **Framework:** Spring Boot  
-- **Database:** MySQL 
+## Key Features Implemented
 
----
+- Security
+  - Spring Security configuration with custom filters and authentication tokens
+  - MTLS client-certificate detection utilities
+  - Keystore/truststore support (resources/security/*.p12)
+- Reliability
+  - Rate limiting via Bucket4j (configurable properties)
+  - Retry with backoff using Spring Retry + AOP
+  - Resilience4j integration
+  - Shedlock for distributed scheduled jobs
+- Data & Persistence
+  - Spring Data JPA + MyBatis (hybrid usage)
+  - Hibernate Envers for entity change audit trails
+- Messaging & External Integrations
+  - Email service (attachments supported)
+  - SSHJ for SSH/SFTP operations
+  - Google Firebase Admin SDK
+  - Google Pay decryption (Tink)
+- Observability
+  - Actuator health endpoints
+  - Micrometer Prometheus metrics
+  - Logback + Logstash encoder
+  - Request logging & JSON masking utilities
+- API & Docs
+  - OpenAPI/Swagger UI (springdoc)
+  - RFC7807 problem responses (consistent error format)
+- Build Quality
+  - OWASP Dependency-Check (optional via NVD API key)
+  - Spring properties cleaner plugin
 
-⚙️ Setup Instructions
+## Configuration Profiles
+
+Available profiles:
+- dev → src/main/resources/application-dev.yml
+- test → src/main/resources/application-test.yml
+- uat → src/main/resources/application-uat.yml
+- prod → src/main/resources/application-prod.yml
+
+To select a profile, set SPRING_PROFILES_ACTIVE.
+
+### Environment Variables
+
+Common variables (example naming):
+- SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+- SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SMTP_SENDER
+- KEYCLOAK_AUTH_SERVER_URL, KEYCLOAK_CLIENT_SECRET
+- Firebase credentials (mounted file or env)
+
+## Database Setup
+
+Run the provided SQL scripts:
+- src/main/resources/db_script/setup.sql
+- src/main/resources/db_script/spring-batch.sql
+
+## Local Setup
+
+### Build JAR
 
 ```bash
-💻 Maven Build(Own workstation) Setup:
-# Step 1: Open eclipse marketplace & search for word, spring.
-# Step 2: Click install, wait for it finish & restart eclipse.
-# Step 3: Right click target project, select run as->run configurations.
-# Step 4: Select maven build.
-# Step 5: Put in, clean {goal} on goals input box.
-  - {goal}: validate → compile → test → package → integration-test → verify → install → deploy
-  - Most right side will cover the job from right to left.
-# Step 6: On jre tab, pick the right jdk on alternate jre dropdown.
-# Step 7: Click run & wait for it finish.
-# Step 8: JAR file will output at {project directory}/target
-
-📡 Fluentbit Setup(Window):
-N/A
-
-🔍 OpenSearch Setup(Window):
-N/A
-
-🔐 RSA Key Pair Generation(Window):
-# Step 1: Make sure cygwin/openssl was install in your machine.
-# Step 2: Run cmd as admin & below command to change the path.
-          Cygwin - <Installation drive>\cygwin64
-          Openssl - <Installation drive>\OpenSSL\bin
-# Step 3: Run command, openssl genrsa -out rsa-private.pem 2048
-# Step 4: Run command, openssl rsa -in rsa-private.pem -pubout -out rsa-public.pem 
-# Step 5: Generated key pair will show in respective path.
-          Cygwin - <Installation drive>\cygwin64\home\<machine name>
-          Openssl - <Installation drive>\OpenSSL\bin
-
-🌱 Spring Boot Application Setup(Window):
-# Step 1: Make sure running environment installed JDK 21 or above
-# Step 2: Download the latest JAR file from git release
-# Step 3: Open Command Prompt as Administrator (Windows)
-# Step 4: Navigate to the folder containing spring.jar
-cd path\to\your\jar\directory
-# Step 5: Run the JAR with custom JVM options
-java -Xms256m -Xmx2048m -XX:+PrintGCDetails -jar spring.jar
-
-🌱 Spring Boot Application Setup(Linux):
-# Step 1: Login to the linux VM
-# Step 2: Press left ctrl + p key within winscp screen.
-# Step 3: Key in correct password & press enter.
-# Step 4: Paste, sudo dnf update -y & press enter to update system.
-# Step 5: Paste, sudo dnf search openjdk & press enter to search available Java versions.
-# Step 6: Paste, sudo dnf install -y java-21-openjdk java-21-openjdk-devel & press enter to install Java.
-# Step 7: Paste, java -version, javac -version & press enter to verify Java version.
-# Step 8: Paste, sudo alternatives --config java, sudo alternatives --config javac & press enter to configure which Java version to use if there are multiple of it.
-# Step 9: Paste, sudo useradd -r -m -d /opt/spring -s /sbin/nologin spring & press enter.
-	* r: system account (no login shell, no password).
-	* m -d /opt/myapp: creates a home directory at /opt/myapp for app files.
-	* s /sbin/nologin: prevents login access (security).
-# Step 10: Copy the jar into /opt/spring.
-# Step 11: Paste, sudo chown spring:spring /opt/spring/spring.jar & press enter.
-# Step 12: Paste, sudo vi /etc/systemd/system/spring.service & press enter.
-# Step 13: Paste below full script, key in :wq at the end of line & press enter. It will save as file.
-sudo tee /etc/systemd/system/spring.service > /dev/null <<'EOF'
-[Unit]
-Description=Spring Boot Base Project Template
-After=network.target
-
-[Service]
-User=spring
-Group=spring
-WorkingDirectory=/opt/spring
-ExecStart=/usr/bin/java -Xms256m -Xmx512m -jar /opt/spring/spring.jar
-Restart=on-failure
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-EOF
-# Step 14: Copt & paste below CLI to perform necessary action.
-To refresh the updated script to system: sudo systemctl daemon-reload
-Start the service: sudo systemctl start spring
-Stop the service: sudo systemctl stop spring
-Restart the service: sudo systemctl restart spring
-Check the service status: sudo systemctl status spring & journalctl -u spring -f
-Disable the service from starting at boot: sudo systemctl disable spring
-Enable the service from starting at boot: sudo systemctl enable spring
-
-🔑 Keystore Setup:
-# Step 1: Install keystore explorer & launch it. 
-# Step 2: Click on, open an existing keystore & select the target .p12 file.
-# Step 3: Import the key, signed cert & intermediate cert.
-# Step 4: Right click on cert, select unlock & set password(password same as .p12 itself).
-# Step 5: Save it.
+# bash
+mvn --batch-mode clean verify
 ```
-📊 Roadmap<br>
-- [ ] Setup fluentbit & opensearch to ship log & perform analysis.
 
-🤝 Contributing<br>
-1. Contributions are welcome! 🚀
-2. Fork this repo
-3. Create your feature branch
-4. Commit changes
-5. Push branch
-6. Open a Pull Request
+JAR outputs to target/.
 
-📚 Resources<br>
-- [Spring Boot Docs](https://docs.spring.io/spring-boot/index.html)↗
-- [MySQL Docs](https://dev.mysql.com/doc/)↗
-- [FluentBit Docs](https://docs.fluentbit.io/manual)↗
-- [OpenSearch Docs](https://docs.opensearch.org/latest/)↗
+### Run (Dev)
 
-📝 License<br>
-Licensed under the [Apache-2.0 license](https://github.com/jleong94/spring?tab=Apache-2.0-1-ov-file).
+```bash
+# bash
+export SPRING_PROFILES_ACTIVE=dev
+mvn spring-boot:run
+```
+
+Or:
+
+```bash
+# bash
+java -Xms256m -Xmx2048m -jar target/spring-*.jar
+```
+
+### Windows Service (Optional)
+
+```powershell
+# powershell
+java -Xms256m -Xmx512m -jar spring.jar
+```
+
+Use systemd on Linux as described in original guide if needed.
+
+## Testing
+
+- Unit tests: mvn test
+- Integration tests: mvn verify (failsafe runs *ITests.java)
+- Optional OWASP scan:
+```bash
+# bash
+mvn --batch-mode clean verify -Dnvd.api.key=${NVD_API_KEY}
+```
+
+## Containerization
+
+Dockerfile is multi-stage and uses Maven + JDK 21 to build, then JRE 21 to run.
+
+```bash
+# bash
+docker build -t spring:latest .
+docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod spring:latest
+```
+
+## Observability
+
+- Health: GET /actuator/health
+- Metrics: GET /actuator/prometheus
+- API Docs: /swagger-ui.html (springdoc)
+
+## CI/CD
+
+GitHub Actions workflow (.github/workflows/build.yml):
+- Builds and versions artifacts on pushes to:
+  - uat, staging → UAT pipeline
+  - main, master → Production pipeline
+- Creates release tags and publishes JAR assets
+
+Render deployment (Blueprint render.yaml + Actions):
+- UAT service (branch: uat), Production service (branch: master)
+- Required GitHub secrets:
+  - RENDER_API_KEY
+  - RENDER_SERVICE_ID_UAT
+  - RENDER_SERVICE_ID_PROD
+- App-specific secrets (per environment):
+  - SPRING_DATASOURCE_*, SMTP_*, KEYCLOAK_*, Firebase creds
+
+## Security Notes
+
+- Keystores/truststores in resources/security/ for SSL/MTLS
+- Ensure secrets are managed via environment variables or secret managers
+- Block force pushes and enforce branch protections on main/master
+
+## Project Roadmap
+
+- [ ] Fluent Bit + OpenSearch log shipping and analysis
+
+## Contributing
+
+- Fork, branch, commit, push, PR
+
+## License
+
+Apache-2.0. See LICENSE.
