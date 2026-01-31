@@ -1,17 +1,20 @@
 # ----------------------
 # Stage 1: Build stage
 # ----------------------
-FROM eclipse-temurin:21-jdk AS build
-# Use JDK 21 (full JDK, includes compiler & tools)
+FROM maven:3.9-eclipse-temurin-21 AS build
+# Use Maven + JDK 21 base image (includes Maven and JDK)
 
 WORKDIR /app
 # Set working directory inside the container
 
-COPY . .
-# Copy all project files into /app
+COPY pom.xml .
+# Copy POM file first (for dependency caching)
 
-RUN ./mvnw -B clean package -DskipTests
-# Run Maven Wrapper (mvnw) to build JAR (skip tests for speed)
+COPY src ./src
+# Copy source code
+
+RUN mvn -B clean package -DskipTests
+# Run Maven to build JAR (skip tests for speed)
 
 # ----------------------
 # Stage 2: Runtime stage
