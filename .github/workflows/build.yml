@@ -168,20 +168,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        # 👉 Pulls the repository into the runner so flyctl can see Dockerfile + fly.toml
+        # 👉 Pulls the repository into the runner
 
-      - name: Set up Fly.io
-        uses: superfly/flyctl-actions/setup-flyctl@master
-        # 👉 Installs the Fly.io CLI (flyctl) into the runner
-        #    Needed to run 'flyctl deploy' command
-
-      - name: Deploy to Fly.io
-        run: flyctl deploy --config fly.uat.toml --remote-only
-        # 👉 Uses fly.uat.toml for UAT environment configuration
-        # 👉 --remote-only builds the Docker image on Fly.io servers (not locally)
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-          # 👉 Authenticates with Fly.io using the API token from GitHub secrets
+      - name: Deploy to Render (UAT)
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        # 👉 Official Render deployment action
+        with:
+          service-id: ${{ secrets.RENDER_SERVICE_ID_UAT }}
+          # 👉 Your Render service ID for UAT environment
+          api-key: ${{ secrets.RENDER_API_KEY }}
+          # 👉 Authenticates with Render using API key from GitHub secrets
   deploy-prod:
     if: github.ref_name == 'main' || github.ref_name == 'master' # Only run this job if the branch is main or master
     needs: build-prod          # 👉 This ensures 'deploy' only runs AFTER the 'build' job finishes successfully
@@ -190,17 +186,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        # 👉 Pulls the repository into the runner so flyctl can see Dockerfile + fly.toml
+        # 👉 Pulls the repository into the runner
 
-      - name: Set up Fly.io
-        uses: superfly/flyctl-actions/setup-flyctl@master
-        # 👉 Installs the Fly.io CLI (flyctl) into the runner
-        #    Needed to run 'flyctl deploy' command
-
-      - name: Deploy to Fly.io
-        run: flyctl deploy --config fly.toml --remote-only
-        # 👉 Uses fly.toml for production environment configuration
-        # 👉 --remote-only builds the Docker image on Fly.io servers (not locally)
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-          # 👉 Authenticates with Fly.io using the API token from GitHub secrets
+      - name: Deploy to Render (Production)
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        # 👉 Official Render deployment action
+        with:
+          service-id: ${{ secrets.RENDER_SERVICE_ID_PROD }}
+          # 👉 Your Render service ID for production environment
+          api-key: ${{ secrets.RENDER_API_KEY }}
+          # 👉 Authenticates with Render using API key from GitHub secrets

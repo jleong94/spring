@@ -1,0 +1,72 @@
+# Render Blueprint Configuration
+# This file defines the infrastructure for deploying your Spring Boot app on Render
+# See: https://render.com/docs/blueprint-spec
+
+services:
+  # Production Service
+  - type: web  # Type of service (web = HTTP service)
+    name: spring-prod  # Name of the service on Render dashboard
+    env: docker  # Use Docker for deployment
+    region: singapore  # Deploy to Singapore region (closest to your location)
+    plan: starter  # Render plan (starter = free tier, can upgrade to standard/pro)
+    dockerfilePath: ./Dockerfile  # Path to Dockerfile
+    dockerContext: .  # Build context (root directory)
+    branch: master  # Git branch to auto-deploy from
+    envVars:
+      # Environment variables for production
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod  # Use production Spring profile (loads application-prod.yml)
+      - key: SPRING_DATASOURCE_URL
+        sync: false  # Set manually in Render dashboard (contains sensitive data)
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_SENDER
+        sync: false
+      - key: KEYCLOAK_AUTH_SERVER_URL
+        sync: false
+      - key: KEYCLOAK_CLIENT_SECRET
+        sync: false
+    healthCheckPath: /actuator/health  # Health check endpoint
+    
+  # UAT Service
+  - type: web
+    name: spring-uat  # Name of the UAT service
+    env: docker
+    region: singapore
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    branch: uat  # Git branch to auto-deploy from (UAT branch)
+    envVars:
+      # Environment variables for UAT
+      - key: SPRING_PROFILES_ACTIVE
+        value: uat  # Use UAT Spring profile (loads application-uat.yml)
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: KEYCLOAK_AUTH_SERVER_URL
+        sync: false
+      - key: KEYCLOAK_CLIENT_SECRET
+        sync: false
+    healthCheckPath: /actuator/health
