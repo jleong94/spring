@@ -5,6 +5,8 @@ import org.springframework.util.StringUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -60,7 +62,7 @@ public class RequestLoggingUtil {
 				if (isSensitive(headerName)) {
 					log.info("Request Headers {}: {}", headerName, MASK_VALUE);
 				} else {
-					log.info("Request Headers {}: {}", headerName, truncate(headerValue, MAX_PARAM_LENGTH));
+					log.info("Request Headers {}: Original, {} Decoded, {}", headerName, truncate(headerValue, MAX_PARAM_LENGTH), URLDecoder.decode(truncate(headerValue, MAX_PARAM_LENGTH), StandardCharsets.UTF_8));
 				}
 			}
 		} else {
@@ -85,7 +87,7 @@ public class RequestLoggingUtil {
 					String value = values.length == 1 
 							? truncate(values[0], MAX_PARAM_LENGTH)
 									: Arrays.toString(values);
-					log.info("Request Parameters {}: {}", key, truncate(value, MAX_PARAM_LENGTH));
+					log.info("Request Parameters {}: Original, {} Decoded, {}", key, truncate(value, MAX_PARAM_LENGTH), URLDecoder.decode(truncate(value, MAX_PARAM_LENGTH), StandardCharsets.UTF_8));
 				}
 			});
 		} else {
