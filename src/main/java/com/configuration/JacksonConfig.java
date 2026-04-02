@@ -36,7 +36,7 @@ public class JacksonConfig {
 				// Useful when dealing with marker classes, DTOs that may be empty, or dynamic objects
 				.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
 				// Exclude null & blank values from serialization
-				.serializationInclusion(JsonInclude.Include.NON_EMPTY)
+				.defaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, JsonInclude.Include.NON_EMPTY))
 				// Handle Java 8 date/time types
 				.addModule(new JavaTimeModule())
 				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
