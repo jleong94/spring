@@ -142,13 +142,12 @@
 		    <artifactId>hibernate-envers</artifactId>
 		</dependency>
 		<!-- DB record changes audit -->
-		<!-- Sleuth for tracing -->
-	    <dependency>
-	        <groupId>org.springframework.cloud</groupId>
-	        <artifactId>spring-cloud-starter-sleuth</artifactId>
-	        <version>3.1.11</version>
-	    </dependency>
-		<!-- Sleuth for tracing -->
+		<!-- Micrometer Tracing with Brave (replaces Spring Cloud Sleuth for Spring Boot 3.x) -->
+		<dependency>
+		    <groupId>io.micrometer</groupId>
+		    <artifactId>micrometer-tracing-bridge-brave</artifactId>
+		</dependency>
+		<!-- Micrometer Tracing with Brave (replaces Spring Cloud Sleuth for Spring Boot 3.x) -->
 		<!-- Logging -->
 		
 		<!-- Lombok -->
