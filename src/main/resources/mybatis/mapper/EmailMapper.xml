@@ -2,26 +2,26 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mybatis.mapper.EmailMapper">
 
-  <resultMap id="EmailResultMap" type="com.modal.Email">
-        <id property="mail_id" column="mail_id"/>
-        <result property="created_datetime" column="created_datetime"/>
-        <result property="modified_datetime" column="modified_datetime"/>
+  <resultMap id="EmailResultMap" type="com.pojo.EmailDTO">
+        <id property="mailId" column="mail_id"/>
+        <result property="createdDatetime" column="created_datetime"/>
+        <result property="modifiedDatetime" column="modified_datetime"/>
         <result property="sender" column="sender"/>
         <result property="receiver" column="receiver"/>
         <result property="cc" column="cc"/>
         <result property="bcc" column="bcc"/>
         <result property="subject" column="subject"/>
         <result property="body" column="body"/>
-        <result property="isSend" column="isSend"/>
+        <result property="send" column="isSend"/>
 
-        <collection property="attachments" ofType="com.modal.EmailAttachment" 
+        <collection property="attachments" ofType="com.pojo.EmailAttachmentDTO" 
                     columnPrefix="att_" notNullColumn="attachment_id">
-            <id property="attachment_id" column="attachment_id"/>
-            <result property="file_path" column="file_path"/>
+            <id property="attachmentId" column="attachment_id"/>
+            <result property="filePath" column="file_path"/>
         </collection>
     </resultMap>
     
-    <!-- Paginated query with proper filtering -->
+    <!-- Query email by mail_id with attachments -->
     <select id="findEmailByMailId" resultMap="EmailResultMap" timeout="10">
         SELECT 
             e.mail_id,
@@ -35,12 +35,10 @@
             e.body,
             e.isSend,
             a.attachment_id AS att_attachment_id,
-            a.file_path AS att_file_path,
-            a.mail_id
+            a.file_path AS att_file_path
         FROM email e
         LEFT JOIN email_attachment a ON e.mail_id = a.mail_id
-        WHERE e.mail_id = #{mail_id}
+        WHERE e.mail_id = #{mailId}
         ORDER BY e.created_datetime DESC
-        LIMIT #{limit} OFFSET #{offset}
     </select>
 </mapper>
