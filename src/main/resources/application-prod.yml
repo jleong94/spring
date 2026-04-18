@@ -11,8 +11,8 @@ server:
   tomcat:
     threads:
       min-spare: 20 # Keep at least nth idle worker threads ready
-      max: 200 # Allow up to nth concurrent request-processing threads(2x number of DB connections)
-    max-connections: 200 # Max TCP connections handled at once(2x number of DB connections)
+      max: 40 # Allow up to nth concurrent request-processing threads(2x number of DB connections)
+    max-connections: 80 # Max TCP connections handled at once(2x number of DB connections)
     accept-count: 100 # Queue size for incoming requests if all threads are busy
     connection-timeout: 60s # Drop a connection if idle too long
     keep-alive-timeout: 60s # Keep-alive socket timeout
@@ -71,11 +71,12 @@ spring:
     hikari:
       validation-timeout: 5000 # Max time to check if a DB connection is alive before using it (ms)
       maximum-pool-size: 20 # Defines how many connections can be open concurrently
-      minimum-idle: 10 # Minimum idle connections in the pool(in count)
+      minimum-idle: 20 # Minimum idle connections in the pool(in count). Set equal to maximum-pool-size for fixed pool (HikariCP recommendation)
       idle-timeout: 600000  # Helps recycle connections and free up resources(in milliseconds). idle-timeout must be less than max-lifetime
       max-lifetime: 1800000  # Helps recycle connections and free up resources(in milliseconds). idle-timeout must be less than max-lifetime
       connection-timeout: 30000  # Maximum time to wait for a connection from the pool before throwing an exception(in milliseconds)
-      leak-detection-threshold: 20000  # Helps identify if connections are not closed properly(in milliseconds)
+      keepalive-time: 120000  # Ping idle connections every 2 minutes to keep them alive (prevents silent drops by firewall/NAT)(in milliseconds)
+      leak-detection-threshold: 60000  # Must be > connection-timeout to avoid false leak warnings. Set to longest expected query time(in milliseconds)
       pool-name: HikariCP
       data-source-properties:
         # JDBC driver optimizations that reduce parsing overhead and improve latency
@@ -111,7 +112,7 @@ spring:
       naming: #To maintain the exact same table & column name defined in JPA class
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-    show-sql: true
+    show-sql: false
   batch: #Batch job enablement config
     job:
       enabled: false
