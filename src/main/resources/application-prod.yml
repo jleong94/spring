@@ -261,19 +261,6 @@ google:
   pay:
     key:
       path: "security/google/pay/prod"
-springdoc:
-  api-docs:
-    enabled: true
-    path: /api-docs #OpenAPI JSON spec endpoint
-  swagger-ui:
-    enabled: true
-    path: /docs #Swagger UI spec endpoint
-    operationsSorter: method #API endpoints are ordered consistently (by HTTP method or tag).
-    tagsSorter: alpha #API endpoints are ordered consistently (by HTTP method or tag).
-    display-request-duration: true #Shows how long each API call takes (helps with perf debugging).
-    tryItOutEnabled: true #Lets developers call APIs from the browser directly.
-    syntaxHighlight: #Pretty-prints JSON/XML responses.
-      activated: true
 resilience4j:
   timelimiter: #Must be in async
     configs: #Global Default Configuration

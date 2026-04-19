@@ -15,7 +15,6 @@ import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +25,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor//Generates a constructor with no parameters
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@Schema(description = "Pojo request & response payload")
 public class Pojo {
 
 	public interface Post {}
@@ -37,19 +35,16 @@ public class Pojo {
 	@Min(groups = {Post.class, Put.class}, value = 1, message = "Id must larger than 0")
 	@JsonProperty(value= "id", access = Access.READ_WRITE)
 	@JsonView({Post.class, Get.class, Put.class})
-	@Schema(description = "Unique identifier")
 	private int id;
 	
 	@NotBlank(groups = {Post.class, Put.class}, message = "Name is blank.")
 	@JsonProperty(value= "name", access = Access.READ_WRITE)
 	@JsonView({Post.class, Get.class, Put.class})
-	@Schema(description = "Name")
 	private String name;
 	
 	@NotBlank(groups = {Post.class, Put.class}, message = "IC is blank.")
 	@JsonProperty(value= "ic", access = Access.READ_WRITE)
 	@JsonView({Post.class, Get.class, Put.class})
-	@Schema(description = "Identity card")
 	private String ic;
 	
 	@Pattern(
@@ -58,7 +53,6 @@ public class Pojo {
     )
 	@JsonProperty(value= "dateOfBirth", access = Access.READ_WRITE)
 	@JsonView({Post.class, Get.class, Put.class})
-	@Schema(description = "Date of birth")
 	private String dateOfBirth;
 	
 	@Size(min = 8, max = 12, message = "Password must be between 8 and 12 characters")
@@ -68,13 +62,11 @@ public class Pojo {
     )
 	@JsonProperty(value= "password", access = Access.READ_WRITE)
 	@JsonView({Get.class})
-	@Schema(description = "Password")
 	private String password;
 	
 	@Digits(groups = {Post.class, Put.class}, integer = 7, fraction = 2, message = "Only up to max 7 digits with 2 decimal places")
 	@DecimalMin(groups = {Post.class, Put.class}, value = "0.00", inclusive = true, message = "Account balance must be larger or equal to 0.00")
 	@JsonProperty(value= "account_balance", access = Access.READ_WRITE)
 	@JsonView({Post.class, Get.class, Put.class})
-	@Schema(description = "Account balance")
 	private BigDecimal account_balance;
 }
