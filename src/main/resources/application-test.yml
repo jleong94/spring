@@ -61,8 +61,7 @@ spring:
     timeout-per-shutdown-phase: 30s  # Wait for in-flight requests
   application:
     name: spring
-    api-key: #Key use for signature verification on each receive API request call
-      general: "security/api key/general/uat"
+    api-key: "security/api key/uat" #Key use for signature verification on each receive API request call
   datasource: #DB Config(Git will auto build using the details config in repository secrets)
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}

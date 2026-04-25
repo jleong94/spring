@@ -112,4 +112,7 @@ public class Property {
 	@Value("${alert.support.email.bcc}")
 	private String alert_support_email_bcc;
 	//Alert
+
+	@Value("${spring.application.api-key}")
+	private String spring_application_api_key;
 }

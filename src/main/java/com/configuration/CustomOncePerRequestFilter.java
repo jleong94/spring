@@ -86,14 +86,27 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 					log.warn("Signature contains invalid characters");
 					throw new ServletException("Invalid signature format");
 				}
+				
+				// Extract X-SIGNING-KEY-ID header to determine which RSA public key to use
+				String signingKeyId = wrappedRequest.getHeader("X-SIGNING-KEY-ID");
+				if (signingKeyId == null || signingKeyId.isBlank()) {
+					log.warn("X-SIGNING-KEY-ID header is missing or empty");
+					throw new ServletException("X-SIGNING-KEY-ID header is required");
+				}
+				// Validate key ID format to prevent path traversal attacks
+				if (!signingKeyId.matches("^[a-zA-Z0-9_-]+$")) {
+					log.warn("X-SIGNING-KEY-ID contains invalid characters: {}", signingKeyId);
+					throw new ServletException("Invalid X-SIGNING-KEY-ID format");
+				}
+				
 				String requestBody = wrappedRequest.getBody(); // Simply get cached body
 				Authentication authentication = authService.isSignatureValid(log, wrappedRequest.getRequestURI(), requestBody,
-						signature);
+						signature, signingKeyId);
 				if (authentication.isAuthenticated()) {
 					SecurityContextHolder.getContext().setAuthentication(authentication);
-					log.info("Authentication successful for URI: {}", wrappedRequest.getRequestURI());
+					log.info("Authentication successful for URI: {} with key ID: {}", wrappedRequest.getRequestURI(), signingKeyId);
 				} else {
-					log.warn("Authentication failed for URI: {}", wrappedRequest.getRequestURI());
+					log.warn("Authentication failed for URI: {} with key ID: {}", wrappedRequest.getRequestURI(), signingKeyId);
 				}
 			}
 

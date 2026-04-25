@@ -576,25 +576,34 @@ public class Tool {
 
 	/**
 	 * Verifies a SHA256-RSA signature against plain text using an RSA public key.
-	 * Loads the RSA public key from a file in the classpath and validates the signature.
+	 * Loads the RSA public key from a file in the classpath based on the signing key ID.
+	 * The filename pattern is: {signingKeyId}-rsa-public
 	 * 
 	 * @param log Logger instance for error logging
 	 * @param classpath Path to directory containing the RSA public key file
 	 * @param plainText Original plain text that was signed
 	 * @param signedValue Base64-encoded signature to verify
+	 * @param signingKeyId Key identifier used to construct the filename (e.g., "spring" for "spring-rsa-public.pem")
 	 * @return true if signature is valid, false otherwise
 	 * @throws Throwable if any error occurs during key loading or verification
 	 */
-	public boolean verifySHA256RSA(Logger log, String classpath, String plainText, String signedValue) throws Throwable {
+	public boolean verifySHA256RSA(Logger log, String classpath, String plainText, String signedValue, String signingKeyId) throws Throwable {
 		try {
+			// Construct the expected filename pattern using the signing key ID
+			String expectedKeyFilePattern = signingKeyId + "-rsa-public";
+			log.info("Looking for public key file matching pattern: {}", expectedKeyFilePattern);
+			
 			// Load all files from the specified classpath
 			List<Path> paths = loadFileListFromClasspath(log, classpath);
 
-			// Iterate through files to find the public key file
+			// Iterate through files to find the matching public key file
 			for(Path path : paths) {
-				if(path.getFileName().toString().contains("rsa-public")) {
+				String fileName = path.getFileName().toString();
+				if(fileName.contains(expectedKeyFilePattern)) {
+					log.info("Found matching public key file: {}", fileName);
+					
 					// Read the public key file content
-					String strPk = readFileWithBufferedReader(log, (classpath.concat("/").concat(path.getFileName().toString())));
+					String strPk = readFileWithBufferedReader(log, (classpath.concat("/").concat(fileName)));
 
 					// Remove PEM headers/footers and whitespace to get raw Base64 data
 					String realPK = strPk. replace("-----BEGIN PUBLIC KEY-----", "")
@@ -622,6 +631,10 @@ public class Tool {
 					return signature.verify(Base64.decodeBase64(signedValue));
 				}
 			}
+			
+			// If no matching key file is found, log error and throw exception
+			log.error("No public key file found matching pattern: {} in classpath: {}", expectedKeyFilePattern, classpath);
+			throw new IllegalArgumentException("Public key file not found for signing key ID: " + signingKeyId);
 		}catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
@@ -639,6 +652,5 @@ public class Tool {
 			}
 			throw e;
 		}
-		return false;
 	}
 }
