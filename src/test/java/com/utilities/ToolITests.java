@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.pojo.Property;
-
 import lombok.extern.slf4j.Slf4j;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -27,9 +25,6 @@ public class ToolITests {
 	
 	@Autowired
     private Tool tool;
-
-	@Autowired
-	Property property;
 	
 	@Test
 	@Order(1)
@@ -42,14 +37,14 @@ public class ToolITests {
 			String signingKeyId = "spring"; // The key ID that matches the file name pattern: spring-rsa-public.pem
 
 			// Act - Sign the plain text
-			String signature = tool.signSHA256RSA(log, property.getSpring_application_api_key(), plain);
+			String signature = tool.signSHA256RSA(log, signingKeyId, plain);
 
 			// Assert - Signature should not be null or empty
 			assertNotNull(signature, "Signature should not be null");
 			assertFalse(signature.isBlank(), "Signature should not be blank");
 
 			// Act - Verify the signature with the signing key ID
-			boolean isValid = tool.verifySHA256RSA(log, property.getSpring_application_api_key(), plain, signature, signingKeyId);
+			boolean isValid = tool.verifySHA256RSA(log, plain, signature, signingKeyId);
 
 			// Assert - Verification should succeed
 			assertTrue(isValid, "Signature should be valid for the plain text");

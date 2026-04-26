@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.pojo.template.Pojo;
@@ -29,7 +28,6 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
  * */
 @Slf4j
 @Configuration
-@EnableScheduling//To allow scheduled tasks
 @EnableSchedulerLock(defaultLockAtMostFor = "2h")//To enable lock on scheduler
 @ConditionalOnProperty(//Only create this bean if a specific property has a specific value.
 		prefix = "spring.task.scheduling",

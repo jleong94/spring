@@ -14,12 +14,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.RSAPrivateCrtKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -33,6 +31,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.Cleanup;
@@ -41,9 +41,14 @@ import net.schmizz.sshj.common.SecurityUtils;
 import net.schmizz.sshj.sftp.RemoteResourceInfo;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.verification.HostKeyVerifier;
+import com.service.RsaKeyCacheService;
 
 @Component
 public class Tool {
+	
+	@Lazy
+	@Autowired(required = false)
+	private RsaKeyCacheService rsaKeyCacheService;
 
 	public List<String> downloadFileFromSftp(Logger log, String host, String username, String password, String remote_path, String local_path, String knownHostsFilePath, String fingerprint) throws Throwable {
 		List<String> downloadedFiles = new ArrayList<>();
@@ -397,7 +402,7 @@ public class Tool {
 	 * @param data Byte array containing the DER-encoded key
 	 * @return true if PKCS#8 format, false if PKCS#1 format
 	 */
-	private boolean isPKCS8Format(byte[] data) {
+	public boolean isPKCS8Format(byte[] data) {
 		try {
 			ByteBuffer buffer = ByteBuffer. wrap(data);
 
@@ -431,7 +436,7 @@ public class Tool {
 	 * @param pkcs8Data Byte array containing PKCS#8 encoded key
 	 * @return Byte array containing the inner PKCS#1 encoded key
 	 */
-	private byte[] extractPKCS1FromPKCS8(byte[] pkcs8Data) {
+	public byte[] extractPKCS1FromPKCS8(byte[] pkcs8Data) {
 		ByteBuffer input = ByteBuffer.wrap(pkcs8Data);
 
 		// Read outer SEQUENCE
@@ -463,7 +468,7 @@ public class Tool {
 	 * @param pkcs1Data Byte array containing PKCS#1 encoded key
 	 * @return RSAPrivateCrtKeySpec containing all RSA key components
 	 */
-	private RSAPrivateCrtKeySpec parsePKCS1(byte[] pkcs1Data) {
+	public RSAPrivateCrtKeySpec parsePKCS1(byte[] pkcs1Data) {
 		ByteBuffer input = ByteBuffer. wrap(pkcs1Data);
 
 		// Validate DER structure: 0x30 is the SEQUENCE tag
@@ -496,65 +501,34 @@ public class Tool {
 	 * Automatically detects and handles both PKCS#1 and PKCS#8 formats. 
 	 * 
 	 * @param log Logger instance for error logging
-	 * @param classpath Path to directory containing the RSA private key file
 	 * @param input Plain text string to be signed
 	 * @return Base64-encoded signature string
 	 * @throws Throwable if any error occurs during key loading, parsing, or signing
 	 */
-	public String signSHA256RSA(Logger log, String classpath, String input) throws Throwable {
+	public String signSHA256RSA(Logger log, String signingKeyId, String input) throws Throwable {
 		try {
-			// Load all files from the specified classpath
-			List<Path> paths = loadFileListFromClasspath(log, classpath);
+			PrivateKey privateKey = null;
 
-			// Iterate through files to find the private key file
-			for(Path path : paths) {
-				if(path.getFileName().toString().contains("rsa-private")) {
-					// Read the private key file content
-					String strPk = readFileWithBufferedReader(log, (classpath.concat("/").concat(path.getFileName().toString())));
-
-					// Remove PEM headers/footers and whitespace to get raw Base64 data
-					// Handles both PKCS#1 (RSA PRIVATE KEY) and PKCS#8 (PRIVATE KEY) formats
-					String realPK = strPk.replace("-----BEGIN RSA PRIVATE KEY-----", "")
-							.replace("-----END RSA PRIVATE KEY-----", "")
-							.replace("-----BEGIN PRIVATE KEY-----", "")
-							.replace("-----END PRIVATE KEY-----", "")
-							.replaceAll("\\s", "");
-
-					// Decode the Base64-encoded private key
-					byte[] encodedPrivateKey = Base64. decodeBase64(realPK);
-
-					// Detect format and extract PKCS#1 data
-					byte[] pkcs1Data;
-					if (isPKCS8Format(encodedPrivateKey)) {
-						log.info("Detected PKCS#8 format, extracting PKCS#1 data");
-						pkcs1Data = extractPKCS1FromPKCS8(encodedPrivateKey);
-					} else {
-						log.info("Detected PKCS#1 format");
-						pkcs1Data = encodedPrivateKey;
-					}
-
-					// Parse PKCS#1 data to get key specification
-					RSAPrivateCrtKeySpec keySpec = parsePKCS1(pkcs1Data);
-
-					// Generate the PrivateKey object from the specification
-					KeyFactory factory = KeyFactory.getInstance("RSA");
-					PrivateKey pk = factory.generatePrivate(keySpec);
-
-					// Initialize signature with SHA256withRSA algorithm
-					java. security.Signature sig = java. security.Signature.getInstance("SHA256WithRSA");
-					sig. initSign(pk);
-
-					// Update signature with the input data (converted to UTF-8 bytes)
-					sig.update(input.getBytes("UTF-8"));
-
-					// Generate the signature
-					byte[] signatureBytes = sig.sign();
-
-					// Return Base64-encoded signature
-					return Base64.encodeBase64String(signatureBytes);
-				}
+			// Try to get the public key from cache first
+			if (rsaKeyCacheService != null && rsaKeyCacheService.hasPrivateKey(signingKeyId)) {
+				log.debug("Using cached private key for key ID: {}", signingKeyId);
+				privateKey = rsaKeyCacheService.getPrivateKey(signingKeyId);
 			}
-		} catch(Throwable e) {
+			if (privateKey != null) {
+				// Initialize signature with SHA256withRSA algorithm
+				java.security.Signature sig = java.security.Signature.getInstance("SHA256WithRSA");
+				sig.initSign(privateKey);
+
+				// Update signature with the input data (converted to UTF-8 bytes)
+				sig.update(input.getBytes("UTF-8"));
+
+				// Generate the signature
+				byte[] signatureBytes = sig.sign();
+
+				// Return Base64-encoded signature
+				return Base64.encodeBase64String(signatureBytes);
+			}
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -580,61 +554,38 @@ public class Tool {
 	 * The filename pattern is: {signingKeyId}-rsa-public
 	 * 
 	 * @param log Logger instance for error logging
-	 * @param classpath Path to directory containing the RSA public key file
 	 * @param plainText Original plain text that was signed
 	 * @param signedValue Base64-encoded signature to verify
 	 * @param signingKeyId Key identifier used to construct the filename (e.g., "spring" for "spring-rsa-public.pem")
 	 * @return true if signature is valid, false otherwise
 	 * @throws Throwable if any error occurs during key loading or verification
 	 */
-	public boolean verifySHA256RSA(Logger log, String classpath, String plainText, String signedValue, String signingKeyId) throws Throwable {
+	public boolean verifySHA256RSA(Logger log, String plainText, String signedValue, String signingKeyId) throws Throwable {
 		try {
-			// Construct the expected filename pattern using the signing key ID
-			String expectedKeyFilePattern = signingKeyId + "-rsa-public";
-			log.info("Looking for public key file matching pattern: {}", expectedKeyFilePattern);
+			PublicKey publicKey = null;
 			
-			// Load all files from the specified classpath
-			List<Path> paths = loadFileListFromClasspath(log, classpath);
-
-			// Iterate through files to find the matching public key file
-			for(Path path : paths) {
-				String fileName = path.getFileName().toString();
-				if(fileName.contains(expectedKeyFilePattern)) {
-					log.info("Found matching public key file: {}", fileName);
-					
-					// Read the public key file content
-					String strPk = readFileWithBufferedReader(log, (classpath.concat("/").concat(fileName)));
-
-					// Remove PEM headers/footers and whitespace to get raw Base64 data
-					String realPK = strPk. replace("-----BEGIN PUBLIC KEY-----", "")
-							.replace("-----END PUBLIC KEY-----", "")
-							.replaceAll("\\s", "");
-
-					// Decode the Base64-encoded public key
-					byte[] encodedPublicKey = Base64.decodeBase64(realPK);
-
-					// Create X.509 key specification (standard format for public keys)
-					X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encodedPublicKey);
-
-					// Generate the PublicKey object
-					KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-					PublicKey publicKey = keyFactory.generatePublic(keySpec);
-
-					// Initialize signature verification with SHA256withRSA algorithm
-					Signature signature = Signature.getInstance("SHA256withRSA");
-					signature. initVerify(publicKey);
-
-					// Update signature with the plain text (converted to UTF-8 bytes)
-					signature.update((plainText). getBytes("UTF-8"));
-
-					// Verify the signature and return the result
-					return signature.verify(Base64.decodeBase64(signedValue));
-				}
+			// Try to get the public key from cache first
+			if (rsaKeyCacheService != null && rsaKeyCacheService.hasPublicKey(signingKeyId)) {
+				log.debug("Using cached public key for key ID: {}", signingKeyId);
+				publicKey = rsaKeyCacheService.getPublicKey(signingKeyId);
 			}
 			
-			// If no matching key file is found, log error and throw exception
-			log.error("No public key file found matching pattern: {} in classpath: {}", expectedKeyFilePattern, classpath);
-			throw new IllegalArgumentException("Public key file not found for signing key ID: " + signingKeyId);
+			// If public key is still null, throw exception
+			if (publicKey == null) {
+				log.error("No public key found for signing key ID: {}", signingKeyId);
+				throw new IllegalArgumentException("Public key not found for signing key ID: " + signingKeyId);
+			}
+			
+			// Initialize signature verification with SHA256withRSA algorithm
+			Signature signature = Signature.getInstance("SHA256withRSA");
+			signature.initVerify(publicKey);
+
+			// Update signature with the plain text (converted to UTF-8 bytes)
+			signature.update((plainText).getBytes(StandardCharsets.UTF_8));
+
+			// Verify the signature and return the result
+			return signature.verify(Base64.decodeBase64(signedValue));
+			
 		}catch(Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
