@@ -5,7 +5,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.configuration.CustomAbstractAuthenticationToken;
-import com.pojo.Property;
 import com.utilities.Tool;
 
 import jakarta.servlet.ServletException;
@@ -15,11 +14,8 @@ public class AuthService {
 	
 	private final Tool tool;
 
-	private final Property property;
-
-	public AuthService(Tool tool, Property property) {
+	public AuthService(Tool tool) {
 		this.tool = tool;
-		this.property = property;
 	}
 
 	public Authentication isSignatureValid(Logger log, String uri, String requestBody, String signature, String signingKeyId) throws ServletException {
@@ -32,7 +28,7 @@ public class AuthService {
 				log.warn("Invalid URI detected: {}", uri);
 				throw new ServletException("Invalid URI format");
 			}
-			verifySHA256RSA = tool.verifySHA256RSA(log, property.getSpring_application_api_key(), requestBody, signature, signingKeyId);
+			verifySHA256RSA = tool.verifySHA256RSA(log, requestBody, signature, signingKeyId);
 			return new CustomAbstractAuthenticationToken(signature, null, verifySHA256RSA, null);
 		} catch(Throwable e) {
 			// Get the current stack trace element
