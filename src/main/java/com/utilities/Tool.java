@@ -520,7 +520,7 @@ public class Tool {
 				sig.initSign(privateKey);
 
 				// Update signature with the input data (converted to UTF-8 bytes)
-				sig.update(input.getBytes("UTF-8"));
+				sig.update(input.getBytes(StandardCharsets.UTF_8));
 
 				// Generate the signature
 				byte[] signatureBytes = sig.sign();
