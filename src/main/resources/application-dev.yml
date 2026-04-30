@@ -132,40 +132,6 @@ spring:
     protocol: smtp
     default-encoding: UTF-8
     sender: test@gmail.com
-mybatis:
-  mapper-locations: 
-    - classpath:mybatis/mapper/*.xml # Location(s) of your MyBatis XML mapper files.
-  type-aliases-package: com.modal,com.pojo # Package(s) to scan for domain/model classes to create type aliases automatically.
-  configuration:
-    # Automatically converts column names with underscores (snake_case) to camelCase in Java objects.
-    # Example: database column "user_name" → Java property "userName".
-    map-underscore-to-camel-case: true
-    # Enables MyBatis first-level (per-session) and second-level (optional global) caching.
-    # Can improve performance for repeated queries.
-    cache-enabled: true
-    # Sets the default fetch size for queries.  
-    # This is a hint to JDBC driver on how many rows to fetch from DB at a time.
-    default-fetch-size: 100
-    # Sets the default statement timeout in seconds.  
-    # If a query takes longer than this, it will throw a timeout exception.
-    default-statement-timeout: 30
-    # Lazy loading configuration
-    lazy-loading-enabled: false
-    aggressive-lazy-loading: false
-    # Use column label instead of column name
-    use-column-label: true
-    # Use generated keys
-    use-generated-keys: true
-    # Auto-mapping behavior (NONE, PARTIAL, FULL)
-    auto-mapping-behavior: PARTIAL
-    # Default executor type (SIMPLE, REUSE, BATCH)
-    default-executor-type: SIMPLE
-    # JDBC type for null values
-    jdbc-type-for-null: NULL
-    # Log implementation (SLF4J, LOG4J2, STDOUT_LOGGING, etc.)
-    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
-    # Call setters on nulls
-    call-setters-on-nulls: false
 project:
   log:
     name: ./logs #dot refer to current path

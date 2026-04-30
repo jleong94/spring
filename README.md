@@ -24,7 +24,7 @@ A production-ready starter for building Spring Boot services with Java 21, MySQL
   - Shedlock for distributed scheduled jobs
   - Spring Batch for batch job processing
 - Data & Persistence
-  - Spring Data JPA + MyBatis (hybrid usage)
+  - Spring Data JPA
   - Hibernate Envers for entity change audit trails
 - Messaging & External Integrations
   - Email service (attachments supported)
