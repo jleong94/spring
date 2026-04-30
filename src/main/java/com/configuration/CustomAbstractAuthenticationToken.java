@@ -3,16 +3,21 @@ package com.configuration;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.springframework.security.authentication. AbstractAuthenticationToken;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
- * Custom authentication token that extends Spring Security's AbstractAuthenticationToken. 
- * This implementation provides signature-based authentication for the application.
+ * Custom authentication token that extends Spring Security's
+ * AbstractAuthenticationToken.
+ * This implementation provides signature-based authentication for the
+ * application.
  * 
- * <p>This token stores a signature as the credential and supports both authenticated
- * and unauthenticated states. When authenticated, it grants a single authority. </p>
+ * <p>
+ * This token stores a signature as the credential and supports both
+ * authenticated
+ * and unauthenticated states. When authenticated, it grants a single authority.
+ * </p>
  * 
  * @see AbstractAuthenticationToken
  * @author jleong94
@@ -32,15 +37,21 @@ public class CustomAbstractAuthenticationToken extends AbstractAuthenticationTok
 	private final Object principal;
 
 	/**
-	 * Constructs a new CustomAbstractAuthenticationToken with the specified parameters.
+	 * Constructs a new CustomAbstractAuthenticationToken with the specified
+	 * parameters.
 	 * 
-	 * @param signature the signature to use as the authentication credential
-	 * @param principal the principal object representing the user or entity
-	 * @param authenticated {@code true} if the token should be marked as authenticated,
-	 *                      {@code false} otherwise.  When {@code true}, grants a single authority.
+	 * @param signature     the signature to use as the authentication credential
+	 * @param principal     the principal object representing the user or entity
+	 * @param authenticated {@code true} if the token should be marked as
+	 *                      authenticated,
+	 *                      {@code false} otherwise. When {@code true}, grants a
+	 *                      single authority.
 	 */
-	public CustomAbstractAuthenticationToken(String signature, Object principal, boolean authenticated, Collection<? extends GrantedAuthority> authorities) {
-		super(authenticated ? authorities == null ? Collections.singletonList(new SimpleGrantedAuthority("ROLE_API_USER")) : authorities : null);
+	public CustomAbstractAuthenticationToken(String signature, Object principal, boolean authenticated,
+			Collection<? extends GrantedAuthority> authorities) {
+		super(authenticated
+				? authorities == null ? Collections.singletonList(new SimpleGrantedAuthority("ROLE_API_USER")) : authorities
+				: null);
 		this.signature = signature;
 		this.principal = principal;
 		setAuthenticated(authenticated);

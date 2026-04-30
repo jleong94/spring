@@ -36,12 +36,13 @@ public class EmailService {
 	private final Property property;
 
 	private final MeterRegistry meterRegistry;
-	
+
 	private final Counter recoverCounter;
 
 	private final RestTemplate restTemplate = new RestTemplate();
 
-	public EmailService(JavaMailSender javaMailSender, EmailRepo emailRepo, Property property, MeterRegistry meterRegistry) {
+	public EmailService(JavaMailSender javaMailSender, EmailRepo emailRepo, Property property,
+			MeterRegistry meterRegistry) {
 		this.javaMailSender = javaMailSender;
 		this.emailRepo = emailRepo;
 		this.property = property;
@@ -54,8 +55,8 @@ public class EmailService {
 	public String loadHtmlTemplate(Logger log, String filename) throws Throwable {
 		try {
 			InputStream in = getClass().getClassLoader().getResourceAsStream("templates/html/".concat(filename));
-            return StreamUtils.copyToString(in, StandardCharsets.UTF_8);
-		} catch(Throwable e) {
+			return StreamUtils.copyToString(in, StandardCharsets.UTF_8);
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -76,29 +77,41 @@ public class EmailService {
 
 	/*
 	 * Send email
+	 * 
 	 * @param email
-	 * */
+	 */
 	@Retry(name = "sendEmail")
-    @CircuitBreaker(name = "sendEmail", fallbackMethod = "fallbackSendEmail")
+	@CircuitBreaker(name = "sendEmail", fallbackMethod = "fallbackSendEmail")
 	@Transactional
 	public Email sendEmail(Logger log, Email email) throws Throwable {
 		// Regex: looks for any opening/closing tag like <...>
 		Pattern TAG_PATTERN = Pattern.compile("<\\s*\\/?[a-zA-Z][^>]*>");
 		try {
-			email = email.toBuilder().sender(email.getSender() == null || email.getSender().isBlank() ? property.getSpring_mail_sender() : email.getSender()).build();
+			email = email.toBuilder()
+					.sender(email.getSender() == null || email.getSender().isBlank() ? property.getSpring_mail_sender()
+							: email.getSender())
+					.build();
 			MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 			mimeMessageHelper.setFrom(email.getSender()); // must match sender
-			if(email.getReplyTo() != null && !email.getReplyTo().isBlank()) {mimeMessageHelper.setReplyTo(email.getReplyTo());}
-			if(email.getReceiver() != null && !email.getReceiver().isBlank()) {mimeMessageHelper.setTo(email.getReceiver());}
-			if(email.getCc() != null && !email.getCc().isBlank()) {mimeMessageHelper.setCc(email.getCc());}
-			if(email.getBcc() != null && !email.getBcc().isBlank()) {mimeMessageHelper.setBcc(email.getBcc());}
+			if (email.getReplyTo() != null && !email.getReplyTo().isBlank()) {
+				mimeMessageHelper.setReplyTo(email.getReplyTo());
+			}
+			if (email.getReceiver() != null && !email.getReceiver().isBlank()) {
+				mimeMessageHelper.setTo(email.getReceiver());
+			}
+			if (email.getCc() != null && !email.getCc().isBlank()) {
+				mimeMessageHelper.setCc(email.getCc());
+			}
+			if (email.getBcc() != null && !email.getBcc().isBlank()) {
+				mimeMessageHelper.setBcc(email.getBcc());
+			}
 			mimeMessageHelper.setSubject(email.getSubject());
 			mimeMessageHelper.setText(email.getBody(), TAG_PATTERN.matcher(email.getBody()).find()); // ✅ `true` for HTML
-			if(email.getAttachments() != null && email.getAttachments().size() > 0) {
-				for(EmailAttachment emailAttachment : email.getAttachments()) {
+			if (email.getAttachments() != null && email.getAttachments().size() > 0) {
+				for (EmailAttachment emailAttachment : email.getAttachments()) {
 					Path path = Paths.get(emailAttachment.getFile_path());
-					if(Files.exists(path) && Files.isRegularFile(path)) {
+					if (Files.exists(path) && Files.isRegularFile(path)) {
 						mimeMessageHelper.addAttachment(path.getFileName().toString(), path.toFile());
 					}
 				}
@@ -106,7 +119,7 @@ public class EmailService {
 			javaMailSender.send(mimeMessage);
 			email.setSend(true);
 			emailRepo.save(email);
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -136,11 +149,12 @@ public class EmailService {
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			for (StackTraceElement element : throwable.getStackTrace()) {
 				if (currentElement.getClassName().equals(element.getClassName())) {
-					error_detail += (error_detail != null && !error_detail.isBlank() ? "<br>" : "") + String.format("Error in %s at line %d: %s - %s",
-							element.getClassName(),
-							element.getLineNumber(),
-							throwable.getClass().getName(),
-							throwable.getMessage());
+					error_detail += (error_detail != null && !error_detail.isBlank() ? "<br>" : "")
+							+ String.format("Error in %s at line %d: %s - %s",
+									element.getClassName(),
+									element.getLineNumber(),
+									throwable.getClass().getName(),
+									throwable.getMessage());
 					break;
 				}
 			}
@@ -150,13 +164,14 @@ public class EmailService {
 			// Persist failure details
 
 			// Trigger alerts (Ops team, monitoring system)
-			if(property.getAlert_slack_webhook_url() != null && !property.getAlert_slack_webhook_url().isBlank()) {				
-				restTemplate.postForEntity(property.getAlert_slack_webhook_url(), java.util.Collections.singletonMap("text", error_detail), String.class);
+			if (property.getAlert_slack_webhook_url() != null && !property.getAlert_slack_webhook_url().isBlank()) {
+				restTemplate.postForEntity(property.getAlert_slack_webhook_url(),
+						java.util.Collections.singletonMap("text", error_detail), String.class);
 			}
 
 			email.setSend(true);
 			emailRepo.save(email);
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -171,7 +186,7 @@ public class EmailService {
 					break;
 				}
 			}
-		} finally{
+		} finally {
 			log.info("Recover on send email end.");
 		}
 		return email;

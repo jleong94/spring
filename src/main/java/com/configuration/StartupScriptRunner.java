@@ -27,20 +27,19 @@ public class StartupScriptRunner {
 	public void executeStartupScript() {
 		int successCount = 0, failCount = 0;
 		try {
-			//Automate run script located at classpath once JPA done execution
+			// Automate run script located at classpath once JPA done execution
 			Resource[] scripts = new PathMatchingResourcePatternResolver()
 					.getResources("classpath*:db_script/*.sql");
 			if (scripts == null || scripts.length == 0) {
-                log.info("No startup SQL scripts found in classpath:db_script/");
-                return;
-            }
+				log.info("No startup SQL scripts found in classpath:db_script/");
+				return;
+			}
 			// Sort scripts by filename, handling null filenames safely
-            Arrays.sort(scripts, Comparator.comparing(
-                    r -> {
-                        String f = r.getFilename();
-                        return f == null ? "" : f;
-                    }
-            ));
+			Arrays.sort(scripts, Comparator.comparing(
+					r -> {
+						String f = r.getFilename();
+						return f == null ? "" : f;
+					}));
 			log.info("Found {} SQL script(s) to execute", scripts.length);
 			for (Resource script : scripts) {
 				try {
@@ -65,12 +64,12 @@ public class StartupScriptRunner {
 					}
 				}
 			}
-            
-            log.info("Startup script execution completed. Success: {}, Failed: {}", successCount, failCount);
-            
-            if (failCount > 0) {
-                log.warn("Some startup scripts failed. Please check the logs above.");
-            }
+
+			log.info("Startup script execution completed. Success: {}, Failed: {}", successCount, failCount);
+
+			if (failCount > 0) {
+				log.warn("Some startup scripts failed. Please check the logs above.");
+			}
 		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];

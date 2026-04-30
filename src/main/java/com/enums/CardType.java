@@ -1,8 +1,8 @@
 package com.enums;
 
 public enum CardType {
-	MYDEBIT,
-	VISA,
+    MYDEBIT,
+    VISA,
     MASTERCARD,
     AMEX,
     DISCOVER,

@@ -17,11 +17,11 @@ import javax.cache.spi.CachingProvider;
 public class CacheConfig {
 
 	/**
-     * Provides the default JCache CacheManager.
-     * This is required to create and manage named caches like "buckets".
-     *
-     * @return a JSR-107 compatible CacheManager
-     */
+	 * Provides the default JCache CacheManager.
+	 * This is required to create and manage named caches like "buckets".
+	 *
+	 * @return a JSR-107 compatible CacheManager
+	 */
 	@Bean(name = "customCacheManager")
 	CacheManager cacheManager() {
 		// Get the default caching provider (e.g., Ehcache, Hazelcast, etc.)
@@ -31,7 +31,13 @@ public class CacheConfig {
 		MutableConfiguration<String, CustomBucket> customBucketConfig = new MutableConfiguration<String, CustomBucket>()
 				.setTypes(String.class, CustomBucket.class) // enforce proper types
 				.setStoreByValue(false)// Store references instead of copying the Bucket object
-				.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, 1 * 60)))// Expiration of bucket per minute & will auto create a new one from incoming request
+				.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, 1 * 60)))// Expiration of
+																																																			// bucket per
+																																																			// minute & will
+																																																			// auto create a
+																																																			// new one from
+																																																			// incoming
+																																																			// request
 				.setStatisticsEnabled(true);// Enable cache hit/miss statistics
 		if (cacheManager.getCache("buckets") == null) {
 			// Can use along side with @Cacheable("<cache name>" on method)
@@ -40,15 +46,16 @@ public class CacheConfig {
 
 		return cacheManager;
 	}
-	
+
 	/**
-     * Binds custom rate-limiting configuration properties.
-     * This bean can be used to read values from application.properties or application.yml.
-     *
-     * @return a RateLimitProperties bean instance
-     */
+	 * Binds custom rate-limiting configuration properties.
+	 * This bean can be used to read values from application.properties or
+	 * application.yml.
+	 *
+	 * @return a RateLimitProperties bean instance
+	 */
 	@Bean
-    RateLimitProperties rateLimitProperties() {
-        return new RateLimitProperties();
-    }
+	RateLimitProperties rateLimitProperties() {
+		return new RateLimitProperties();
+	}
 }

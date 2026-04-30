@@ -35,8 +35,9 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 		MDC.put(REQUEST_ID_HEADER, requestId != null && !requestId.isBlank() ? requestId : UUID.randomUUID().toString());
 		log.info("-Handler interceptor start-");
 		try {
-			if (request.getDispatcherType() != DispatcherType.REQUEST || request.getAttribute("CustomHandlerInterceptor") != null) {
-				return true; //Avoid same full logic run twice for handler interceptor
+			if (request.getDispatcherType() != DispatcherType.REQUEST
+					|| request.getAttribute("CustomHandlerInterceptor") != null) {
+				return true; // Avoid same full logic run twice for handler interceptor
 			}
 			request.setAttribute("CustomHandlerInterceptor", Boolean.TRUE);
 			// Check if the handler is a HandlerMethod (i.e., a controller method).
@@ -44,41 +45,58 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 			if (!(handler instanceof HandlerMethod)) {
 				return true;
 			}
-			// Cast the generic handler object to HandlerMethod to access controller method metadata
+			// Cast the generic handler object to HandlerMethod to access controller method
+			// metadata
 			HandlerMethod handlerMethod = (HandlerMethod) handler;
-			// Retrieve the @RateLimit annotation (custom) from the handler method, if present
+			// Retrieve the @RateLimit annotation (custom) from the handler method, if
+			// present
 			RateLimit rateLimit = handlerMethod.getMethodAnnotation(RateLimit.class);
 
 			String resolvedIpKey = rateLimitService.resolveKeyFromRequest(log, request, "", "ip");
 			String headerName = rateLimit.headerName();
-			String resolvedHeaderKey = headerName != null && !headerName.isBlank() ? rateLimitService.resolveKeyFromRequest(log, request, "header", headerName) : null;
+			String resolvedHeaderKey = headerName != null && !headerName.isBlank()
+					? rateLimitService.resolveKeyFromRequest(log, request, "header", headerName)
+					: null;
 			String pathVariable = rateLimit.pathVariable();
-			String resolvedPathVariableKey = pathVariable != null && !pathVariable.isBlank() ? rateLimitService.resolveKeyFromRequest(log, request, "pathVariable", pathVariable) : null;
+			String resolvedPathVariableKey = pathVariable != null && !pathVariable.isBlank()
+					? rateLimitService.resolveKeyFromRequest(log, request, "pathVariable", pathVariable)
+					: null;
 			String requestBodyField = rateLimit.requestBodyField();
-			String resolvedRequestBodyFieldKey = requestBodyField != null && !requestBodyField.isBlank() ? rateLimitService.resolveKeyFromRequest(log, request, "requestBody", requestBodyField) : null;
+			String resolvedRequestBodyFieldKey = requestBodyField != null && !requestBodyField.isBlank()
+					? rateLimitService.resolveKeyFromRequest(log, request, "requestBody", requestBodyField)
+					: null;
 
 			// Resolve the actual key from the request
 			String resolvedKey = resolvedIpKey;
-			if(resolvedHeaderKey != null && !resolvedHeaderKey.isBlank()) {
-				resolvedKey = resolvedKey != null && !resolvedKey.isBlank() ? resolvedKey.concat("|").concat(resolvedHeaderKey) : resolvedKey.concat(resolvedHeaderKey);
-			} if(resolvedPathVariableKey != null && !resolvedPathVariableKey.isBlank()) {
-				resolvedKey = resolvedKey != null && !resolvedKey.isBlank() ? resolvedKey.concat("|").concat(resolvedPathVariableKey) : resolvedKey.concat(resolvedPathVariableKey);
-			} if(resolvedRequestBodyFieldKey != null && !resolvedRequestBodyFieldKey.isBlank()) {
-				resolvedKey = resolvedKey != null && !resolvedKey.isBlank() ? resolvedKey.concat("|").concat(resolvedRequestBodyFieldKey) : resolvedKey.concat(resolvedRequestBodyFieldKey);
+			if (resolvedHeaderKey != null && !resolvedHeaderKey.isBlank()) {
+				resolvedKey = resolvedKey != null && !resolvedKey.isBlank() ? resolvedKey.concat("|").concat(resolvedHeaderKey)
+						: resolvedKey.concat(resolvedHeaderKey);
+			}
+			if (resolvedPathVariableKey != null && !resolvedPathVariableKey.isBlank()) {
+				resolvedKey = resolvedKey != null && !resolvedKey.isBlank()
+						? resolvedKey.concat("|").concat(resolvedPathVariableKey)
+						: resolvedKey.concat(resolvedPathVariableKey);
+			}
+			if (resolvedRequestBodyFieldKey != null && !resolvedRequestBodyFieldKey.isBlank()) {
+				resolvedKey = resolvedKey != null && !resolvedKey.isBlank()
+						? resolvedKey.concat("|").concat(resolvedRequestBodyFieldKey)
+						: resolvedKey.concat(resolvedRequestBodyFieldKey);
 			}
 			// Try to consume a token
 			log.info("Resolved key {}", resolvedKey);
 			CustomBucket bucket = rateLimitService.resolveBucket(resolvedKey, request.getRequestURI());
-			log.info("Available tokens: {} for key: {} at endpoint {}", bucket.getAvailableTokens(), resolvedKey, request.getRequestURI());
+			log.info("Available tokens: {} for key: {} at endpoint {}", bucket.getAvailableTokens(), resolvedKey,
+					request.getRequestURI());
 			boolean allowed = bucket.tryConsume(1);
-			log.info("Remaining tokens: {} for key: {} at endpoint {}", bucket.getAvailableTokens(), resolvedKey, request.getRequestURI());
+			log.info("Remaining tokens: {} for key: {} at endpoint {}", bucket.getAvailableTokens(), resolvedKey,
+					request.getRequestURI());
 
 			if (!allowed) {
 				throw new RateLimitExceededException("Rate limit exceeded");
 			}
 
 			return true;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -94,7 +112,7 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 				}
 			}
 			throw e;
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

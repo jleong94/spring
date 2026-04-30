@@ -22,28 +22,28 @@ import java.util.Map;
 public class RateLimitService {
 
 	private final Cache<String, CustomBucket> cache;
-	
+
 	private final RateLimitProperties rateLimitProperties;
 
 	/**
-     * Constructor initializes the rate limit cache using the provided CacheManager.
-     *
-     * @param cacheManager Spring's CacheManager used to retrieve a named cache.
-     */
+	 * Constructor initializes the rate limit cache using the provided CacheManager.
+	 *
+	 * @param cacheManager Spring's CacheManager used to retrieve a named cache.
+	 */
 	public RateLimitService(RateLimitProperties rateLimitProperties, CacheManager cacheManager) {
 		this.rateLimitProperties = rateLimitProperties;
 		this.cache = cacheManager.getCache("buckets", String.class, CustomBucket.class);
 	}
-	
+
 	/**
-     * Resolves a rate-limiting bucket for a given client key and API path.
-     * If the bucket doesn't exist in the cache, it creates and caches a new one
-     * with limits defined by the path configuration.
-     *
-     * @param key  A unique identifier (e.g., IP address or API key) for the caller.
-     * @param path The API endpoint being accessed, used to determine the limit.
-     * @return The Bucket associated with the given key.
-     */
+	 * Resolves a rate-limiting bucket for a given client key and API path.
+	 * If the bucket doesn't exist in the cache, it creates and caches a new one
+	 * with limits defined by the path configuration.
+	 *
+	 * @param key  A unique identifier (e.g., IP address or API key) for the caller.
+	 * @param path The API endpoint being accessed, used to determine the limit.
+	 * @return The Bucket associated with the given key.
+	 */
 	public CustomBucket resolveBucket(String key, String path) {
 		CustomBucket bucket = cache.get(key);// Try to fetch the rate limit bucket from the cache
 		if (bucket == null) {
@@ -56,30 +56,31 @@ public class RateLimitService {
 		return bucket;
 	}
 
-	public String resolveKeyFromRequest(Logger log, HttpServletRequest request, String keyType, String keyValues) throws Throwable {
+	public String resolveKeyFromRequest(Logger log, HttpServletRequest request, String keyType, String keyValues)
+			throws Throwable {
 		String result = "";
 		try {
-			for(String keyValue : keyValues.split(",")) {
+			for (String keyValue : keyValues.split(",")) {
 				String resolvedKey = "";
 				switch (keyType) {
-				case "header":
-					resolvedKey = request.getHeader(keyValue);
-					break;
-				case "pathVariable":
-					resolvedKey = resolvePathVariable(request, keyValue);
-					break;
-				case "requestBody":
-					resolvedKey = resolveRequestBodyField(log, request, keyValue);
-					break;
-				default:
-					resolvedKey = getClientIP(request);
-					break;
-				}       
+					case "header":
+						resolvedKey = request.getHeader(keyValue);
+						break;
+					case "pathVariable":
+						resolvedKey = resolvePathVariable(request, keyValue);
+						break;
+					case "requestBody":
+						resolvedKey = resolveRequestBodyField(log, request, keyValue);
+						break;
+					default:
+						resolvedKey = getClientIP(request);
+						break;
+				}
 				if (resolvedKey != null && !resolvedKey.isBlank()) {
 					result += (result.length() > 0 ? "," : "") + keyValue + ":" + resolvedKey;
 				}
 			}
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -113,13 +114,14 @@ public class RateLimitService {
 	 * Utility method to extract path variable from the current request.
 	 *
 	 * @param request      the incoming HTTP request
-	 * @param variableName the name of the path variable to resolve (e.g. "userId" in /users/{userId})
+	 * @param variableName the name of the path variable to resolve (e.g. "userId"
+	 *                     in /users/{userId})
 	 * @return the value of the path variable if found, otherwise null
 	 */
 	private String resolvePathVariable(HttpServletRequest request, String variableName) {
 		@SuppressWarnings("unchecked")
-		Map<String, String> pathVariables = 
-		(Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+		Map<String, String> pathVariables = (Map<String, String>) request
+				.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
 		if (pathVariables != null && pathVariables.containsKey(variableName)) {
 			return pathVariables.get(variableName);
@@ -130,26 +132,30 @@ public class RateLimitService {
 	/**
 	 * Extracts a nested field value from the cached JSON body of an HTTP request.
 	 * 
-	 * This method relies on Spring's ContentCachingRequestWrapper being present in the request wrapper chain.
-	 * It supports dot-notated field paths (e.g., "user.id") to access nested JSON fields.
+	 * This method relies on Spring's ContentCachingRequestWrapper being present in
+	 * the request wrapper chain.
+	 * It supports dot-notated field paths (e.g., "user.id") to access nested JSON
+	 * fields.
 	 *
-	 * @param request    the incoming HttpServletRequest (possibly wrapped)
-	 * @param fieldPath  the path to the field in dot notation (e.g. "user.email")
-	 * @return the value of the field as a String, or null if not found or unreadable
+	 * @param request   the incoming HttpServletRequest (possibly wrapped)
+	 * @param fieldPath the path to the field in dot notation (e.g. "user.email")
+	 * @return the value of the field as a String, or null if not found or
+	 *         unreadable
 	 * @throws IOException if reading the body fails
 	 */
 	private String resolveRequestBodyField(Logger log, HttpServletRequest request, String fieldPath) throws Throwable {
 		try {
 			String parameterValue = "";
 			Enumeration<String> parameterNames = request.getParameterNames();
-			if(parameterNames != null) {
-				while(parameterNames.hasMoreElements()) {
+			if (parameterNames != null) {
+				while (parameterNames.hasMoreElements()) {
 					String parameterName = parameterNames.nextElement();
-					parameterValue += (parameterValue.length() > 0 ? "," : "").concat(StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
+					parameterValue += (parameterValue.length() > 0 ? "," : "")
+							.concat(StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
 				}
 			}
 			return parameterValue;
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

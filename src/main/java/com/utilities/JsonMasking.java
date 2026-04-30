@@ -15,7 +15,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 /**
  * Utility component for masking sensitive fields in JSON data.
  * This class provides functionality to mask specified fields in JSON structures
- * while preserving the original JSON structure and handling nested objects and arrays.
+ * while preserving the original JSON structure and handling nested objects and
+ * arrays.
  * Thread-safe implementation using ConcurrentHashMap for field storage.
  *
  * @author jleong94
@@ -52,7 +53,7 @@ public class JsonMasking {
 	 * Masks sensitive fields in the provided JSON string.
 	 * Includes detailed error logging with stack trace information.
 	 *
-	 * @param log SLF4J Logger instance for error logging
+	 * @param log        SLF4J Logger instance for error logging
 	 * @param jsonString Input JSON string to be masked
 	 * @return Masked JSON string
 	 * @throws Throwable if any error occurs during JSON processing
@@ -62,7 +63,7 @@ public class JsonMasking {
 			JsonNode rootNode = objectMapper.readTree(jsonString);
 			JsonNode maskedNode = maskNode(rootNode);
 			return objectMapper.writeValueAsString(maskedNode);
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -98,7 +99,8 @@ public class JsonMasking {
 
 	/**
 	 * Masks sensitive fields within an ObjectNode.
-	 * Handles nested objects and arrays recursively while masking designated fields.
+	 * Handles nested objects and arrays recursively while masking designated
+	 * fields.
 	 * 
 	 * @param objectNode ObjectNode to be processed
 	 * @return Masked ObjectNode

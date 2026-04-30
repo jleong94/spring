@@ -42,9 +42,9 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
 	private final Tool tool;
-	
+
 	private final ObjectMapper objectMapper;
-	
+
 	public CustomResponseBodyAdvice(Tool tool, ObjectMapper objectMapper) {
 		this.tool = tool;
 		this.objectMapper = objectMapper;
@@ -61,13 +61,13 @@ public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 			MethodParameter returnType,
 			MediaType selectedContentType,
 			Class<? extends HttpMessageConverter<?>> selectedConverterType,
-					ServerHttpRequest request,
-					ServerHttpResponse response) {
+			ServerHttpRequest request,
+			ServerHttpResponse response) {
 		// Log method, URL, and response body
 		try {
-			log.info("Response to [{} {}] => {}", 
-					request.getMethod(), 
-					request.getURI(), 
+			log.info("Response to [{} {}] => {}",
+					request.getMethod(),
+					request.getURI(),
 					objectMapper.writeValueAsString(body));
 		} catch (JsonProcessingException e) {
 			// Get the current stack trace element
@@ -224,7 +224,8 @@ public class CustomResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 	}
 
 	@ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
-	public ResponseEntity<ApiResponse> authenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException e) {
+	public ResponseEntity<ApiResponse> authenticationCredentialsNotFoundException(
+			AuthenticationCredentialsNotFoundException e) {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse
 				.builder()
 				.resp_code(ResponseCode.UNAUTHORIZED_ACCESS.getResponse_code())

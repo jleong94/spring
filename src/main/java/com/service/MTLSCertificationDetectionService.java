@@ -33,6 +33,7 @@ public class MTLSCertificationDetectionService {
 
 	/**
 	 * Detects if MTLS is active on the target server
+	 * 
 	 * @param host Target hostname
 	 * @param port Target port
 	 * @return true if MTLS is required, false otherwise
@@ -52,8 +53,11 @@ public class MTLSCertificationDetectionService {
 			return false;
 		} finally {
 			try {
-				if(socket != null) {socket.close();}
-			} catch (Throwable e) {}
+				if (socket != null) {
+					socket.close();
+				}
+			} catch (Throwable e) {
+			}
 		}
 	}
 
@@ -64,11 +68,14 @@ public class MTLSCertificationDetectionService {
 	 * @param keystorePath     Path to the keystore file (e.g., .jks or .p12)
 	 * @param keystorePassword Password for the keystore
 	 * @param keystoreType     Type of the keystore (e.g., "JKS", "PKCS12")
-	 * @return Map of alias -> certificate chain (X509Certificate[]), or empty map if error occurs
+	 * @return Map of alias -> certificate chain (X509Certificate[]), or empty map
+	 *         if error occurs
 	 */
-	public Map<String, X509Certificate[]> loadClientCertChains(Logger log, String keystorePath, String keystorePassword, String keystoreType) {
+	public Map<String, X509Certificate[]> loadClientCertChains(Logger log, String keystorePath, String keystorePassword,
+			String keystoreType) {
 		try {
-			@Cleanup FileInputStream fis = new FileInputStream(keystorePath);
+			@Cleanup
+			FileInputStream fis = new FileInputStream(keystorePath);
 			KeyStore ks = KeyStore.getInstance(keystoreType);
 			ks.load(fis, keystorePassword.toCharArray());
 
@@ -89,7 +96,7 @@ public class MTLSCertificationDetectionService {
 				}
 			}
 			return certChains;
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -107,27 +114,27 @@ public class MTLSCertificationDetectionService {
 			return Collections.emptyMap();
 		}
 	}
-	
+
 	/**
 	 * Safely converts Certificate[] to X509Certificate[] with validation
 	 */
 	private X509Certificate[] convertToX509Chain(Logger log, Certificate[] chain, String alias) {
 		List<X509Certificate> result = new ArrayList<>();
-		
+
 		for (int i = 0; i < chain.length; i++) {
 			if (chain[i] instanceof X509Certificate) {
 				result.add((X509Certificate) chain[i]);
 			} else {
-				log.warn("Certificate at index {} in chain for alias '{}' is not X509Certificate, type: {}", 
-				         i, alias, chain[i].getClass().getName());
+				log.warn("Certificate at index {} in chain for alias '{}' is not X509Certificate, type: {}",
+						i, alias, chain[i].getClass().getName());
 			}
 		}
-		
+
 		if (result.isEmpty()) {
 			log.warn("No valid X509 certificates found in chain for alias '{}'", alias);
 			return null;
 		}
-		
+
 		return result.toArray(new X509Certificate[0]);
 	}
 
@@ -138,11 +145,11 @@ public class MTLSCertificationDetectionService {
 	 * Use case:
 	 * - When multiple client certificates exist in the keystore.
 	 * - Allows smart selection of the correct certificate alias
-	 *   based on the server's requested issuer(s).
+	 * based on the server's requested issuer(s).
 	 *
 	 * Fallback:
 	 * - If no match is found against requested issuers, delegate back
-	 *   to the base (default) KeyManager implementation.
+	 * to the base (default) KeyManager implementation.
 	 */
 	public class CustomX509ExtendedKeyManager extends X509ExtendedKeyManager {
 		private final X509ExtendedKeyManager baseKeyManager;
@@ -150,18 +157,22 @@ public class MTLSCertificationDetectionService {
 		private final List<String> preferredSubjects; // optional config e.g. ["CN=BankA-Client1"]
 
 		/**
-		 * @param baseKeyManager The default system KeyManager (delegated for fallback).
-		 * @param certChains     Map of keystore aliases to their certificate chains.
+		 * @param baseKeyManager    The default system KeyManager (delegated for
+		 *                          fallback).
+		 * @param certChains        Map of keystore aliases to their certificate chains.
 		 * @param preferredSubjects Optional list of preferred subject DN patterns
 		 */
-		public CustomX509ExtendedKeyManager(X509ExtendedKeyManager baseKeyManager, Map<String, X509Certificate[]> certChains, List<String> preferredSubjects) {
+		public CustomX509ExtendedKeyManager(X509ExtendedKeyManager baseKeyManager,
+				Map<String, X509Certificate[]> certChains, List<String> preferredSubjects) {
 			this.baseKeyManager = baseKeyManager;
 			this.certChains = certChains;
-			this.preferredSubjects = preferredSubjects != null && !preferredSubjects.isEmpty() ? preferredSubjects : Collections.emptyList();
+			this.preferredSubjects = preferredSubjects != null && !preferredSubjects.isEmpty() ? preferredSubjects
+					: Collections.emptyList();
 		}
 
 		/**
-		 * Returns the list of available client aliases for a given key type and issuers.
+		 * Returns the list of available client aliases for a given key type and
+		 * issuers.
 		 * Delegates to the base KeyManager.
 		 */
 		@Override
@@ -228,27 +239,33 @@ public class MTLSCertificationDetectionService {
 	/**
 	 * Creates an SSLContext with optional smart certificate selection
 	 * 
-	 * @param log Logger instance
+	 * @param log                 Logger instance
 	 * @param server_ssl_protocol SSL protocol (e.g., "TLS")
-	 * @param keystorePath Path to keystore
-	 * @param keystorePassword Keystore password
-	 * @param keystoreType Keystore type (e.g., "JKS", "PKCS12")
-	 * @param truststorePath Path to truststore
-	 * @param truststorePassword Truststore password
-	 * @param truststoreType Truststore type
-	 * @param onlyTrustManager If true, only initialize with TrustManager (no client certs)
-	 * @param preferredSubjects Optional list of preferred certificate subjects for smart selection
+	 * @param keystorePath        Path to keystore
+	 * @param keystorePassword    Keystore password
+	 * @param keystoreType        Keystore type (e.g., "JKS", "PKCS12")
+	 * @param truststorePath      Path to truststore
+	 * @param truststorePassword  Truststore password
+	 * @param truststoreType      Truststore type
+	 * @param onlyTrustManager    If true, only initialize with TrustManager (no
+	 *                            client certs)
+	 * @param preferredSubjects   Optional list of preferred certificate subjects
+	 *                            for smart selection
 	 * @return Configured SSLContext or null if error occurs
 	 */
-	public SSLContext createSSLContext(Logger log, String server_ssl_protocol, String keystorePath, String keystorePassword, String keystoreType, String truststorePath, String truststorePassword, String truststoreType, boolean onlyTrustManager, List<String> preferredSubjects) {
+	public SSLContext createSSLContext(Logger log, String server_ssl_protocol, String keystorePath,
+			String keystorePassword, String keystoreType, String truststorePath, String truststorePassword,
+			String truststoreType, boolean onlyTrustManager, List<String> preferredSubjects) {
 		SSLContext sslContext = null;
 		try {
-			sslContext = SSLContext.getInstance(server_ssl_protocol);//TLS is general name, which version to pickup is depend on JVM setting
+			sslContext = SSLContext.getInstance(server_ssl_protocol);// TLS is general name, which version to pickup is depend
+																																// on JVM setting
 			// Initialize TrustManager
 			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 			KeyStore trustStore = KeyStore.getInstance(truststoreType);
 			// Load truststore from file
-			@Cleanup FileInputStream fis = new FileInputStream(truststorePath);
+			@Cleanup
+			FileInputStream fis = new FileInputStream(truststorePath);
 			trustStore.load(fis, truststorePassword.toCharArray());
 			tmf.init(trustStore);
 			// If only TrustManager is needed (no client cert)
@@ -275,12 +292,13 @@ public class MTLSCertificationDetectionService {
 				throw new IllegalStateException("No X509ExtendedKeyManager found in KeyManagerFactory");
 			}
 			// Create custom KeyManager with smart certificate selection
-			Map<String, X509Certificate[]> certChains = loadClientCertChains(log, keystorePath, keystorePassword, keystoreType);
+			Map<String, X509Certificate[]> certChains = loadClientCertChains(log, keystorePath, keystorePassword,
+					keystoreType);
 			CustomX509ExtendedKeyManager smartKm = new CustomX509ExtendedKeyManager(defaultKm, certChains, preferredSubjects);
-			sslContext.init(new KeyManager[]{smartKm}, tmf.getTrustManagers(), null);
-			log.info("SSLContext initialized with custom KeyManager (smart certificate selection enabled)");			
+			sslContext.init(new KeyManager[] { smartKm }, tmf.getTrustManagers(), null);
+			log.info("SSLContext initialized with custom KeyManager (smart certificate selection enabled)");
 			return sslContext;
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

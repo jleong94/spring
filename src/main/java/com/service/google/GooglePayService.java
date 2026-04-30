@@ -24,24 +24,25 @@ import io.micrometer.core.instrument.MeterRegistry;
 
 @Service
 public class GooglePayService {
-	
+
 	private final ObjectMapper objectMapper;
-	
+
 	private final Tool tool;
 
 	private final Property property;
-	
+
 	private final EmailService emailService;
 
 	private final MeterRegistry meterRegistry;
-	
+
 	private final Counter recoverCounter;
 
 	private final RestTemplate restTemplate = new RestTemplate();
 
 	private final GooglePayConfig googlePayConfig;
 
-	public GooglePayService(ObjectMapper objectMapper, Tool tool, Property property, EmailService emailService, MeterRegistry meterRegistry, GooglePayConfig googlePayConfig) {
+	public GooglePayService(ObjectMapper objectMapper, Tool tool, Property property, EmailService emailService,
+			MeterRegistry meterRegistry, GooglePayConfig googlePayConfig) {
 		this.objectMapper = objectMapper;
 		this.tool = tool;
 		this.property = property;
@@ -52,22 +53,28 @@ public class GooglePayService {
 				.register(this.meterRegistry);
 		this.googlePayConfig = googlePayConfig;
 	}
-	
+
 	@Retry(name = "decryptGooglePayToken")
-    @CircuitBreaker(name = "decryptGooglePayToken", fallbackMethod = "fallbackDecryptGooglePayToken")
-	public com.pojo.google.GooglePay decryptGooglePayToken(Logger log, com.pojo.google.GooglePay googlePay) throws Throwable {
+	@CircuitBreaker(name = "decryptGooglePayToken", fallbackMethod = "fallbackDecryptGooglePayToken")
+	public com.pojo.google.GooglePay decryptGooglePayToken(Logger log, com.pojo.google.GooglePay googlePay)
+			throws Throwable {
 		try {
 			List<Path> paths = tool.loadFileListFromClasspath(log, googlePayConfig.getKey().getPath());
 			Builder paymentMethodTokenRecipient = new PaymentMethodTokenRecipient.Builder()
-					.fetchSenderVerifyingKeysWith(property.getSpring_profiles_active().equals("prod") ? GooglePaymentsPublicKeysManager.INSTANCE_PRODUCTION : GooglePaymentsPublicKeysManager.INSTANCE_TEST);
-			if(!property.getSpring_profiles_active().equals("prod")) {paymentMethodTokenRecipient.recipientId("merchant:12345678901234567890");}
+					.fetchSenderVerifyingKeysWith(
+							property.getSpring_profiles_active().equals("prod") ? GooglePaymentsPublicKeysManager.INSTANCE_PRODUCTION
+									: GooglePaymentsPublicKeysManager.INSTANCE_TEST);
+			if (!property.getSpring_profiles_active().equals("prod")) {
+				paymentMethodTokenRecipient.recipientId("merchant:12345678901234567890");
+			}
 			// This guide applies only to protocolVersion = ECv2
 			paymentMethodTokenRecipient.protocolVersion("ECv2");
-			for(Path path : paths) {
-				if(path.getFileName().endsWith("pk8")) {
+			for (Path path : paths) {
+				if (path.getFileName().endsWith("pk8")) {
 					// Multiple private keys can be added to support graceful
 					// key rotations.
-					paymentMethodTokenRecipient.addRecipientPrivateKey(tool.readFileWithBufferedReader(log, path.toAbsolutePath().toString()));
+					paymentMethodTokenRecipient
+							.addRecipientPrivateKey(tool.readFileWithBufferedReader(log, path.toAbsolutePath().toString()));
 				}
 			}
 			String decryptedMsg = paymentMethodTokenRecipient.build()
@@ -101,11 +108,12 @@ public class GooglePayService {
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			for (StackTraceElement element : throwable.getStackTrace()) {
 				if (currentElement.getClassName().equals(element.getClassName())) {
-					error_detail += (error_detail != null && !error_detail.isBlank() ? "<br>" : "") + String.format("Error in %s at line %d: %s - %s",
-							element.getClassName(),
-							element.getLineNumber(),
-							throwable.getClass().getName(),
-							throwable.getMessage());
+					error_detail += (error_detail != null && !error_detail.isBlank() ? "<br>" : "")
+							+ String.format("Error in %s at line %d: %s - %s",
+									element.getClassName(),
+									element.getLineNumber(),
+									throwable.getClass().getName(),
+									throwable.getMessage());
 					break;
 				}
 			}
@@ -115,12 +123,17 @@ public class GooglePayService {
 			// Persist failure details
 
 			// Trigger alerts (Ops team, monitoring system)
-			if(property.getAlert_slack_webhook_url() != null && !property.getAlert_slack_webhook_url().isBlank()) {
-				restTemplate.postForEntity(property.getAlert_slack_webhook_url(), java.util.Collections.singletonMap("text", error_detail), String.class);
-			} if((property.getAlert_support_email_to() != null && !property.getAlert_support_email_to().isBlank()) ||
+			if (property.getAlert_slack_webhook_url() != null && !property.getAlert_slack_webhook_url().isBlank()) {
+				restTemplate.postForEntity(property.getAlert_slack_webhook_url(),
+						java.util.Collections.singletonMap("text", error_detail), String.class);
+			}
+			if ((property.getAlert_support_email_to() != null && !property.getAlert_support_email_to().isBlank()) ||
 					(property.getAlert_support_email_cc() != null && !property.getAlert_support_email_cc().isBlank()) ||
 					(property.getAlert_support_email_bcc() != null && !property.getAlert_support_email_bcc().isBlank())) {
-				String exceptionNotificationEmailTemplate = String.format(emailService.loadHtmlTemplate(log, "google_pay_decryption_exception.html"), property.getSpring_application_name(), property.getSpring_application_name(), error_detail, property.getSpring_application_name());
+				String exceptionNotificationEmailTemplate = String.format(
+						emailService.loadHtmlTemplate(log, "google_pay_decryption_exception.html"),
+						property.getSpring_application_name(), property.getSpring_application_name(), error_detail,
+						property.getSpring_application_name());
 				Email email = Email.builder()
 						.sender(property.getSpring_mail_sender())
 						.replyTo(property.getAlert_support_email_replyTo())
@@ -132,7 +145,7 @@ public class GooglePayService {
 						.build();
 				emailService.sendEmail(log, email);
 			}
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -147,7 +160,7 @@ public class GooglePayService {
 					break;
 				}
 			}
-		} finally{
+		} finally {
 			log.info("Recover on decrypt google pay token end.");
 		}
 	}

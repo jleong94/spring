@@ -28,45 +28,40 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
  * */
 @Slf4j
 @Configuration
-@EnableSchedulerLock(defaultLockAtMostFor = "2h")//To enable lock on scheduler
-@ConditionalOnProperty(//Only create this bean if a specific property has a specific value.
-		prefix = "spring.task.scheduling",
-		name = "enabled",
-		havingValue = "true",
-		matchIfMissing = false
-		)
+@EnableSchedulerLock(defaultLockAtMostFor = "2h") // To enable lock on scheduler
+@ConditionalOnProperty(// Only create this bean if a specific property has a specific value.
+		prefix = "spring.task.scheduling", name = "enabled", havingValue = "true", matchIfMissing = false)
 public class Scheduler {
-	
+
 	private final JobLauncher jobLauncher;
 
 	private final Job job;
-	
-	//@Qualifier("<bean name>") - To match with bean name for created job in BatchJobConfig
+
+	// @Qualifier("<bean name>") - To match with bean name for created job in
+	// BatchJobConfig
 	public Scheduler(JobLauncher jobLauncher, @Qualifier("sampleJob") Job job, SampleThreadService sampleThreadService) {
 		this.jobLauncher = jobLauncher;
 		this.job = job;
 		this.sampleThreadService = sampleThreadService;
-	} 
+	}
 
 	@Scheduled(cron = "0 */5 * * * *", zone = "Asia/Kuala_Lumpur")
-	@SchedulerLock(name = "sampleTask", 
-	lockAtMostFor = "10m", 
-	lockAtLeastFor = "1m")
-	@Async//Run on separate thread, non-blocking the scheduler
+	@SchedulerLock(name = "sampleTask", lockAtMostFor = "10m", lockAtLeastFor = "1m")
+	@Async // Run on separate thread, non-blocking the scheduler
 	public void sampleTask() {
 		String uuid = UUID.randomUUID().toString();
 		MDC.put("X-Request-ID", uuid);
 		try {
 			JobParameters parameters = new JobParametersBuilder()
 					.addString("requestId", uuid)
-			        .addLong("timestamp", System.currentTimeMillis())
+					.addLong("timestamp", System.currentTimeMillis())
 					.toJobParameters();
 			JobExecution jobExecution = jobLauncher.run(job, parameters);
 			if (jobExecution.getStatus() != BatchStatus.COMPLETED) {
-	            log.error("Job failed with exit status: {}", jobExecution.getExitStatus());
-	            // Send alert/notification
-	        }
-		} catch(Throwable e) {
+				log.error("Job failed with exit status: {}", jobExecution.getExitStatus());
+				// Send alert/notification
+			}
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -81,29 +76,27 @@ public class Scheduler {
 					break;
 				}
 			}
-		} finally{
+		} finally {
 			MDC.clear();
 		}
 	}
 
-    private final SampleThreadService sampleThreadService;
-	
+	private final SampleThreadService sampleThreadService;
+
 	@Scheduled(cron = "0 */10 * * * *", zone = "Asia/Kuala_Lumpur")
-	@SchedulerLock(name = "sampleTask2", 
-	lockAtMostFor = "10m", 
-	lockAtLeastFor = "1m")
-	@Async//Run on separate thread, non-blocking the scheduler
+	@SchedulerLock(name = "sampleTask2", lockAtMostFor = "10m", lockAtLeastFor = "1m")
+	@Async // Run on separate thread, non-blocking the scheduler
 	public void sampleTask2() {
 		UUID xRequestId = UUID.randomUUID();
-        MDC.put("X-Request-ID", xRequestId);
-        log.info("Sample task 2 start.");
+		MDC.put("X-Request-ID", xRequestId);
+		log.info("Sample task 2 start.");
 		try {
 			Deque<Pojo> deque = sampleThreadService.addDummyRecord(1000);
-			for(int i = 0; i < 2; i++) {
+			for (int i = 0; i < 2; i++) {
 				sampleThreadService.processRecords(xRequestId, (i + 1), deque);
 			}
-        } catch(Throwable e) {
-        	// Get the current stack trace element
+		} catch (Throwable e) {
+			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
 			for (StackTraceElement element : e.getStackTrace()) {
@@ -117,9 +110,9 @@ public class Scheduler {
 					break;
 				}
 			}
-        } finally{
-            log.info("Sample task 2 end.");
-        	MDC.clear();
-        }
-    }
+		} finally {
+			log.info("Sample task 2 end.");
+			MDC.clear();
+		}
+	}
 }

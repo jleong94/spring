@@ -23,15 +23,17 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @ConfigurationProperties(prefix = "google.fcm")
 @Slf4j
-@Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
-@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
-@NoArgsConstructor//Generates a constructor with no parameters
+@Data // Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and
+			// @Setter on all non-final fields, and @RequiredArgsConstructor
+@AllArgsConstructor // Generates a constructor with parameters for all fields (regardless of type or
+										// annotations)
+@NoArgsConstructor // Generates a constructor with no parameters
 @Builder(toBuilder = true)
 public class FirebaseConfig {
 
 	@Builder.Default
 	private boolean init = false;
-	
+
 	private Credentials credentials;
 
 	@Bean
@@ -39,23 +41,24 @@ public class FirebaseConfig {
 		return args -> {
 			try {
 				if (!FirebaseApp.getApps().isEmpty()) {
-	                log.info("Firebase already initialized");
-	                init = true; return;
-	            }
-
-	            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(credentials.getPath());
-	            if (inputStream != null) {
-	            	GoogleCredentials googleCredentials = GoogleCredentials.fromStream(inputStream);
-	            	log.info("Initializing Firebase with classpath credentials: {}", credentials.getPath());
-	            	FirebaseOptions firebaseOptions = FirebaseOptions.builder()
-	                        .setCredentials(googleCredentials)
-	                        .build();
-	                FirebaseApp.initializeApp(firebaseOptions);
-	                log.info("Firebase initialized");
+					log.info("Firebase already initialized");
 					init = true;
-	            } else {
-	            	log.info("Couldn't find {} on classpath.", credentials.getPath());
-	            }
+					return;
+				}
+
+				InputStream inputStream = getClass().getClassLoader().getResourceAsStream(credentials.getPath());
+				if (inputStream != null) {
+					GoogleCredentials googleCredentials = GoogleCredentials.fromStream(inputStream);
+					log.info("Initializing Firebase with classpath credentials: {}", credentials.getPath());
+					FirebaseOptions firebaseOptions = FirebaseOptions.builder()
+							.setCredentials(googleCredentials)
+							.build();
+					FirebaseApp.initializeApp(firebaseOptions);
+					log.info("Firebase initialized");
+					init = true;
+				} else {
+					log.info("Couldn't find {} on classpath.", credentials.getPath());
+				}
 			} catch (Exception e) {
 				init = false;
 				// Get the current stack trace element
@@ -89,13 +92,15 @@ public class FirebaseConfig {
 					.build();
 		};
 	}
-	
-	@Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
-	@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
-    @NoArgsConstructor//Generates a constructor with no parameters
-    @Builder(toBuilder = true)
-    public static class Credentials {
-    	
-        private String path;
-    }
+
+	@Data // Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and
+				// @Setter on all non-final fields, and @RequiredArgsConstructor
+	@AllArgsConstructor // Generates a constructor with parameters for all fields (regardless of type or
+											// annotations)
+	@NoArgsConstructor // Generates a constructor with no parameters
+	@Builder(toBuilder = true)
+	public static class Credentials {
+
+		private String path;
+	}
 }

@@ -7,13 +7,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class CustomBucket {
 
-	private final AtomicReference<Bucket> bucket = new AtomicReference<>();
-	
-	public CustomBucket(Bandwidth bandwidth) {
+    private final AtomicReference<Bucket> bucket = new AtomicReference<>();
+
+    public CustomBucket(Bandwidth bandwidth) {
         this.bucket.set(Bucket.builder().addLimit(bandwidth).build());
     }
-	
-	public boolean tryConsume(long tokens) {
+
+    public boolean tryConsume(long tokens) {
         return this.bucket.get().tryConsume(tokens);
     }
 
@@ -23,6 +23,6 @@ public class CustomBucket {
 
     // Swap bucket atomically when limits change
     public void updateBandwidth(Bandwidth bandwidth) {
-    	this.bucket.set(Bucket.builder().addLimit(bandwidth).build());
+        this.bucket.set(Bucket.builder().addLimit(bandwidth).build());
     }
 }

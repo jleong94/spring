@@ -7,22 +7,24 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
- * Utility class for logging HTTP request headers and parameters in an enterprise-grade manner.
- * Implements security best practices including sensitive data masking and structured logging.
+ * Utility class for logging HTTP request headers and parameters in an
+ * enterprise-grade manner.
+ * Implements security best practices including sensitive data masking and
+ * structured logging.
  */
 public class RequestLoggingUtil {
 
 	// Sensitive headers/parameters that should be masked in logs
 	private static final Set<String> SENSITIVE_KEYS = new HashSet<>(Arrays.asList(
 			"authorization", "username", "password", "client-id", "client-secret", "api-key",
-			"access-token", "refresh-token", "session", "cookie", "x-api-key", "card_no", "cardno", "cvv", "cvc"
-			));
+			"access-token", "refresh-token", "session", "cookie", "x-api-key", "card_no", "cardno", "cvv", "cvc"));
 
 	private static final String MASK_VALUE = "***REDACTED***";
 	private static final int MAX_PARAM_LENGTH = 1000; // Prevent log flooding
 
 	/**
-	 * Logs all headers and parameters from the HTTP request with sensitive data masking.
+	 * Logs all headers and parameters from the HTTP request with sensitive data
+	 * masking.
 	 *
 	 * @param request the HttpServletRequest to log
 	 */
@@ -35,8 +37,7 @@ public class RequestLoggingUtil {
 		log.info("Request Details - Method: {}, URI: {}, RemoteAddr: {}",
 				request.getMethod(),
 				request.getRequestURI(),
-				request.getRemoteAddr()
-				);
+				request.getRemoteAddr());
 
 		logHeaders(request, log);
 		logParameters(request, log);
@@ -45,7 +46,7 @@ public class RequestLoggingUtil {
 	/**
 	 * Logs all HTTP headers with sensitive data masking.
 	 *
-	 * @param request the HttpServletRequest
+	 * @param request   the HttpServletRequest
 	 * @param requestId unique identifier for the request
 	 */
 	private static void logHeaders(HttpServletRequest request, Logger log) {
@@ -70,7 +71,7 @@ public class RequestLoggingUtil {
 	/**
 	 * Logs all HTTP parameters with sensitive data masking.
 	 *
-	 * @param request the HttpServletRequest
+	 * @param request   the HttpServletRequest
 	 * @param requestId unique identifier for the request
 	 */
 	private static void logParameters(HttpServletRequest request, Logger log) {
@@ -81,9 +82,9 @@ public class RequestLoggingUtil {
 				if (isSensitive(key)) {
 					log.info("Request Parameters {}: {}", key, MASK_VALUE);
 				} else {
-					String value = values.length == 1 
+					String value = values.length == 1
 							? truncate(values[0], MAX_PARAM_LENGTH)
-									: Arrays.toString(values);
+							: Arrays.toString(values);
 					log.info("Request Parameters {}: {}", key, truncate(value, MAX_PARAM_LENGTH));
 				}
 			});
@@ -110,7 +111,7 @@ public class RequestLoggingUtil {
 	/**
 	 * Truncates a string to a maximum length to prevent log flooding.
 	 *
-	 * @param value the value to truncate
+	 * @param value     the value to truncate
 	 * @param maxLength maximum allowed length
 	 * @return truncated string
 	 */

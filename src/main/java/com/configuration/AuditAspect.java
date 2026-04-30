@@ -19,7 +19,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
-@Aspect//Tells Spring that this class contains AOP advice
+@Aspect // Tells Spring that this class contains AOP advice
 @Component
 @Slf4j
 public class AuditAspect {
@@ -27,7 +27,7 @@ public class AuditAspect {
 	private final HttpServletRequest request;
 
 	private final AuditLogRepo auditLogRepo;
-	
+
 	public AuditAspect(HttpServletRequest request, AuditLogRepo auditLogRepo) {
 		this.request = request;
 		this.auditLogRepo = auditLogRepo;
@@ -47,7 +47,8 @@ public class AuditAspect {
 			String details = Arrays.toString(joinPoint.getArgs());
 
 			// Persist to DB
-			@Valid AuditLog auditLog = AuditLog.builder()
+			@Valid
+			AuditLog auditLog = AuditLog.builder()
 					.action(action)
 					.username(username)
 					.ip(ip)
@@ -56,7 +57,7 @@ public class AuditAspect {
 					.details(details)
 					.build();
 			auditLogRepo.save(auditLog);
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

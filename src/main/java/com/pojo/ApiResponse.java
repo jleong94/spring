@@ -10,30 +10,32 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import lombok.*;
 
-@Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
-@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
-@NoArgsConstructor//Generates a constructor with no parameters
+@Data // Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and
+			// @Setter on all non-final fields, and @RequiredArgsConstructor
+@AllArgsConstructor // Generates a constructor with parameters for all fields (regardless of type or
+										// annotations)
+@NoArgsConstructor // Generates a constructor with no parameters
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ApiResponse {
 
-	@JsonProperty(value= "resp_code", access = Access.READ_ONLY)
-	@JsonView({GooglePay.Post.class, Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
+	@JsonProperty(value = "resp_code", access = Access.READ_ONLY)
+	@JsonView({ GooglePay.Post.class, Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class })
 	private int resp_code;
 
-	@JsonProperty(value= "resp_msg", access = Access.READ_ONLY)
-	@JsonView({GooglePay.Post.class, Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
+	@JsonProperty(value = "resp_msg", access = Access.READ_ONLY)
+	@JsonView({ GooglePay.Post.class, Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class })
 	private String resp_msg;
 
-	@JsonProperty(value= "datetime", access = Access.READ_ONLY)
-	@JsonView({GooglePay.Post.class, Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
+	@JsonProperty(value = "datetime", access = Access.READ_ONLY)
+	@JsonView({ GooglePay.Post.class, Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class })
 	private String datetime;
-	
-	@JsonProperty(value= "googlePay", access = Access.READ_ONLY)
-	@JsonView({GooglePay.Post.class})
+
+	@JsonProperty(value = "googlePay", access = Access.READ_ONLY)
+	@JsonView({ GooglePay.Post.class })
 	private GooglePay googlePay;
-	
-	@JsonProperty(value= "pojo", access = Access.READ_ONLY)
-	@JsonView({Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class})
+
+	@JsonProperty(value = "pojo", access = Access.READ_ONLY)
+	@JsonView({ Pojo.Post.class, Pojo.Get.class, Pojo.Put.class, Pojo.Delete.class })
 	private Pojo pojo;
 }

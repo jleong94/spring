@@ -8,28 +8,46 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Custom HTTP servlet request wrapper that caches the request body for multiple reads.
+ * Custom HTTP servlet request wrapper that caches the request body for multiple
+ * reads.
  * 
- * <p><b>Problem it solves:</b></p>
- * In a standard HTTP request, the input stream can only be read once. This becomes problematic
- * when multiple components (filters, interceptors, controllers) need to access the request body.
- * For example, when validating a signature in a filter and then deserializing the same body
- * in a controller with {@code @RequestBody}, the second read would fail with "Required request body is missing".
+ * <p>
+ * <b>Problem it solves:</b>
+ * </p>
+ * In a standard HTTP request, the input stream can only be read once. This
+ * becomes problematic
+ * when multiple components (filters, interceptors, controllers) need to access
+ * the request body.
+ * For example, when validating a signature in a filter and then deserializing
+ * the same body
+ * in a controller with {@code @RequestBody}, the second read would fail with
+ * "Required request body is missing".
  * 
- * <p><b>How it works:</b></p>
- * This wrapper reads and caches the entire request body into a byte array when the wrapper is created.
- * Subsequent calls to {@code getInputStream()} or {@code getReader()} return new instances that read
- * from the cached byte array, allowing the body to be read multiple times throughout the request lifecycle.
+ * <p>
+ * <b>How it works:</b>
+ * </p>
+ * This wrapper reads and caches the entire request body into a byte array when
+ * the wrapper is created.
+ * Subsequent calls to {@code getInputStream()} or {@code getReader()} return
+ * new instances that read
+ * from the cached byte array, allowing the body to be read multiple times
+ * throughout the request lifecycle.
  * 
- * <p><b>Use cases:</b></p>
+ * <p>
+ * <b>Use cases:</b>
+ * </p>
  * <ul>
- *   <li>Request signature validation in filters (e.g., HMAC, RSA signature verification)</li>
- *   <li>Request body logging for audit trails</li>
- *   <li>Custom request validation before reaching the controller</li>
- *   <li>Rate limiting based on request body content</li>
+ * <li>Request signature validation in filters (e.g., HMAC, RSA signature
+ * verification)</li>
+ * <li>Request body logging for audit trails</li>
+ * <li>Custom request validation before reaching the controller</li>
+ * <li>Rate limiting based on request body content</li>
  * </ul>
  * 
- * <p><b>Usage example:</b></p>
+ * <p>
+ * <b>Usage example:</b>
+ * </p>
+ * 
  * <pre>
  * {@code
  * // In a servlet filter
@@ -44,8 +62,11 @@ import java.nio.charset.StandardCharsets;
  * }
  * </pre>
  * 
- * <p><b>Memory consideration:</b></p>
- * The entire request body is loaded into memory. For very large payloads (e.g., file uploads),
+ * <p>
+ * <b>Memory consideration:</b>
+ * </p>
+ * The entire request body is loaded into memory. For very large payloads (e.g.,
+ * file uploads),
  * consider implementing a size limit or using streaming approaches instead.
  * 
  * @see HttpServletRequestWrapper
@@ -53,15 +74,17 @@ import java.nio.charset.StandardCharsets;
  * @author jleong94
  */
 public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
-    
+
     /**
      * Cached byte array containing the entire request body.
-     * This is populated once during wrapper construction and reused for all subsequent reads.
+     * This is populated once during wrapper construction and reused for all
+     * subsequent reads.
      */
     private byte[] cachedBody;
 
     /**
-     * Constructs a new CachedBodyHttpServletRequest by wrapping the original request
+     * Constructs a new CachedBodyHttpServletRequest by wrapping the original
+     * request
      * and immediately reading and caching its body content.
      * 
      * @param request the original {@link HttpServletRequest} to wrap
@@ -70,7 +93,8 @@ public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
     public CachedBodyHttpServletRequest(HttpServletRequest request) throws IOException {
         super(request);
         // Cache the request body immediately when wrapper is created
-        // This ensures the original input stream is read before it's closed or consumed elsewhere
+        // This ensures the original input stream is read before it's closed or consumed
+        // elsewhere
         InputStream requestInputStream = request.getInputStream();
         this.cachedBody = requestInputStream.readAllBytes();
     }
@@ -88,7 +112,8 @@ public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
     }
 
     /**
-     * Returns a {@link BufferedReader} for reading the cached request body as character data.
+     * Returns a {@link BufferedReader} for reading the cached request body as
+     * character data.
      * The reader uses UTF-8 encoding to interpret the cached bytes.
      * 
      * @return a new BufferedReader backed by the cached body bytes
@@ -104,7 +129,10 @@ public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
      * This is a convenience method for accessing the body content directly
      * without needing to read from the input stream.
      * 
-     * <p><b>Example usage:</b></p>
+     * <p>
+     * <b>Example usage:</b>
+     * </p>
+     * 
      * <pre>
      * {@code
      * CachedBodyHttpServletRequest cachedRequest = new CachedBodyHttpServletRequest(request);
@@ -121,14 +149,18 @@ public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
     }
 
     /**
-     * Custom {@link ServletInputStream} implementation that reads from a cached byte array.
-     * This allows the request body to be read multiple times by creating new instances
+     * Custom {@link ServletInputStream} implementation that reads from a cached
+     * byte array.
+     * This allows the request body to be read multiple times by creating new
+     * instances
      * of this class, each with its own position pointer into the shared byte array.
      * 
-     * <p>This inner class is package-private and only used internally by the wrapper.</p>
+     * <p>
+     * This inner class is package-private and only used internally by the wrapper.
+     * </p>
      */
     private static class CachedBodyServletInputStream extends ServletInputStream {
-        
+
         /**
          * Input stream backed by the cached body byte array.
          * Each instance of CachedBodyServletInputStream has its own stream
@@ -148,7 +180,8 @@ public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
         /**
          * Indicates whether all data from the input stream has been read.
          * 
-         * @return {@code true} if no more data is available to read, {@code false} otherwise
+         * @return {@code true} if no more data is available to read, {@code false}
+         *         otherwise
          */
         @Override
         public boolean isFinished() {
@@ -173,11 +206,14 @@ public class CachedBodyHttpServletRequest extends HttpServletRequestWrapper {
         /**
          * Sets the read listener for asynchronous I/O operations.
          * 
-         * <p><b>Note:</b> This implementation does not support asynchronous reads
-         * because the cached body is already fully loaded in memory.</p>
+         * <p>
+         * <b>Note:</b> This implementation does not support asynchronous reads
+         * because the cached body is already fully loaded in memory.
+         * </p>
          * 
          * @param readListener the read listener (not used)
-         * @throws UnsupportedOperationException always, as async reads are not supported
+         * @throws UnsupportedOperationException always, as async reads are not
+         *                                       supported
          */
         @Override
         public void setReadListener(ReadListener readListener) {

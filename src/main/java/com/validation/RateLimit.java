@@ -5,10 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.METHOD})
+@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RateLimit {
     String headerName() default ""; // For limiting based on a specific header
+
     String pathVariable() default ""; // For limiting based on a path variable
+
     String requestBodyField() default ""; // For limiting based on a value in the request body
 }

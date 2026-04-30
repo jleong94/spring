@@ -22,22 +22,25 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Configuration class for Google Pay integration.
- * Handles initialization of Google Pay public keys and provides health monitoring.
+ * Handles initialization of Google Pay public keys and provides health
+ * monitoring.
  */
 @Configuration
 @ConfigurationProperties(prefix = "google.pay")
 @Slf4j
-@Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
-@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
-@NoArgsConstructor//Generates a constructor with no parameters
+@Data // Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and
+			// @Setter on all non-final fields, and @RequiredArgsConstructor
+@AllArgsConstructor // Generates a constructor with parameters for all fields (regardless of type or
+										// annotations)
+@NoArgsConstructor // Generates a constructor with no parameters
 @Builder(toBuilder = true)
 public class GooglePayConfig {
 
 	@Builder.Default
 	private boolean init = false;
-	
+
 	private Key key;
-	
+
 	@Autowired(required = false)
 	private Property property;
 
@@ -47,17 +50,20 @@ public class GooglePayConfig {
 	}
 
 	/**
-     * Initializes Google Pay by refreshing public keys based on the active profile.
-     * Runs on application startup as a CommandLineRunner.
-     * 
-     * @return CommandLineRunner that performs the initialization
-     */
+	 * Initializes Google Pay by refreshing public keys based on the active profile.
+	 * Runs on application startup as a CommandLineRunner.
+	 * 
+	 * @return CommandLineRunner that performs the initialization
+	 */
 	@Bean
 	CommandLineRunner initGooglePay() {
 		return args -> {
 			try {
-				if(property.getSpring_profiles_active().equalsIgnoreCase("prod")) {GooglePaymentsPublicKeysManager.INSTANCE_PRODUCTION.refreshInBackground();}
-				else {GooglePaymentsPublicKeysManager.INSTANCE_TEST.refreshInBackground();}
+				if (property.getSpring_profiles_active().equalsIgnoreCase("prod")) {
+					GooglePaymentsPublicKeysManager.INSTANCE_PRODUCTION.refreshInBackground();
+				} else {
+					GooglePaymentsPublicKeysManager.INSTANCE_TEST.refreshInBackground();
+				}
 				init = true;
 			} catch (Exception e) {
 				init = false;
@@ -81,11 +87,12 @@ public class GooglePayConfig {
 	}
 
 	/**
-     * Provides a health indicator for Google Pay initialization status.
-     * Used by Spring Boot Actuator to monitor the health of Google Pay integration.
-     * 
-     * @return HealthIndicator that reports UP if Google Pay is initialized, DOWN otherwise
-     */
+	 * Provides a health indicator for Google Pay initialization status.
+	 * Used by Spring Boot Actuator to monitor the health of Google Pay integration.
+	 * 
+	 * @return HealthIndicator that reports UP if Google Pay is initialized, DOWN
+	 *         otherwise
+	 */
 	@Bean
 	HealthIndicator googlePaymentHealthIndicator() {
 		return () -> {
@@ -98,14 +105,16 @@ public class GooglePayConfig {
 					.build();
 		};
 	}
-	
-	@Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
-    @AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
-    @NoArgsConstructor//Generates a constructor with no parameters
-    @Builder(toBuilder = true)
-    public static class Key {
-    	
-    	@JsonProperty(value = "path")
-        private String path;
-    }
+
+	@Data // Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and
+				// @Setter on all non-final fields, and @RequiredArgsConstructor
+	@AllArgsConstructor // Generates a constructor with parameters for all fields (regardless of type or
+											// annotations)
+	@NoArgsConstructor // Generates a constructor with no parameters
+	@Builder(toBuilder = true)
+	public static class Key {
+
+		@JsonProperty(value = "path")
+		private String path;
+	}
 }

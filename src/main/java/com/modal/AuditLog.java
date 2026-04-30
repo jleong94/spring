@@ -19,20 +19,22 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data//Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and @Setter on all non-final fields, and @RequiredArgsConstructor
-@AllArgsConstructor//Generates a constructor with parameters for all fields (regardless of type or annotations)
-@NoArgsConstructor//Generates a constructor with no parameters
+@Data // Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and
+			// @Setter on all non-final fields, and @RequiredArgsConstructor
+@AllArgsConstructor // Generates a constructor with parameters for all fields (regardless of type or
+										// annotations)
+@NoArgsConstructor // Generates a constructor with no parameters
 @Builder(toBuilder = true)
 @Entity(name = "AuditLog")
-@Table(name = "AuditLog",//Table name 
-catalog = "appdb",//DB name 
-schema = "",//Only for MSSQL, dbo
-indexes = {
-		@Index(name = "idx_AuditLog_action", columnList = "action"),
-		@Index(name = "idx_AuditLog_username", columnList = "username"),
-		@Index(name = "idx_AuditLog_details", columnList = "details"),
-		@Index(name = "idx_AuditLog_timestamp", columnList = "timestamp DESC")
-})
+@Table(name = "AuditLog", // Table name
+		catalog = "appdb", // DB name
+		schema = "", // Only for MSSQL, dbo
+		indexes = {
+				@Index(name = "idx_AuditLog_action", columnList = "action"),
+				@Index(name = "idx_AuditLog_username", columnList = "username"),
+				@Index(name = "idx_AuditLog_details", columnList = "details"),
+				@Index(name = "idx_AuditLog_timestamp", columnList = "timestamp DESC")
+		})
 public class AuditLog {
 
 	@Id
@@ -48,10 +50,7 @@ public class AuditLog {
 	private String username;
 
 	@Size(max = 45, message = "IP exceeded max length(45) allowed.") // max length for IPv4 string
-	@Pattern(
-			regexp = "^(?:(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}|(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}|::1|::)$",
-			message = "Invalid IP address"
-			)
+	@Pattern(regexp = "^(?:(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}|(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}|::1|::)$", message = "Invalid IP address")
 	@Column(name = "ip", unique = false, nullable = false, insertable = true, updatable = false, table = "AuditLog", columnDefinition = "VARCHAR(45)")
 	private String ip;
 

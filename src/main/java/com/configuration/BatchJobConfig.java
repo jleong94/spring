@@ -14,13 +14,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableBatchProcessing//Enables batch processing
+@EnableBatchProcessing // Enables batch processing
 public class BatchJobConfig {
 
 	private final JobRepository jobRepository;
-	
+
 	private final PlatformTransactionManager platformTransactionManager;
-	
+
 	public BatchJobConfig(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
 		this.jobRepository = jobRepository;
 		this.platformTransactionManager = platformTransactionManager;
@@ -40,27 +40,31 @@ public class BatchJobConfig {
 	Job sampleJob() {
 		return new JobBuilder("sampleJob", jobRepository)
 				.incrementer(new RunIdIncrementer())
-		        .start(sampleStep())
-		        .build();
+				.start(sampleStep())
+				.build();
 	}
+
 	/**
 	 * Defines a sample batch step that executes a single tasklet
 	 * 
 	 * Flow:
 	 * 1. Creates a new step named "sampleStep"
-	 * 2. Configures the step with a tasklet and transaction manager(auto commit by spring if tasklet success run else rollback)
+	 * 2. Configures the step with a tasklet and transaction manager(auto commit by
+	 * spring if tasklet success run else rollback)
 	 * 3. Builds and returns the configured step
 	 * 
 	 * @return Step object representing the configured batch step
 	 */
-	@Bean(name = "sampleStep") //Defines a step
+	@Bean(name = "sampleStep") // Defines a step
 	Step sampleStep() {
 		return new StepBuilder("sampleStep", jobRepository)
-				.tasklet(sampleTasklet(), platformTransactionManager) //Assigns tasklet and transaction manager
+				.tasklet(sampleTasklet(), platformTransactionManager) // Assigns tasklet and transaction manager
 				.build();
 	}
+
 	/**
-	 * Defines a sample tasklet that represents the actual work performed in the step
+	 * Defines a sample tasklet that represents the actual work performed in the
+	 * step
 	 * 
 	 * Flow:
 	 * 1. Takes StepContribution and ChunkContext parameters
@@ -70,11 +74,11 @@ public class BatchJobConfig {
 	 * @return Tasklet object that executes the step's business logic
 	 */
 	@Bean
-    Tasklet sampleTasklet() {
+	Tasklet sampleTasklet() {
 		return (contribution, chunkContext) -> {
 			// Add your batch processing logic here
 
 			return RepeatStatus.FINISHED; // Indicates successful completion
 		};
-    }
+	}
 }

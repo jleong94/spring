@@ -39,7 +39,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.core.MediaType;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j//Only use .info/error for technical/system logs
+@Slf4j // Only use .info/error for technical/system logs
 @RestController
 public class RestSpringController {
 
@@ -50,7 +50,7 @@ public class RestSpringController {
 	private final Tool tool;
 
 	private final SampleService sampleService;
-	
+
 	public RestSpringController(ObjectMapper objectMapper, Tool tool, SampleService sampleService) {
 		this.objectMapper = objectMapper;
 		this.tool = tool;
@@ -59,14 +59,20 @@ public class RestSpringController {
 
 	@Audit("POST-TEMPLATE")
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
-	@PostMapping(value = "v1/template/post", consumes = {MediaType.APPLICATION_JSON}, produces = {MediaType.APPLICATION_JSON})
-	@JsonView({Pojo.Post.class})//Which getter parameter should return within json
+	@PostMapping(value = "v1/template/post", consumes = { MediaType.APPLICATION_JSON }, produces = {
+			MediaType.APPLICATION_JSON })
+	@JsonView({ Pojo.Post.class }) // Which getter parameter should return within json
 	@Transactional
-	//@Permission(resource = "USERS", permissions = {PermissionType.READ})
-	//@PreAuthorize("hasRole('ADMIN')")
-	//@Validated - Triggers validation on parameter where annotation validation apply with groups = {}.
-	public ResponseEntity<com.pojo.ApiResponse> postTemplate(HttpServletRequest request, @RequestBody @Validated({Pojo.Post.class}) Pojo pojo) throws Throwable{
-		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
+	// @Permission(resource = "USERS", permissions = {PermissionType.READ})
+	// @PreAuthorize("hasRole('ADMIN')")
+	// @Validated - Triggers validation on parameter where annotation validation
+	// apply with groups = {}.
+	public ResponseEntity<com.pojo.ApiResponse> postTemplate(HttpServletRequest request,
+			@RequestBody @Validated({ Pojo.Post.class }) Pojo pojo) throws Throwable {
+		MDC.put("X-Request-ID",
+				request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank()
+						? request.getHeader("X-Request-ID")
+						: UUID.randomUUID());
 		log.info("-Post template start-");
 		try {
 			RequestLoggingUtil.logRequestDetails(request, log);
@@ -86,7 +92,7 @@ public class RestSpringController {
 							.account_balance(BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble(0, 999)))
 							.build())
 					.build());
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -110,13 +116,17 @@ public class RestSpringController {
 
 	@Audit("GET-TEMPLATE")
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
-	@GetMapping(value = "v1/template/get/{ic}", produces = {MediaType.APPLICATION_JSON})
-	@JsonView({Pojo.Get.class})//Which getter parameter should return within json
+	@GetMapping(value = "v1/template/get/{ic}", produces = { MediaType.APPLICATION_JSON })
+	@JsonView({ Pojo.Get.class }) // Which getter parameter should return within json
 	@Transactional
-	//@Permission(resource = "USERS", permissions = {PermissionType.READ})
-	//@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<com.pojo.ApiResponse> getTemplate(HttpServletRequest request, @PathVariable @NotBlank String ic) throws Throwable{
-		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
+	// @Permission(resource = "USERS", permissions = {PermissionType.READ})
+	// @PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<com.pojo.ApiResponse> getTemplate(HttpServletRequest request, @PathVariable @NotBlank String ic)
+			throws Throwable {
+		MDC.put("X-Request-ID",
+				request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank()
+						? request.getHeader("X-Request-ID")
+						: UUID.randomUUID());
 		log.info("-Get template start-");
 		try {
 			RequestLoggingUtil.logRequestDetails(request, log);
@@ -135,7 +145,7 @@ public class RestSpringController {
 							.account_balance(BigDecimal.valueOf(ThreadLocalRandom.current().nextDouble(0, 999)))
 							.build())
 					.build());
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -159,20 +169,23 @@ public class RestSpringController {
 
 	@Audit("GET-ASYNC-TEMPLATE")
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
-	@TimeLimiter(name = "getAsyncTemplate")//To control timeout of endpoint
-	@GetMapping(value = "v1/template/get-async/{sleepMs}", produces = {MediaType.APPLICATION_JSON})
-	@JsonView({Pojo.Get.class})//Which getter parameter should return within json
+	@TimeLimiter(name = "getAsyncTemplate") // To control timeout of endpoint
+	@GetMapping(value = "v1/template/get-async/{sleepMs}", produces = { MediaType.APPLICATION_JSON })
+	@JsonView({ Pojo.Get.class }) // Which getter parameter should return within json
 	@Transactional
-	//@Permission(resource = "USERS", permissions = {PermissionType.READ})
-	//@PreAuthorize("hasRole('ADMIN')")
-	public CompletableFuture<ResponseEntity<com.pojo.ApiResponse>> getAsyncTemplate(HttpServletRequest request, @PathVariable long sleepMs) throws Throwable{
-		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
+	// @Permission(resource = "USERS", permissions = {PermissionType.READ})
+	// @PreAuthorize("hasRole('ADMIN')")
+	public CompletableFuture<ResponseEntity<com.pojo.ApiResponse>> getAsyncTemplate(HttpServletRequest request,
+			@PathVariable long sleepMs) throws Throwable {
+		MDC.put("X-Request-ID",
+				request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank()
+						? request.getHeader("X-Request-ID")
+						: UUID.randomUUID());
 		log.info("-Get async template start-");
 		try {
 			RequestLoggingUtil.logRequestDetails(request, log);
 			Thread.sleep(sleepMs);
-			return CompletableFuture.supplyAsync(() ->
-			{
+			return CompletableFuture.supplyAsync(() -> {
 				try {
 					return ResponseEntity.status(HttpStatus.FOUND).body(com.pojo.ApiResponse
 							.builder()
@@ -191,9 +204,8 @@ public class RestSpringController {
 				} catch (Throwable e) {
 					throw new CompletionException(e);
 				}
-			}
-					);
-		} catch(Throwable e) {
+			});
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -217,21 +229,27 @@ public class RestSpringController {
 
 	@Audit("PUT-TEMPLATE")
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
-	@PutMapping(value = "v1/template/put/{id}/{ic}", consumes = {MediaType.APPLICATION_JSON}, produces = {MediaType.APPLICATION_JSON})
-	@JsonView({Pojo.Put.class})//Which getter parameter should return within json
+	@PutMapping(value = "v1/template/put/{id}/{ic}", consumes = { MediaType.APPLICATION_JSON }, produces = {
+			MediaType.APPLICATION_JSON })
+	@JsonView({ Pojo.Put.class }) // Which getter parameter should return within json
 	@Transactional
-	//@Permission(resource = "USERS", permissions = {PermissionType.READ})
-	//@PreAuthorize("hasRole('ADMIN')")
-	//@Validated - Triggers validation on parameter where annotation validation apply with groups = {}.
-	public ResponseEntity<com.pojo.ApiResponse> putTemplate(HttpServletRequest request, @PathVariable @NotBlank int id, @PathVariable @NotBlank String ic, @RequestBody @Validated({Pojo.Put.class}) Pojo pojo) throws Throwable{
-		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
+	// @Permission(resource = "USERS", permissions = {PermissionType.READ})
+	// @PreAuthorize("hasRole('ADMIN')")
+	// @Validated - Triggers validation on parameter where annotation validation
+	// apply with groups = {}.
+	public ResponseEntity<com.pojo.ApiResponse> putTemplate(HttpServletRequest request, @PathVariable @NotBlank int id,
+			@PathVariable @NotBlank String ic, @RequestBody @Validated({ Pojo.Put.class }) Pojo pojo) throws Throwable {
+		MDC.put("X-Request-ID",
+				request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank()
+						? request.getHeader("X-Request-ID")
+						: UUID.randomUUID());
 		log.info("-Put template start-");
 		try {
 			RequestLoggingUtil.logRequestDetails(request, log);
 			log.info("Request: " + objectMapper.writeValueAsString(pojo));
 
 			return ResponseEntity.status(HttpStatus.OK).body(sampleService.putTemplate(log, id, ic, pojo));
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -255,13 +273,17 @@ public class RestSpringController {
 
 	@Audit("DELETE-TEMPLATE")
 	@RateLimit(headerName = "", pathVariable = "", requestBodyField = "")
-	@DeleteMapping(value = "v1/template/delete", produces = {MediaType.APPLICATION_JSON})
-	@JsonView({Pojo.Delete.class})//Which getter parameter should return within json
+	@DeleteMapping(value = "v1/template/delete", produces = { MediaType.APPLICATION_JSON })
+	@JsonView({ Pojo.Delete.class }) // Which getter parameter should return within json
 	@Transactional
-	//@Permission(resource = "USERS", permissions = {PermissionType.READ})
-	//@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<com.pojo.ApiResponse> deleteTemplate(HttpServletRequest request, @RequestParam int ic) throws Throwable{
-		MDC.put("X-Request-ID", request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank() ? request.getHeader("X-Request-ID") : UUID.randomUUID());
+	// @Permission(resource = "USERS", permissions = {PermissionType.READ})
+	// @PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<com.pojo.ApiResponse> deleteTemplate(HttpServletRequest request, @RequestParam int ic)
+			throws Throwable {
+		MDC.put("X-Request-ID",
+				request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank()
+						? request.getHeader("X-Request-ID")
+						: UUID.randomUUID());
 		log.info("-Delete template start-");
 		try {
 			RequestLoggingUtil.logRequestDetails(request, log);
@@ -272,7 +294,7 @@ public class RestSpringController {
 					.resp_msg(ResponseCode.SUCCESS.getResponse_desc())
 					.datetime(tool.getTodayDateTimeInString())
 					.build());
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception

@@ -10,12 +10,12 @@ import jakarta.validation.ConstraintValidatorContext;
 public class CustomTypeValidator implements ConstraintValidator<CustomType, Object> {
 
 	private final List<String> customTypes = Arrays.asList("test 1", "test 2");
-	
+
 	@Override
-    public void initialize(CustomType constraintAnnotation) {
-        // Initialization logic if needed
-    }
-	
+	public void initialize(CustomType constraintAnnotation) {
+		// Initialization logic if needed
+	}
+
 	@Override
 	// First param can put primitive or object
 	public boolean isValid(Object value, ConstraintValidatorContext context) {

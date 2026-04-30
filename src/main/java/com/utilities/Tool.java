@@ -45,30 +45,32 @@ import com.service.RsaKeyCacheService;
 
 @Component
 public class Tool {
-	
+
 	@Lazy
 	@Autowired(required = false)
 	private RsaKeyCacheService rsaKeyCacheService;
 
-	public List<String> downloadFileFromSftp(Logger log, String host, String username, String password, String remote_path, String local_path, String knownHostsFilePath, String fingerprint) throws Throwable {
+	public List<String> downloadFileFromSftp(Logger log, String host, String username, String password,
+			String remote_path, String local_path, String knownHostsFilePath, String fingerprint) throws Throwable {
 		List<String> downloadedFiles = new ArrayList<>();
 		try {
 			long todayEpoch = LocalDate.now()
 					.atStartOfDay(ZoneId.systemDefault())
 					.toEpochSecond();
 
-			@Cleanup SSHClient sshClient = new SSHClient();//@Cleanup - automatically clean up resources when a method exits
-			if(knownHostsFilePath != null && !knownHostsFilePath.isBlank()) {
+			@Cleanup
+			SSHClient sshClient = new SSHClient();// @Cleanup - automatically clean up resources when a method exits
+			if (knownHostsFilePath != null && !knownHostsFilePath.isBlank()) {
 				File knownHostsFile = new File(knownHostsFilePath);
 				if (knownHostsFile.isAbsolute() && knownHostsFile.exists() && knownHostsFile.isFile()) {
 					sshClient.loadKnownHosts(knownHostsFile);
 					log.info("Using known hosts file as verifier.");
 				}
-			} else if(fingerprint != null && !fingerprint.isBlank()) {
+			} else if (fingerprint != null && !fingerprint.isBlank()) {
 				sshClient.addHostKeyVerifier(new HostKeyVerifier() {
 					@Override
 					public boolean verify(String hostname, int port, PublicKey key) {
-						String actual = SecurityUtils.getFingerprint(key); // e.g. "aa:bb:cc:...".  
+						String actual = SecurityUtils.getFingerprint(key); // e.g. "aa:bb:cc:...".
 						// Normalize both sides and compare
 						String actualNorm = normalizeHexFingerprint(actual);
 						String expectedNorm = normalizeHexFingerprint(fingerprint);
@@ -86,13 +88,18 @@ public class Tool {
 						return Collections.emptyList();
 					}
 				});
-			} else {log.info("Not using any verifier.");}
+			} else {
+				log.info("Not using any verifier.");
+			}
 			String[] host_split = host.split(":");
-			if(host_split.length > 1) {
+			if (host_split.length > 1) {
 				sshClient.connect(host_split[0], Integer.parseInt(host_split[1]));
-			} else {sshClient.connect(host);}
+			} else {
+				sshClient.connect(host);
+			}
 			sshClient.authPassword(username, password);
-			@Cleanup SFTPClient sftpClient = sshClient.newSFTPClient();
+			@Cleanup
+			SFTPClient sftpClient = sshClient.newSFTPClient();
 			remote_path = Paths.get(remote_path).normalize().toString().replace("\\", "/");
 			local_path = Paths.get(local_path).normalize().toString().replace("\\", "/");
 			List<RemoteResourceInfo> remote_files = sftpClient.ls(remote_path);
@@ -110,7 +117,7 @@ public class Tool {
 					}
 				}
 			}
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -129,9 +136,13 @@ public class Tool {
 		return downloadedFiles;
 	}
 
-	/** Normalize colon-separated hex fingerprint to lower-case, no spaces (e.g. "aa:bb" -> "aa:bb") */
+	/**
+	 * Normalize colon-separated hex fingerprint to lower-case, no spaces (e.g.
+	 * "aa:bb" -> "aa:bb")
+	 */
 	private static String normalizeHexFingerprint(String f) {
-		if (f == null || f.isBlank()) return "";
+		if (f == null || f.isBlank())
+			return "";
 		// Remove non-hex characters and lowercase
 		return f.replaceAll("[^0-9a-fA-F]", "").toLowerCase();
 	}
@@ -139,18 +150,18 @@ public class Tool {
 	public String getTodayDateTimeInString() {
 		String result = "";
 		DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-				.appendPattern("yyyy-MM-dd")  // Date part
+				.appendPattern("yyyy-MM-dd") // Date part
 				.optionalStart()
-				.appendLiteral('T')           // Try parsing with 'T'
+				.appendLiteral('T') // Try parsing with 'T'
 				.optionalEnd()
 				.optionalStart()
-				.appendLiteral(' ')           // Try parsing with space
+				.appendLiteral(' ') // Try parsing with space
 				.optionalEnd()
 				.optionalStart()
-				.appendPattern("HH:mm:ss")    // Time part
+				.appendPattern("HH:mm:ss") // Time part
 				.optionalEnd()
 				.optionalStart()
-				.appendFraction(ChronoField.MILLI_OF_SECOND, 1, 3, true)  // Handle 1-3 digit milliseconds
+				.appendFraction(ChronoField.MILLI_OF_SECOND, 1, 3, true) // Handle 1-3 digit milliseconds
 				.optionalEnd()
 				.toFormatter();
 		LocalDateTime now = LocalDateTime.now();
@@ -159,27 +170,32 @@ public class Tool {
 		return result;
 	}
 
-	public List<String> saveUploadFileToPath(Logger log, List<MultipartFile> multipartFiles, String upload_path) throws Throwable {
+	public List<String> saveUploadFileToPath(Logger log, List<MultipartFile> multipartFiles, String upload_path)
+			throws Throwable {
 		List<String> savedFiles = new ArrayList<>();
 		try {
-			if(multipartFiles != null && !multipartFiles.isEmpty() && upload_path != null && !upload_path.isBlank()) {
+			if (multipartFiles != null && !multipartFiles.isEmpty() && upload_path != null && !upload_path.isBlank()) {
 				Path uploadDir = Paths.get(upload_path);
 				Files.createDirectories(uploadDir);
-				for(MultipartFile multipartFile : multipartFiles) {
-					if(multipartFile != null && !multipartFile.isEmpty()) {
-						String originalFilename = Path.of(multipartFile.getOriginalFilename()).getFileName().toString(); // sanitize path
+				for (MultipartFile multipartFile : multipartFiles) {
+					if (multipartFile != null && !multipartFile.isEmpty()) {
+						String originalFilename = Path.of(multipartFile.getOriginalFilename()).getFileName().toString(); // sanitize
+																																																							// path
 						Path destinationFile = uploadDir.resolve(originalFilename).normalize().toAbsolutePath();
 						// Prevent path traversal attack
 						if (destinationFile.getParent().equals(uploadDir.toAbsolutePath())) {
 							Files.copy(multipartFile.getInputStream(), destinationFile, StandardCopyOption.REPLACE_EXISTING);
 							savedFiles.add(destinationFile.toString());
 						} else {
-							log.info("Cannot store file outside, {} the target directory, {}.", destinationFile.getParent(), uploadDir.toAbsolutePath());
+							log.info("Cannot store file outside, {} the target directory, {}.", destinationFile.getParent(),
+									uploadDir.toAbsolutePath());
 						}
 					}
 				}
-			} else {log.info("No files to upload or upload path is invalid.");}
-		} catch(Throwable e) {
+			} else {
+				log.info("No files to upload or upload path is invalid.");
+			}
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -198,16 +214,18 @@ public class Tool {
 		return savedFiles;
 	}
 
-	/** 
-	 * @param log   Logger instance used for error reporting
-	 * @param classpath   String representing the class path to scan
+	/**
+	 * @param log       Logger instance used for error reporting
+	 * @param classpath String representing the class path to scan
 	 * 
 	 * @return List<Path> containing paths to all regular files in the directory.
 	 *         Returns an empty list if the resource size is 0.
 	 * 
-	 * @throws Throwable if any error occurs during file system operations. The error
-	 *         is logged with detailed stack trace information (including class name,
-	 *         line number, and error message) before being re-thrown.
+	 * @throws Throwable if any error occurs during file system operations. The
+	 *                   error
+	 *                   is logged with detailed stack trace information (including
+	 *                   class name,
+	 *                   line number, and error message) before being re-thrown.
 	 */
 	public List<Path> loadFileListFromClasspath(Logger log, String classpath) throws Throwable {
 		try {
@@ -224,7 +242,7 @@ public class Tool {
 			return Files.walk(directoryPath, 1)
 					.filter(Files::isRegularFile)
 					.collect(Collectors.toList());
-		} catch(Throwable e) {
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
@@ -245,10 +263,11 @@ public class Tool {
 
 	/**
 	 * Reads the entire contents of a file into a String using BufferedReader.
-	 * Supports loading from both the file system (development) and classpath (JAR). 
+	 * Supports loading from both the file system (development) and classpath (JAR).
 	 * 
-	 * @param log Logger instance for error logging
-	 * @param filePath Path to the file - can be absolute file system path or classpath-relative path
+	 * @param log      Logger instance for error logging
+	 * @param filePath Path to the file - can be absolute file system path or
+	 *                 classpath-relative path
 	 * @return String containing the entire file contents
 	 * @throws Throwable if file is not found or any I/O error occurs
 	 */
@@ -256,17 +275,20 @@ public class Tool {
 		try {
 			// Remove leading slash if present to normalize the path
 			// ClassLoader.getResourceAsStream() doesn't work with leading slashes
-			filePath = filePath.startsWith("/") ?  filePath.substring(1) : filePath;
+			filePath = filePath.startsWith("/") ? filePath.substring(1) : filePath;
 
 			// Create a File object to check if it exists on the file system
 			File file = new File(filePath);
 
-			// Initialize InputStream using try-with-resources to avoid Lombok @Cleanup and ensure proper null-check
-			try (InputStream inputStream = file.exists() ? new FileInputStream(file) : getClass().getClassLoader().getResourceAsStream(filePath)) {
+			// Initialize InputStream using try-with-resources to avoid Lombok @Cleanup and
+			// ensure proper null-check
+			try (InputStream inputStream = file.exists() ? new FileInputStream(file)
+					: getClass().getClassLoader().getResourceAsStream(filePath)) {
 
 				// Validate that the resource was found
 				if (inputStream == null) {
-					throw new FileNotFoundException("Resource not found in classpath: " + filePath); // BUG FIX: Should be filePath, not inputStream
+					throw new FileNotFoundException("Resource not found in classpath: " + filePath); // BUG FIX: Should be
+																																														// filePath, not inputStream
 				}
 
 				// Create BufferedReader with UTF-8 encoding for proper character handling
@@ -307,8 +329,9 @@ public class Tool {
 	}
 
 	/**
-	 * Decodes a DER-encoded integer from a ByteBuffer. 
-	 * DER (Distinguished Encoding Rules) is a binary encoding format used in cryptography.
+	 * Decodes a DER-encoded integer from a ByteBuffer.
+	 * DER (Distinguished Encoding Rules) is a binary encoding format used in
+	 * cryptography.
 	 * 
 	 * @param input ByteBuffer containing the DER-encoded data
 	 * @return BigInteger representation of the decoded value
@@ -333,41 +356,47 @@ public class Tool {
 	 * Reads and validates a DER tag and returns its length.
 	 * 
 	 * @param input ByteBuffer containing the DER-encoded data
-	 * @param exp Expected tag value to validate against
+	 * @param exp   Expected tag value to validate against
 	 * @return Length of the data following the tag
-	 * @throws IllegalArgumentException if tag doesn't match expected value or length is invalid
+	 * @throws IllegalArgumentException if tag doesn't match expected value or
+	 *                                  length is invalid
 	 */
 	private int der(ByteBuffer input, int exp) {
 		// Read the tag byte and convert to unsigned int
 		int tag = input.get() & 0xFF;
 
-		// Verify the tag matches what we expect (e.g., 0x30 for SEQUENCE, 0x02 for INTEGER)
-		if (tag != exp) throw new IllegalArgumentException("Unexpected tag");
+		// Verify the tag matches what we expect (e.g., 0x30 for SEQUENCE, 0x02 for
+		// INTEGER)
+		if (tag != exp)
+			throw new IllegalArgumentException("Unexpected tag");
 
 		// Read the length byte
 		int n = input.get() & 0xFF;
 
 		// If length is less than 128, it's a short form (single byte length)
-		if (n < 128) return n;
+		if (n < 128)
+			return n;
 
 		// Long form: the lower 7 bits indicate how many bytes encode the length
 		n &= 0x7F;
 
 		// Validate that length is encoded in 1 or 2 bytes (common for RSA keys)
-		if ((n < 1) || (n > 2)) throw new IllegalArgumentException("Invalid length");
+		if ((n < 1) || (n > 2))
+			throw new IllegalArgumentException("Invalid length");
 
 		// Read the actual length value from the next n bytes
 		int len = 0;
 		while (n-- > 0) {
-			len <<= 8;  // Shift left by 8 bits (1 byte)
-			len |= input.get() & 0xFF;  // Add the next byte
+			len <<= 8; // Shift left by 8 bits (1 byte)
+			len |= input.get() & 0xFF; // Add the next byte
 		}
 
 		return len;
 	}
 
 	/**
-	 * Skips over a DER-encoded element by reading its tag and length, then advancing the position.
+	 * Skips over a DER-encoded element by reading its tag and length, then
+	 * advancing the position.
 	 * 
 	 * @param input ByteBuffer containing the DER-encoded data
 	 */
@@ -391,20 +420,20 @@ public class Tool {
 		}
 
 		// Skip the content
-		input.position(input. position() + len);
+		input.position(input.position() + len);
 	}
 
 	/**
 	 * Detects if the encoded key is in PKCS#8 format by examining its structure.
 	 * PKCS#8 structure: SEQUENCE { version, algorithm, privateKey }
-	 * PKCS#1 structure: SEQUENCE { version, modulus, publicExponent, ...  }
+	 * PKCS#1 structure: SEQUENCE { version, modulus, publicExponent, ... }
 	 * 
 	 * @param data Byte array containing the DER-encoded key
 	 * @return true if PKCS#8 format, false if PKCS#1 format
 	 */
 	public boolean isPKCS8Format(byte[] data) {
 		try {
-			ByteBuffer buffer = ByteBuffer. wrap(data);
+			ByteBuffer buffer = ByteBuffer.wrap(data);
 
 			// Read outer SEQUENCE tag and length
 			if (der(buffer, 0x30) != buffer.remaining()) {
@@ -415,7 +444,8 @@ public class Tool {
 			@SuppressWarnings("unused")
 			BigInteger version = derint(buffer);
 
-			// In PKCS#8, after version (0), the next element is a SEQUENCE (algorithm identifier)
+			// In PKCS#8, after version (0), the next element is a SEQUENCE (algorithm
+			// identifier)
 			// In PKCS#1, after version (0), the next element is an INTEGER (modulus)
 			int position = buffer.position();
 			int nextTag = buffer.get(position) & 0xFF;
@@ -431,7 +461,8 @@ public class Tool {
 
 	/**
 	 * Extracts PKCS#1 private key data from PKCS#8 envelope.
-	 * PKCS#8 wraps PKCS#1 data inside: SEQUENCE { version, algorithm, OCTET STRING { PKCS#1 data } }
+	 * PKCS#8 wraps PKCS#1 data inside: SEQUENCE { version, algorithm, OCTET STRING
+	 * { PKCS#1 data } }
 	 * 
 	 * @param pkcs8Data Byte array containing PKCS#8 encoded key
 	 * @return Byte array containing the inner PKCS#1 encoded key
@@ -445,7 +476,7 @@ public class Tool {
 		}
 
 		// Read and verify version (should be 0)
-		if (! BigInteger.ZERO.equals(derint(input))) {
+		if (!BigInteger.ZERO.equals(derint(input))) {
 			throw new IllegalArgumentException("Unsupported PKCS#8 version");
 		}
 
@@ -469,7 +500,7 @@ public class Tool {
 	 * @return RSAPrivateCrtKeySpec containing all RSA key components
 	 */
 	public RSAPrivateCrtKeySpec parsePKCS1(byte[] pkcs1Data) {
-		ByteBuffer input = ByteBuffer. wrap(pkcs1Data);
+		ByteBuffer input = ByteBuffer.wrap(pkcs1Data);
 
 		// Validate DER structure: 0x30 is the SEQUENCE tag
 		if (der(input, 0x30) != input.remaining()) {
@@ -477,19 +508,19 @@ public class Tool {
 		}
 
 		// Verify version is 0 (two-prime RSA key)
-		if (!BigInteger. ZERO.equals(derint(input))) {
+		if (!BigInteger.ZERO.equals(derint(input))) {
 			throw new IllegalArgumentException("Unsupported PKCS#1 version");
 		}
 
 		// Extract RSA key components in order per PKCS#1 specification
-		BigInteger modulus = derint(input);           // n
-		BigInteger publicExponent = derint(input);    // e
-		BigInteger privateExponent = derint(input);   // d
-		BigInteger prime1 = derint(input);            // p
-		BigInteger prime2 = derint(input);            // q
-		BigInteger exponent1 = derint(input);         // d mod (p-1)
-		BigInteger exponent2 = derint(input);         // d mod (q-1)
-		BigInteger coefficient = derint(input);       // (inverse of q) mod p
+		BigInteger modulus = derint(input); // n
+		BigInteger publicExponent = derint(input); // e
+		BigInteger privateExponent = derint(input); // d
+		BigInteger prime1 = derint(input); // p
+		BigInteger prime2 = derint(input); // q
+		BigInteger exponent1 = derint(input); // d mod (p-1)
+		BigInteger exponent2 = derint(input); // d mod (q-1)
+		BigInteger coefficient = derint(input); // (inverse of q) mod p
 
 		return new RSAPrivateCrtKeySpec(
 				modulus, publicExponent, privateExponent,
@@ -498,9 +529,9 @@ public class Tool {
 
 	/**
 	 * Signs a string input using SHA256 with RSA private key.
-	 * Automatically detects and handles both PKCS#1 and PKCS#8 formats. 
+	 * Automatically detects and handles both PKCS#1 and PKCS#8 formats.
 	 * 
-	 * @param log Logger instance for error logging
+	 * @param log   Logger instance for error logging
 	 * @param input Plain text string to be signed
 	 * @return Base64-encoded signature string
 	 * @throws Throwable if any error occurs during key loading, parsing, or signing
@@ -550,32 +581,35 @@ public class Tool {
 
 	/**
 	 * Verifies a SHA256-RSA signature against plain text using an RSA public key.
-	 * Loads the RSA public key from a file in the classpath based on the signing key ID.
+	 * Loads the RSA public key from a file in the classpath based on the signing
+	 * key ID.
 	 * The filename pattern is: {signingKeyId}-rsa-public
 	 * 
-	 * @param log Logger instance for error logging
-	 * @param plainText Original plain text that was signed
-	 * @param signedValue Base64-encoded signature to verify
-	 * @param signingKeyId Key identifier used to construct the filename (e.g., "spring" for "spring-rsa-public.pem")
+	 * @param log          Logger instance for error logging
+	 * @param plainText    Original plain text that was signed
+	 * @param signedValue  Base64-encoded signature to verify
+	 * @param signingKeyId Key identifier used to construct the filename (e.g.,
+	 *                     "spring" for "spring-rsa-public.pem")
 	 * @return true if signature is valid, false otherwise
 	 * @throws Throwable if any error occurs during key loading or verification
 	 */
-	public boolean verifySHA256RSA(Logger log, String plainText, String signedValue, String signingKeyId) throws Throwable {
+	public boolean verifySHA256RSA(Logger log, String plainText, String signedValue, String signingKeyId)
+			throws Throwable {
 		try {
 			PublicKey publicKey = null;
-			
+
 			// Try to get the public key from cache first
 			if (rsaKeyCacheService != null && rsaKeyCacheService.hasPublicKey(signingKeyId)) {
 				log.debug("Using cached public key for key ID: {}", signingKeyId);
 				publicKey = rsaKeyCacheService.getPublicKey(signingKeyId);
 			}
-			
+
 			// If public key is still null, throw exception
 			if (publicKey == null) {
 				log.error("No public key found for signing key ID: {}", signingKeyId);
 				throw new IllegalArgumentException("Public key not found for signing key ID: " + signingKeyId);
 			}
-			
+
 			// Initialize signature verification with SHA256withRSA algorithm
 			Signature signature = Signature.getInstance("SHA256withRSA");
 			signature.initVerify(publicKey);
@@ -585,8 +619,8 @@ public class Tool {
 
 			// Verify the signature and return the result
 			return signature.verify(Base64.decodeBase64(signedValue));
-			
-		}catch(Throwable e) {
+
+		} catch (Throwable e) {
 			// Get the current stack trace element
 			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
 			// Find matching stack trace element from exception
