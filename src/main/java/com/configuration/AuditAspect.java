@@ -1,4 +1,5 @@
 package com.configuration;
+import com.utilities.LogUtil;
 
 import java.util.Arrays;
 
@@ -58,20 +59,7 @@ public class AuditAspect {
 					.build();
 			auditLogRepo.save(auditLog);
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		} finally {
 			MDC.clear();

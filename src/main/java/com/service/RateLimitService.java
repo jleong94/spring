@@ -1,4 +1,5 @@
 package com.service;
+import com.utilities.LogUtil;
 
 import com.configuration.RateLimitProperties;
 import com.pojo.bucket4j.CustomBucket;
@@ -81,20 +82,7 @@ public class RateLimitService {
 				}
 			}
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		}
 		// Prepend the keyType to ensure uniqueness across different key types
@@ -156,20 +144,7 @@ public class RateLimitService {
 			}
 			return parameterValue;
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		}
 	}

@@ -1,4 +1,5 @@
 package com.service.google;
+import com.utilities.LogUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -172,20 +173,7 @@ public class FirebaseService {
 					.fail_count(batchResponse.getFailureCount())
 					.build();
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		}
 	}
@@ -196,18 +184,7 @@ public class FirebaseService {
 		log.info("Recover on send token based push notification start.");
 		try {
 			String error_detail = "";
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			for (StackTraceElement element : throwable.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())) {
-					error_detail += (error_detail != null && !error_detail.isBlank() ? "<br>" : "")
-							+ String.format("Error in %s at line %d: %s - %s",
-									element.getClassName(),
-									element.getLineNumber(),
-									throwable.getClass().getName(),
-									throwable.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, throwable);
 			// Increment Prometheus counter
 			recoverCounter.increment();
 
@@ -237,20 +214,7 @@ public class FirebaseService {
 				emailService.sendEmail(log, email);
 			}
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		} finally {
 			log.info("Recover on send token based push notification end.");
 		}

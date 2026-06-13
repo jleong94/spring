@@ -1,4 +1,5 @@
 package com.configuration;
+import com.utilities.LogUtil;
 
 import java.util.Deque;
 import java.util.UUID;
@@ -62,20 +63,7 @@ public class Scheduler {
 				// Send alert/notification
 			}
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		} finally {
 			MDC.clear();
 		}
@@ -96,20 +84,7 @@ public class Scheduler {
 				sampleThreadService.processRecords(xRequestId, (i + 1), deque);
 			}
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		} finally {
 			log.info("Sample task 2 end.");
 			MDC.clear();

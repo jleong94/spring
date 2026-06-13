@@ -1,4 +1,5 @@
 package com.service.template;
+import com.utilities.LogUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -158,53 +159,14 @@ public class APICaller {
 						object = objectMapper.readerForUpdating(object).readValue(responseString);
 					}
 				} catch (Throwable e) {
-					// Get the current stack trace element
-					StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-					// Find matching stack trace element from exception
-					for (StackTraceElement element : e.getStackTrace()) {
-						if (currentElement.getClassName().equals(element.getClassName())
-								&& currentElement.getMethodName().equals(element.getMethodName())) {
-							log.error("Error in {} at line {}: {} - {}",
-									element.getClassName(),
-									element.getLineNumber(),
-									e.getClass().getName(),
-									e.getMessage());
-							break;
-						}
-					}
+					LogUtil.logError(log, e);
 				}
 
 			}
 		} catch (SocketTimeoutException | ConnectTimeoutException e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		} finally {
 			try {
 
@@ -302,40 +264,14 @@ public class APICaller {
 							result.complete(object);
 						} catch (Throwable e) {
 							result.completeExceptionally(e);
-							// Get the current stack trace element
-							StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-							// Find matching stack trace element from exception
-							for (StackTraceElement element : e.getStackTrace()) {
-								if (currentElement.getClassName().equals(element.getClassName())
-										&& currentElement.getMethodName().equals(element.getMethodName())) {
-									log.error("Error in {} at line {}: {} - {}",
-											element.getClassName(),
-											element.getLineNumber(),
-											e.getClass().getName(),
-											e.getMessage());
-									break;
-								}
-							}
+							LogUtil.logError(log, e);
 						}
 					}
 
 					@Override
 					public void failed(Exception e) {
 						result.completeExceptionally(e);
-						// Get the current stack trace element
-						StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-						// Find matching stack trace element from exception
-						for (StackTraceElement element : e.getStackTrace()) {
-							if (currentElement.getClassName().equals(element.getClassName())
-									&& currentElement.getMethodName().equals(element.getMethodName())) {
-								log.error("Error in {} at line {}: {} - {}",
-										element.getClassName(),
-										element.getLineNumber(),
-										e.getClass().getName(),
-										e.getMessage());
-								break;
-							}
-						}
+						LogUtil.logError(log, e);
 					}
 
 					@Override
@@ -347,36 +283,10 @@ public class APICaller {
 			}
 		} catch (SocketTimeoutException | ConnectTimeoutException e) {
 			result.completeExceptionally(e);
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		} catch (Throwable e) {
 			result.completeExceptionally(e);
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		} finally {
 			try {
 
@@ -475,35 +385,9 @@ public class APICaller {
 			result = responseFactory.parseMessage(responseBytes, 0);
 			log.info("Response: {}", result.debugString());
 		} catch (SocketTimeoutException | ConnectTimeoutException | SocketException e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		} finally {
 			try {
 

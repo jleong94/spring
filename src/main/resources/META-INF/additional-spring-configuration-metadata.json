@@ -133,5 +133,10 @@
     "name": "spring.application.api-key",
     "type": "java.lang.String",
     "description": "A description for 'spring.application.api-key'"
+  },
+  {
+    "name": "security.signature.max-clock-skew-ms",
+    "type": "java.lang.Long",
+    "description": "Maximum allowed difference (in milliseconds) between the client X-TIMESTAMP and server time during request-signature verification. Requests outside this window are rejected. Defaults to 300000 (5 minutes)."
   }
 ]}

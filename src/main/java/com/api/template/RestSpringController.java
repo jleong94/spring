@@ -1,4 +1,5 @@
 package com.api.template;
+import com.utilities.LogUtil;
 
 // Rest controller import
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,12 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.jboss.logging.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -69,10 +68,6 @@ public class RestSpringController {
 	// apply with groups = {}.
 	public ResponseEntity<com.pojo.ApiResponse> postTemplate(HttpServletRequest request,
 			@RequestBody @Validated({ Pojo.Post.class }) Pojo pojo) throws Throwable {
-		MDC.put("X-Request-ID",
-				request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank()
-						? request.getHeader("X-Request-ID")
-						: UUID.randomUUID());
 		log.info("-Post template start-");
 		try {
 			RequestLoggingUtil.logRequestDetails(request, log);
@@ -93,24 +88,10 @@ public class RestSpringController {
 							.build())
 					.build());
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		} finally {
 			log.info("-Post template end-");
-			MDC.clear();
 		}
 	}
 
@@ -123,10 +104,6 @@ public class RestSpringController {
 	// @PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<com.pojo.ApiResponse> getTemplate(HttpServletRequest request, @PathVariable @NotBlank String ic)
 			throws Throwable {
-		MDC.put("X-Request-ID",
-				request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank()
-						? request.getHeader("X-Request-ID")
-						: UUID.randomUUID());
 		log.info("-Get template start-");
 		try {
 			RequestLoggingUtil.logRequestDetails(request, log);
@@ -146,24 +123,10 @@ public class RestSpringController {
 							.build())
 					.build());
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		} finally {
 			log.info("-Get template end-");
-			MDC.clear();
 		}
 	}
 
@@ -177,10 +140,6 @@ public class RestSpringController {
 	// @PreAuthorize("hasRole('ADMIN')")
 	public CompletableFuture<ResponseEntity<com.pojo.ApiResponse>> getAsyncTemplate(HttpServletRequest request,
 			@PathVariable long sleepMs) throws Throwable {
-		MDC.put("X-Request-ID",
-				request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank()
-						? request.getHeader("X-Request-ID")
-						: UUID.randomUUID());
 		log.info("-Get async template start-");
 		try {
 			RequestLoggingUtil.logRequestDetails(request, log);
@@ -206,24 +165,10 @@ public class RestSpringController {
 				}
 			});
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		} finally {
 			log.info("-Get async template end-");
-			MDC.clear();
 		}
 	}
 
@@ -239,10 +184,6 @@ public class RestSpringController {
 	// apply with groups = {}.
 	public ResponseEntity<com.pojo.ApiResponse> putTemplate(HttpServletRequest request, @PathVariable @NotBlank int id,
 			@PathVariable @NotBlank String ic, @RequestBody @Validated({ Pojo.Put.class }) Pojo pojo) throws Throwable {
-		MDC.put("X-Request-ID",
-				request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank()
-						? request.getHeader("X-Request-ID")
-						: UUID.randomUUID());
 		log.info("-Put template start-");
 		try {
 			RequestLoggingUtil.logRequestDetails(request, log);
@@ -250,24 +191,10 @@ public class RestSpringController {
 
 			return ResponseEntity.status(HttpStatus.OK).body(sampleService.putTemplate(log, id, ic, pojo));
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		} finally {
 			log.info("-Put template end-");
-			MDC.clear();
 		}
 	}
 
@@ -280,10 +207,6 @@ public class RestSpringController {
 	// @PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<com.pojo.ApiResponse> deleteTemplate(HttpServletRequest request, @RequestParam int ic)
 			throws Throwable {
-		MDC.put("X-Request-ID",
-				request.getHeader("X-Request-ID") != null && !request.getHeader("X-Request-ID").isBlank()
-						? request.getHeader("X-Request-ID")
-						: UUID.randomUUID());
 		log.info("-Delete template start-");
 		try {
 			RequestLoggingUtil.logRequestDetails(request, log);
@@ -295,24 +218,10 @@ public class RestSpringController {
 					.datetime(tool.getTodayDateTimeInString())
 					.build());
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		} finally {
 			log.info("-Delete template end-");
-			MDC.clear();
 		}
 	}
 }

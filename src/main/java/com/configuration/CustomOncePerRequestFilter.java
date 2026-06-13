@@ -1,4 +1,5 @@
 package com.configuration;
+import com.utilities.LogUtil;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -99,9 +100,20 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 					throw new ServletException("Invalid X-SIGNING-KEY-ID format");
 				}
 
+				// Extract X-TIMESTAMP header used to bind the signature in time (anti-replay)
+				String timestamp = wrappedRequest.getHeader("X-TIMESTAMP");
+				if (timestamp == null || timestamp.isBlank()) {
+					log.warn("X-TIMESTAMP header is missing or empty");
+					throw new ServletException("X-TIMESTAMP header is required");
+				}
+				if (!timestamp.matches("^[0-9]+$")) {
+					log.warn("X-TIMESTAMP contains invalid characters");
+					throw new ServletException("Invalid X-TIMESTAMP format");
+				}
+
 				String requestBody = wrappedRequest.getBody(); // Simply get cached body
-				Authentication authentication = authService.isSignatureValid(log, wrappedRequest.getRequestURI(), requestBody,
-						signature, signingKeyId);
+				Authentication authentication = authService.isSignatureValid(log, wrappedRequest.getMethod(),
+						wrappedRequest.getRequestURI(), timestamp, requestBody, signature, signingKeyId);
 				if (authentication.isAuthenticated()) {
 					SecurityContextHolder.getContext().setAuthentication(authentication);
 					log.info("Authentication successful for URI: {} with key ID: {}", wrappedRequest.getRequestURI(),
@@ -113,17 +125,7 @@ public class CustomOncePerRequestFilter extends OncePerRequestFilter {
 
 			chain.doFilter(wrappedRequest, response); // Pass the wrapped request down the chain
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}", element.getClassName(), element.getLineNumber(),
-							e.getClass().getName(), e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		} finally {
 			log.info("-Custom once per request filter end-");

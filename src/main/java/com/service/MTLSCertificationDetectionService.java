@@ -1,4 +1,5 @@
 package com.service;
+import com.utilities.LogUtil;
 
 import java.io.FileInputStream;
 import java.net.Socket;
@@ -97,20 +98,7 @@ public class MTLSCertificationDetectionService {
 			}
 			return certChains;
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			return Collections.emptyMap();
 		}
 	}
@@ -299,20 +287,7 @@ public class MTLSCertificationDetectionService {
 			log.info("SSLContext initialized with custom KeyManager (smart certificate selection enabled)");
 			return sslContext;
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			return sslContext;
 		}
 	}

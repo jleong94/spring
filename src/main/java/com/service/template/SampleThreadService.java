@@ -1,4 +1,5 @@
 package com.service.template;
+import com.utilities.LogUtil;
 
 import java.math.BigDecimal;
 import java.util.Deque;
@@ -34,20 +35,7 @@ public class SampleThreadService {
 
 			}
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		} finally {
 			log.info("Process dummy record at thread no. " + thread_no + " END.");
 		}

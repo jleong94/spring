@@ -1,4 +1,5 @@
 package com.service;
+import com.utilities.LogUtil;
 
 import java.nio.file.Path;
 import java.security.KeyFactory;
@@ -91,20 +92,7 @@ public class RsaKeyCacheService {
 						publicKeyCount++;
 						log.info("Loaded public key: {} -> Key ID: {}", fileName, keyId);
 					} catch (Throwable e) {
-						// Get the current stack trace element
-						StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-						// Find matching stack trace element from exception
-						for (StackTraceElement element : e.getStackTrace()) {
-							if (currentElement.getClassName().equals(element.getClassName())
-									&& currentElement.getMethodName().equals(element.getMethodName())) {
-								log.error("Error in {} at line {}: {} - {}",
-										element.getClassName(),
-										element.getLineNumber(),
-										e.getClass().getName(),
-										e.getMessage());
-								break;
-							}
-						}
+						LogUtil.logError(log, e);
 					}
 				}
 
@@ -117,20 +105,7 @@ public class RsaKeyCacheService {
 						privateKeyCount++;
 						log.info("Loaded private key: {} -> Key ID: {}", fileName, keyId);
 					} catch (Throwable e) {
-						// Get the current stack trace element
-						StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-						// Find matching stack trace element from exception
-						for (StackTraceElement element : e.getStackTrace()) {
-							if (currentElement.getClassName().equals(element.getClassName())
-									&& currentElement.getMethodName().equals(element.getMethodName())) {
-								log.error("Error in {} at line {}: {} - {}",
-										element.getClassName(),
-										element.getLineNumber(),
-										e.getClass().getName(),
-										e.getMessage());
-								break;
-							}
-						}
+						LogUtil.logError(log, e);
 					}
 				}
 			}
@@ -140,20 +115,7 @@ public class RsaKeyCacheService {
 			log.info("Private key IDs: {}", privateKeyCache.keySet());
 
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		}
 	}
 

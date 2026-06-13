@@ -135,6 +135,11 @@ spring:
 project:
   log:
     name: ./logs #dot refer to current path
+security:
+  signature:
+    # Max allowed difference (ms) between client X-TIMESTAMP and server time during
+    # request-signature verification. Requests outside this window are rejected.
+    max-clock-skew-ms: 300000
 rate:
   limit:
     defaultRate:

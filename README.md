@@ -15,6 +15,7 @@ A production-ready starter for building Spring Boot services with Java 21, MySQL
 
 - Security
   - Spring Security configuration with custom filters and authentication tokens
+  - RSA request signing (`SHA256withRSA`) with method/URI/timestamp binding and a freshness check (see [Request Signing](#request-signing-api-authentication))
   - MTLS client-certificate detection utilities
   - Keystore/truststore support (resources/security/*.p12)
 - Reliability
@@ -77,7 +78,7 @@ If you clone this template to start a new application, go through the following 
 ### 5. Security & Keystores
 - Generate new `keystore.p12` and `truststore.p12` under `src/main/resources/security/` using Keystore Explorer or `keytool`
 - Update `key-alias` in all yml files to match your new keystore alias (currently `spring`)
-- Replace API key files under `src/main/resources/security/api key/` with your own
+- Replace API key files under `src/main/resources/security/api key/` with your own (named `<keyId>-rsa-public.pem` / `<keyId>-rsa-private.pem`; the `<keyId>` is what callers send in `X-SIGNING-KEY-ID` — see [Request Signing](#request-signing-api-authentication))
 
 ### 6. Mail (SMTP)
 - Update `spring.mail.*` settings or provide via environment variables: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_SENDER`
@@ -218,6 +219,63 @@ Render deployment (Blueprint render.yaml + Actions):
   - RENDER_SERVICE_ID_PROD
 - App-specific secrets (per environment):
   - SPRING_DATASOURCE_*, SMTP_*, Firebase creds
+
+## Request Signing (API Authentication)
+
+Protected endpoints authenticate callers with an **RSA `SHA256withRSA` request signature**. A request is treated as signed when it carries the `SIGNATURE` header, and the signature is verified against the canonical request string below. Endpoints registered with `.permitAll()` (the sample `/v1/template/*` routes) skip verification; every other endpoint requires a valid signature.
+
+### Required headers
+
+| Header | Description |
+|--------|-------------|
+| `SIGNATURE` | Base64-encoded `SHA256withRSA` signature of the canonical string (max 1024 chars, Base64 charset only). |
+| `X-SIGNING-KEY-ID` | Identifier selecting the RSA public key to verify against. Matches the key file prefix, e.g. `spring` → `spring-rsa-public.pem`. Allowed characters: `[a-zA-Z0-9_-]`. |
+| `X-TIMESTAMP` | Request time as epoch **milliseconds**. Binds the signature in time so stale/replayed requests are rejected. |
+
+### Canonical string (what to sign)
+
+The signature is computed over these four fields joined by `\n` (newline), in order:
+
+```
+<HTTP-METHOD>\n<REQUEST-URI>\n<X-TIMESTAMP>\n<RAW-REQUEST-BODY>
+```
+
+Binding the method, URI and timestamp prevents a captured signature from being replayed against a different endpoint, and the timestamp freshness check limits how long a captured request remains valid.
+
+### Freshness window
+
+A request whose `X-TIMESTAMP` differs from server time by more than the allowed skew is rejected:
+
+```yaml
+security:
+  signature:
+    max-clock-skew-ms: 300000   # default: 5 minutes
+```
+
+> Note: timestamp binding limits the replay window but does not by itself block replays *within* that window. Add a nonce / seen-signature store if you require strict once-only semantics.
+
+### Keys
+
+- Public keys (verify inbound requests) and private keys (signing side) live under `src/main/resources/security/api key/<profile>/`, named `<keyId>-rsa-public.pem` and `<keyId>-rsa-private.pem`.
+- The classpath folder is set by `spring.application.api-key` in each `application-*.yml`.
+- Keys are cached in memory at startup and refreshed every 5 minutes (`RsaKeyCacheService`).
+
+### Client signing example (OpenSSL)
+
+```bash
+# bash
+TS=$(date +%s000)                                   # epoch milliseconds
+BODY='{"amount":50}'
+printf 'POST\n/spring/v1/payment\n%s\n%s' "$TS" "$BODY" > canonical.txt
+SIG=$(openssl dgst -sha256 -sign spring-rsa-private.pem canonical.txt | openssl base64 -A)
+
+curl -X POST https://localhost:8443/spring/v1/payment \
+  -H "Content-Type: application/json" \
+  -H "X-SIGNING-KEY-ID: spring" \
+  -H "X-TIMESTAMP: $TS" \
+  -H "SIGNATURE: $SIG" \
+  --data "$BODY"
+```
 
 ## Security Notes
 

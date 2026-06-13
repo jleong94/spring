@@ -32,12 +32,29 @@ public class JsonMasking {
 	private Set<String> fields2Mask = ConcurrentHashMap.newKeySet();
 
 	/**
+	 * Field names (lower-case) treated as card numbers. These are partially masked
+	 * - keeping the first 8 and last 4 digits visible - rather than fully masked.
+	 */
+	private static final Set<String> CARD_FIELDS = Set.of("card_no", "cardno", "pan");
+
+	/** Number of leading characters kept visible for a card number. */
+	private static final int CARD_PREFIX_VISIBLE = 8;
+
+	/** Number of trailing characters kept visible for a card number. */
+	private static final int CARD_SUFFIX_VISIBLE = 4;
+
+	/**
 	 * Constructor initializing the ObjectMapper with JavaTimeModule support.
 	 * 
 	 * @param objectMapper Jackson ObjectMapper instance
 	 */
 	public JsonMasking(ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
+		// Seed a sensible default set of sensitive field names (stored lower-case).
+		// Consumers can extend this set at runtime via addFields2Mask(...).
+		this.fields2Mask.addAll(Set.of(
+				"password", "pin", "otp", "cvv", "cvc", "card_no", "cardno", "pan",
+				"secret", "token", "access-token", "refresh-token", "api-key"));
 	}
 
 	/**
@@ -64,20 +81,7 @@ public class JsonMasking {
 			JsonNode maskedNode = maskNode(rootNode);
 			return objectMapper.writeValueAsString(maskedNode);
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		}
 	}
@@ -114,8 +118,12 @@ public class JsonMasking {
 			JsonNode fieldValue = objectNode.get(fieldName);
 
 			if (shouldMaskField(fieldName)) {
-				// Mask the field value by replacing with asterisks of the same length
-				maskedObject.put(fieldName, "*".repeat(maskedObject.get(fieldName).toString().length()));
+				// Use the source fieldValue (maskedObject does not yet contain this key) and
+				// guard against null/missing nodes to avoid a NullPointerException.
+				String raw = (fieldValue == null || fieldValue.isNull()) ? "" : fieldValue.asText();
+				// Card numbers keep the first 8 and last 4 digits visible; everything else is
+				// fully masked with asterisks of the same length.
+				maskedObject.put(fieldName, isCardField(fieldName) ? maskCardNumber(raw) : "*".repeat(raw.length()));
 			} else if (fieldValue.isObject()) {
 				maskedObject.set(fieldName, maskObjectNode((ObjectNode) fieldValue));
 			} else if (fieldValue.isArray()) {
@@ -160,5 +168,38 @@ public class JsonMasking {
 	 */
 	private boolean shouldMaskField(String fieldName) {
 		return this.fields2Mask.contains(fieldName.toLowerCase());
+	}
+
+	/**
+	 * Determines if a field holds a card number (compared case-insensitively).
+	 *
+	 * @param fieldName Name of the field to check
+	 * @return true if the field is a card-number field
+	 */
+	private boolean isCardField(String fieldName) {
+		return CARD_FIELDS.contains(fieldName.toLowerCase());
+	}
+
+	/**
+	 * Partially masks a card number, keeping the first {@value #CARD_PREFIX_VISIBLE}
+	 * and last {@value #CARD_SUFFIX_VISIBLE} characters visible and replacing every
+	 * character in between with an asterisk (e.g. "4111111111111234" becomes
+	 * "41111111****1234"). Values too short to reveal both ends without overlap are
+	 * fully masked instead, so a short value is never partially exposed.
+	 *
+	 * @param value the raw card number
+	 * @return the partially masked card number
+	 */
+	private String maskCardNumber(String value) {
+		if (value == null) {
+			return "";
+		}
+		int length = value.length();
+		if (length <= CARD_PREFIX_VISIBLE + CARD_SUFFIX_VISIBLE) {
+			return "*".repeat(length);
+		}
+		return value.substring(0, CARD_PREFIX_VISIBLE)
+				+ "*".repeat(length - CARD_PREFIX_VISIBLE - CARD_SUFFIX_VISIBLE)
+				+ value.substring(length - CARD_SUFFIX_VISIBLE);
 	}
 }

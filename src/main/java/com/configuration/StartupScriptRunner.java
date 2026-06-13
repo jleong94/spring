@@ -1,4 +1,5 @@
 package com.configuration;
+import com.utilities.LogUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,20 +49,7 @@ public class StartupScriptRunner {
 					successCount++;
 				} catch (Throwable e) {
 					failCount++;
-					// Get the current stack trace element
-					StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-					// Find matching stack trace element from exception
-					for (StackTraceElement element : e.getStackTrace()) {
-						if (currentElement.getClassName().equals(element.getClassName())
-								&& currentElement.getMethodName().equals(element.getMethodName())) {
-							log.error("Error in {} at line {}: {} - {}",
-									element.getClassName(),
-									element.getLineNumber(),
-									e.getClass().getName(),
-									e.getMessage());
-							break;
-						}
-					}
+					LogUtil.logError(log, e);
 				}
 			}
 
@@ -71,20 +59,7 @@ public class StartupScriptRunner {
 				log.warn("Some startup scripts failed. Please check the logs above.");
 			}
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		}
 	}
 }

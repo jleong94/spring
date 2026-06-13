@@ -1,4 +1,5 @@
 package com.service;
+import com.utilities.LogUtil;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -57,20 +58,7 @@ public class EmailService {
 			InputStream in = getClass().getClassLoader().getResourceAsStream("templates/html/".concat(filename));
 			return StreamUtils.copyToString(in, StandardCharsets.UTF_8);
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		}
 	}
@@ -120,20 +108,7 @@ public class EmailService {
 			email.setSend(true);
 			emailRepo.save(email);
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 			throw e;
 		} finally {
 
@@ -146,18 +121,7 @@ public class EmailService {
 		log.info("Recover on send email start.");
 		try {
 			String error_detail = "";
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			for (StackTraceElement element : throwable.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())) {
-					error_detail += (error_detail != null && !error_detail.isBlank() ? "<br>" : "")
-							+ String.format("Error in %s at line %d: %s - %s",
-									element.getClassName(),
-									element.getLineNumber(),
-									throwable.getClass().getName(),
-									throwable.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, throwable);
 			// Increment Prometheus counter
 			recoverCounter.increment();
 
@@ -172,20 +136,7 @@ public class EmailService {
 			email.setSend(true);
 			emailRepo.save(email);
 		} catch (Throwable e) {
-			// Get the current stack trace element
-			StackTraceElement currentElement = Thread.currentThread().getStackTrace()[1];
-			// Find matching stack trace element from exception
-			for (StackTraceElement element : e.getStackTrace()) {
-				if (currentElement.getClassName().equals(element.getClassName())
-						&& currentElement.getMethodName().equals(element.getMethodName())) {
-					log.error("Error in {} at line {}: {} - {}",
-							element.getClassName(),
-							element.getLineNumber(),
-							e.getClass().getName(),
-							e.getMessage());
-					break;
-				}
-			}
+			LogUtil.logError(log, e);
 		} finally {
 			log.info("Recover on send email end.");
 		}
