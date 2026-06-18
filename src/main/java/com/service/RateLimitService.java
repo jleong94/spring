@@ -4,6 +4,9 @@ import com.utilities.LogUtil;
 import com.configuration.RateLimitProperties;
 import com.pojo.bucket4j.CustomBucket;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.github.bucket4j.Bandwidth;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -15,8 +18,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 
-import java.io.IOException;
-import java.util.Enumeration;
+import java.io.BufferedReader;
 import java.util.Map;
 
 @Service
@@ -26,14 +28,18 @@ public class RateLimitService {
 
 	private final RateLimitProperties rateLimitProperties;
 
+	private final ObjectMapper objectMapper;
+
 	/**
 	 * Constructor initializes the rate limit cache using the provided CacheManager.
 	 *
 	 * @param cacheManager Spring's CacheManager used to retrieve a named cache.
+	 * @param objectMapper Jackson mapper used to read fields from JSON request bodies.
 	 */
-	public RateLimitService(RateLimitProperties rateLimitProperties, CacheManager cacheManager) {
+	public RateLimitService(RateLimitProperties rateLimitProperties, CacheManager cacheManager, ObjectMapper objectMapper) {
 		this.rateLimitProperties = rateLimitProperties;
 		this.cache = cacheManager.getCache("buckets", String.class, CustomBucket.class);
+		this.objectMapper = objectMapper;
 	}
 
 	/**
@@ -118,34 +124,70 @@ public class RateLimitService {
 	}
 
 	/**
-	 * Extracts a nested field value from the cached JSON body of an HTTP request.
-	 * 
-	 * This method relies on Spring's ContentCachingRequestWrapper being present in
-	 * the request wrapper chain.
-	 * It supports dot-notated field paths (e.g., "user.id") to access nested JSON
-	 * fields.
+	 * Resolves a single named field used for rate-limit keying.
+	 *
+	 * Looks up the field first as a form/query parameter, then falls back to the
+	 * JSON request body. The body is cached by CachedBodyHttpServletRequest (added
+	 * in CustomOncePerRequestFilter), so re-reading it here does not consume the
+	 * stream the controller later reads. Dot-notated field paths (e.g. "user.id")
+	 * are supported for nested JSON fields.
 	 *
 	 * @param request   the incoming HttpServletRequest (possibly wrapped)
 	 * @param fieldPath the path to the field in dot notation (e.g. "user.email")
 	 * @return the value of the field as a String, or null if not found or
 	 *         unreadable
-	 * @throws IOException if reading the body fails
 	 */
 	private String resolveRequestBodyField(Logger log, HttpServletRequest request, String fieldPath) throws Throwable {
 		try {
-			String parameterValue = "";
-			Enumeration<String> parameterNames = request.getParameterNames();
-			if (parameterNames != null) {
-				while (parameterNames.hasMoreElements()) {
-					String parameterName = parameterNames.nextElement();
-					parameterValue += (parameterValue.length() > 0 ? "," : "")
-							.concat(StringEscapeUtils.escapeHtml4(request.getParameter(parameterName)));
+			if (fieldPath == null || fieldPath.isBlank()) {
+				return null;
+			}
+			fieldPath = fieldPath.trim();
+
+			// 1) Try form/query parameter first (no body parsing required).
+			String parameterValue = request.getParameter(fieldPath);
+			if (parameterValue != null && !parameterValue.isBlank()) {
+				return StringEscapeUtils.escapeHtml4(parameterValue);
+			}
+
+			// 2) Fall back to the JSON body. The request body is cached by
+			// CachedBodyHttpServletRequest in CustomOncePerRequestFilter, so it can be
+			// re-read here without consuming the stream the controller will read later.
+			String contentType = request.getContentType();
+			if (contentType != null && contentType.toLowerCase().contains("json")) {
+				String body = readBody(request);
+				if (body != null && !body.isBlank()) {
+					JsonNode root = objectMapper.readTree(body);
+					// Support nested fields via dot-path (e.g. "user.id") using a JSON Pointer.
+					JsonNode node = root.at("/" + fieldPath.replace('.', '/'));
+					if (node != null && !node.isMissingNode() && !node.isNull()) {
+						String value = node.isValueNode() ? node.asText() : node.toString();
+						if (value != null && !value.isBlank()) {
+							return StringEscapeUtils.escapeHtml4(value);
+						}
+					}
 				}
 			}
-			return parameterValue;
+
+			return null;
 		} catch (Throwable e) {
 			LogUtil.logError(log, e);
 			throw e;
 		}
+	}
+
+	private String readBody(HttpServletRequest request) throws Throwable {
+		StringBuilder body = new StringBuilder();
+		try (BufferedReader reader = request.getReader()) {
+			if (reader == null) {
+				return null;
+			}
+			char[] buffer = new char[1024];
+			int read;
+			while ((read = reader.read(buffer)) != -1) {
+				body.append(buffer, 0, read);
+			}
+		}
+		return body.toString();
 	}
 }
