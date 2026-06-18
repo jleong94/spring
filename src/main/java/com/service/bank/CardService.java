@@ -185,14 +185,16 @@ public class CardService {
 
     /**
      * Masks the card number for logging purposes.
-     * 
+     *
      * @param cardNumber The card number to mask
-     * @return Masked card number showing only last 4 digits
+     * @return Masked card number showing only the first 6 and last 4 digits
      */
     private String maskCardNumber(String cardNumber) {
-        if (cardNumber == null || cardNumber.length() <= 4) {
+        if (cardNumber == null || cardNumber.length() <= 10) {
             return "****";
         }
-        return "*".repeat(cardNumber.length() - 4).concat(cardNumber.substring(cardNumber.length() - 4));
+        return cardNumber.substring(0, 6)
+                .concat("*".repeat(cardNumber.length() - 10))
+                .concat(cardNumber.substring(cardNumber.length() - 4));
     }
 }
