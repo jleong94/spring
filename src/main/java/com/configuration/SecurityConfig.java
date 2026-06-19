@@ -29,6 +29,7 @@ import com.pojo.ApiResponse;
 import com.pojo.Property;
 import com.utilities.Tool;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.MediaType;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +70,12 @@ public class SecurityConfig implements WebMvcConfigurer {
 	SecurityFilterChain httpSecurityFilterChain(HttpSecurity http) throws Exception {
 		// HTTP listener (port 8080)
 		return applyCommonConfig(http.securityMatcher(new CustomRequestMatcher(8080)))
-				.authorizeHttpRequests((requests) -> requests.requestMatchers(HttpMethod.POST, "/v1/template/post").permitAll()
+				.authorizeHttpRequests((requests) -> requests
+						// Authorize only the initial REQUEST dispatch; internal async/forward/error
+						// re-dispatches are already authorized and would otherwise lose the
+						// SecurityContext (stateless + OncePerRequestFilter skips async).
+						.dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
+						.requestMatchers(HttpMethod.POST, "/v1/template/post").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/get").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/get-async").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/put").permitAll()
@@ -86,7 +92,12 @@ public class SecurityConfig implements WebMvcConfigurer {
 	SecurityFilterChain httpsSecurityFilterChain(HttpSecurity http) throws Exception {
 		// HTTPS listener (port 8443)
 		return applyCommonConfig(http.securityMatcher(new CustomRequestMatcher(8443)))
-				.authorizeHttpRequests((requests) -> requests.requestMatchers(HttpMethod.POST, "/v1/template/post").permitAll()
+				.authorizeHttpRequests((requests) -> requests
+						// Authorize only the initial REQUEST dispatch; internal async/forward/error
+						// re-dispatches are already authorized and would otherwise lose the
+						// SecurityContext (stateless + OncePerRequestFilter skips async).
+						.dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
+						.requestMatchers(HttpMethod.POST, "/v1/template/post").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/get").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/get-async").permitAll()
 						.requestMatchers(HttpMethod.POST, "/v1/template/put").permitAll()
