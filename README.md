@@ -52,6 +52,26 @@ A production-ready starter for building Spring Boot services with Java 21, MySQL
 
 If you clone this template to start a new application, go through the following checklist to adapt it to your project.
 
+> **First, detach from the template repo** so your commits don't push back here:
+> ```bash
+> # bash
+> rm -rf .git              # drop the template's history
+> git init && git add . && git commit -m "Initial commit from spring template"
+> git remote add origin <your-new-repo-url>
+> ```
+
+### Minimum required to build and run
+
+The template currently identifies itself as **`spring`** everywhere (groupId, artifactId, app name, context path, key aliases). At minimum, change the following before your first run — the rest can be done incrementally:
+
+1. `pom.xml` → `<groupId>`, `<artifactId>`, `<name>` (see step 1)
+2. Base Java package `com.*` → your package (see step 2)
+3. `spring.application.name` and `server.servlet.context-path` in each `application-*.yml` (see step 3)
+4. Datasource URL / credentials + run `setup.sql` (see steps 4 and [Database Setup](#database-setup))
+5. Generate your own keystore/truststore and API signing keys (see step 5)
+
+Everything below is the full, exhaustive list.
+
 ### 1. Maven Project Identity (`pom.xml`)
 - `<groupId>` → change from `com` to your organization (e.g., `com.mycompany`)
 - `<artifactId>` → rename to your project name (e.g., `my-service`)
@@ -282,10 +302,6 @@ curl -X POST https://localhost:8443/spring/v1/payment \
 - Keystores/truststores in resources/security/ for SSL/MTLS
 - Ensure secrets are managed via environment variables or secret managers
 - Block force pushes and enforce branch protections on main/master
-
-## Project Roadmap
-
-- [ ] Fluent Bit + OpenSearch log shipping and analysis
 
 ## Contributing
 
