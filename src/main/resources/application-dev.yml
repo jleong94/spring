@@ -147,22 +147,22 @@ rate:
       tokens: 10 #new tokens add per period
       period: 60 #Timeunit, second
     endpoints:
-      /spring/v1/template/post:
-        capacity: 10 #max number of tokens the bucket can hold 
+      "[/spring/v1/template/post]":
+        capacity: 10 #max number of tokens the bucket can hold
         tokens: 10 #new tokens add per period
         period: 60 #Timeunit, second
-      /spring/v1/template/get:
-        capacity: 10 #max number of tokens the bucket can hold 
+      "[/spring/v1/template/get]":
+        capacity: 10 #max number of tokens the bucket can hold
         tokens: 10 #new tokens add per period
         period: 60 #Timeunit, second
-      /spring/v1/template/put:
-        capacity: 10 #max number of tokens the bucket can hold 
+      "[/spring/v1/template/put]":
+        capacity: 10 #max number of tokens the bucket can hold
         tokens: 10 #new tokens add per period
         period: 60 #Timeunit, second
-      /spring/v1/template/delete:
-       capacity: 10 #max number of tokens the bucket can hold 
-       tokens: 10 #new tokens add per period
-       period: 60 #Timeunit, second			
+      "[/spring/v1/template/delete]":
+        capacity: 10 #max number of tokens the bucket can hold
+        tokens: 10 #new tokens add per period
+        period: 60 #Timeunit, second
 allowed:
   origins: ${ALLOWED_ORIGINS:http://localhost:8080,https://localhost:8080}
 management: #Spring actuator

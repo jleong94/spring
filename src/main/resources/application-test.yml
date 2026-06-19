@@ -147,19 +147,19 @@ rate:
       tokens: 10
       period: 60
     endpoints:
-      /spring/v1/template/post:
+      "[/spring/v1/template/post]":
         capacity: 10
         tokens: 10
         period: 60
-      /spring/v1/template/get:
+      "[/spring/v1/template/get]":
         capacity: 10
         tokens: 10
         period: 60
-      /spring/v1/template/put:
+      "[/spring/v1/template/put]":
         capacity: 10
         tokens: 10
         period: 60
-      /spring/v1/template/delete:
+      "[/spring/v1/template/delete]":
         capacity: 10
         tokens: 10
         period: 60

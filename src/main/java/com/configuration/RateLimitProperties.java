@@ -37,6 +37,14 @@ public class RateLimitProperties {
 
     private Rate defaultRate;
 
+    /**
+     * Max time (ms) a rate-limited request will wait for the bucket to refill
+     * before being rejected with HTTP 429. 0 disables waiting (immediate reject,
+     * the original behaviour). Configurable via {@code rate.limit.max-wait-millis}.
+     */
+    @Builder.Default
+    private long maxWaitMillis = 1000L;
+
     @Builder.Default
     protected Map<String, Rate> endpoints = new ConcurrentHashMap<>();
 

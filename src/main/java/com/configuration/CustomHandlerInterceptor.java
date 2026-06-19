@@ -88,7 +88,7 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 			CustomBucket bucket = rateLimitService.resolveBucket(resolvedKey, request.getRequestURI());
 			log.info("Available tokens: {} for key: {} at endpoint {}", bucket.getAvailableTokens(), resolvedKey,
 					request.getRequestURI());
-			boolean allowed = bucket.tryConsume(1);
+			boolean allowed = rateLimitService.tryConsume(bucket);
 			log.info("Remaining tokens: {} for key: {} at endpoint {}", bucket.getAvailableTokens(), resolvedKey,
 					request.getRequestURI());
 

@@ -63,6 +63,25 @@ public class RateLimitService {
 		return bucket;
 	}
 
+	/**
+	 * Consumes a single token. When {@code rate.limit.max-wait-millis} is greater
+	 * than 0 the request waits (auto-retry) for the bucket to refill up to that
+	 * window before being rejected, instead of being dropped immediately on a
+	 * momentary burst. Returns {@code false} if no token becomes available in time.
+	 */
+	public boolean tryConsume(CustomBucket bucket) {
+		long maxWaitMillis = rateLimitProperties.getMaxWaitMillis();
+		if (maxWaitMillis <= 0) {
+			return bucket.tryConsume(1);
+		}
+		try {
+			return bucket.tryConsume(1, java.time.Duration.ofMillis(maxWaitMillis));
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return false;
+		}
+	}
+
 	public String resolveKeyFromRequest(Logger log, HttpServletRequest request, String keyType, String keyValues)
 			throws Throwable {
 		String result = "";
