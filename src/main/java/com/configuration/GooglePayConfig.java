@@ -3,6 +3,8 @@ import com.utilities.LogUtil;
 
 import java.time.Instant;
 
+import jakarta.annotation.PreDestroy;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.actuate.health.Health;
@@ -92,6 +94,24 @@ public class GooglePayConfig {
 					.withDetail("timestamp", Instant.now())
 					.build();
 		};
+	}
+
+	/**
+	 * Marks Google Pay as uninitialized on application shutdown or restart. The Tink
+	 * {@link GooglePaymentsPublicKeysManager} singletons expose no closeable handle
+	 * (their background refresh runs on daemon threads that the JVM reclaims on
+	 * exit), so shutdown simply flips the readiness flag and logs, ensuring the
+	 * health indicator reports DOWN while the context is stopping.
+	 */
+	@PreDestroy
+	void shutdownGooglePay() {
+		try {
+			log.info("Shutting down Google Pay...");
+			init = false;
+			log.info("Google Pay shut down");
+		} catch (Exception e) {
+			LogUtil.logError(log, e);
+		}
 	}
 
 	@Data // Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and

@@ -4,6 +4,8 @@ import com.utilities.LogUtil;
 import java.io.InputStream;
 import java.time.Instant;
 
+import jakarta.annotation.PreDestroy;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
@@ -79,6 +81,26 @@ public class FirebaseConfig {
 					.withDetail("timestamp", Instant.now())
 					.build();
 		};
+	}
+
+	/**
+	 * Releases Firebase resources on application shutdown or restart. Deletes any
+	 * initialized {@link FirebaseApp} so its background threads and connections are
+	 * cleanly torn down, allowing the context to stop gracefully.
+	 */
+	@PreDestroy
+	void shutdownFirebase() {
+		try {
+			if (FirebaseApp.getApps().isEmpty()) {
+				return;
+			}
+			log.info("Shutting down Firebase...");
+			FirebaseApp.getInstance().delete();
+			init = false;
+			log.info("Firebase shut down");
+		} catch (Exception e) {
+			LogUtil.logError(log, e);
+		}
 	}
 
 	@Data // Shortcut for @ToString, @EqualsAndHashCode, @Getter on all fields, and
